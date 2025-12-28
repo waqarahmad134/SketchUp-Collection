@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Post extends Model
@@ -26,6 +27,10 @@ class Post extends Model
         'is_featured',
         'meta_title',
         'meta_description',
+    ];
+
+    protected $appends = [
+        'featured_image_url',
     ];
 
     protected $casts = [
@@ -63,11 +68,26 @@ class Post extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function getFeaturedImageUrlAttribute(): ?string
+    {
+        if (empty($this->featured_image)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->featured_image, ['http://', 'https://'])) {
+            return $this->featured_image;
+        }
+
+        return Storage::url($this->featured_image);
+    }
+
     public function scopePublished($query)
     {
         return $query->where('status', 'published')
-                    ->whereNotNull('published_at')
-                    ->where('published_at', '<=', now());
+                    ->where(function ($q) {
+                        $q->whereNull('published_at')
+                            ->orWhere('published_at', '<=', now());
+                    });
     }
 
     public function scopeFeatured($query)

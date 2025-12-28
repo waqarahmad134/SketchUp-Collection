@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -29,6 +30,11 @@ class Product extends Model
         'sort_order',
     ];
 
+    protected $appends = [
+        'image_url',
+        'discount_percentage',
+    ];
+
     protected $casts = [
         'images' => 'array',
         'features' => 'array',
@@ -47,6 +53,19 @@ class Product extends Model
     public function tags()
     {
         return $this->belongsToMany(Tag::class);
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (empty($this->image)) {
+            return null;
+        }
+
+        if (Str::startsWith($this->image, ['http://', 'https://'])) {
+            return $this->image;
+        }
+
+        return Storage::url($this->image);
     }
 
     protected static function boot()
