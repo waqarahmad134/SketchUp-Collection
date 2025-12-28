@@ -13,7 +13,7 @@
         </a>
     </div>
 
-    <section class="py-12 mesh-gradient relative overflow-hidden">
+    <section class="pt-6 pb-12 mesh-gradient relative overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-cyan-500/10 to-transparent rounded-full blur-3xl"></div>
         
         <div class="container mx-auto px-4 relative z-10">
@@ -115,6 +115,35 @@
                             </div>
                         </div>
                     </div>
+
+                    @php
+                        $creator = $product->user;
+                        $authorName = $creator->name ?? 'SketchUp Collection Team';
+                        $authorRole = 'Uploader';
+                        $authorAvatar = $creator?->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&background=22b5ff&color=fff';
+                    @endphp
+
+                    <div class="glass-card rounded-3xl p-6 flex items-center gap-4">
+                        @if($creator)
+                            <a href="{{ route('creators.show', $creator) }}" class="flex-shrink-0 block">
+                                <img src="{{ $authorAvatar }}" alt="{{ $authorName }}" class="w-14 h-14 rounded-full border border-border hover:scale-105 transition-transform">
+                            </a>
+                        @else
+                            <div class="flex-shrink-0">
+                                <img src="{{ $authorAvatar }}" alt="{{ $authorName }}" class="w-14 h-14 rounded-full border border-border">
+                            </div>
+                        @endif
+                        <div class="flex-1">
+                            <h4 class="text-lg font-semibold">{{ $authorName }}</h4>
+                            <p class="text-sm text-muted-foreground">{{ $authorRole }}</p>
+                            <div class="flex items-center gap-4 mt-2">
+                                @if($creator)
+                                    <a href="{{ route('creators.show', $creator) }}" class="text-cyan-400 hover:text-cyan-300 text-sm font-medium">View profile & uploads</a>
+                                @endif
+                                <a href="{{ route('contact') }}" class="text-sm text-muted-foreground hover:text-foreground">Report this product</a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -172,6 +201,88 @@
             </div>
         </section>
     @endif
+
+    <section class="py-16 bg-background">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto space-y-8">
+                <div class="flex items-center justify-between gap-4">
+                    <h2 class="text-3xl font-bold font-display">Reviews</h2>
+                    @php
+                        $avg = $product->reviews->avg('rating');
+                        $count = $product->reviews->count();
+                    @endphp
+                    @if($count > 0)
+                        <div class="flex items-center gap-3 text-sm text-muted-foreground">
+                            <i data-lucide="star" class="w-4 h-4 text-cyan-400" style="fill: currentColor;"></i>
+                            <span>{{ number_format($avg, 1) }} / 5</span>
+                            <span>·</span>
+                            <span>{{ $count }} rating{{ $count > 1 ? 's' : '' }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    @forelse($product->reviews as $review)
+                        <div class="glass-card rounded-3xl p-5 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 text-background flex items-center justify-center font-semibold">
+                                        {{ mb_substr($review->name, 0, 1) }}
+                                    </div>
+                                    <div>
+                                        <p class="font-semibold">{{ $review->name }}</p>
+                                        <p class="text-xs text-muted-foreground">{{ $review->created_at?->format('M Y') }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    @for($i = 0; $i < 5; $i++)
+                                        <i data-lucide="star" class="w-4 h-4 {{ $i < $review->rating ? 'text-cyan-400 fill-current' : 'text-muted-foreground' }}"></i>
+                                    @endfor
+                                </div>
+                            </div>
+                            @if($review->comment)
+                                <p class="text-sm text-foreground">{{ $review->comment }}</p>
+                            @endif
+                        </div>
+                    @empty
+                        <div class="md:col-span-2 glass-card rounded-3xl p-6 text-muted-foreground text-sm">
+                            No reviews yet. Be the first to review this {{ $product->is_bundle ? 'bundle' : 'product' }}.
+                        </div>
+                    @endforelse
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 space-y-4">
+                    <h3 class="text-xl font-bold font-display">Leave a review</h3>
+                    @if(session('status'))
+                        <div class="rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-100 p-3 text-sm">
+                            {{ session('status') }}
+                        </div>
+                    @endif
+                    <p class="text-sm text-muted-foreground">Share your experience with this {{ $product->is_bundle ? 'bundle' : 'product' }}.</p>
+                    <form class="space-y-3" method="POST" action="{{ route('reviews.store', $product->slug) }}">
+                        @csrf
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <input type="text" name="name" placeholder="Your name" value="{{ old('name') }}" class="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none" required>
+                            <input type="email" name="email" placeholder="Your email" value="{{ old('email') }}" class="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none">
+                        </div>
+                        <div class="grid md:grid-cols-2 gap-3">
+                            <select name="rating" class="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none" required>
+                                <option value="" disabled {{ old('rating') ? '' : 'selected' }}>Rating</option>
+                                @for($i=5; $i>=1; $i--)
+                                    <option value="{{ $i }}" {{ old('rating') == $i ? 'selected' : '' }}>{{ $i }} star{{ $i > 1 ? 's' : '' }}</option>
+                                @endfor
+                            </select>
+                        </div>
+                        <textarea name="comment" rows="4" placeholder="Your review..." class="w-full px-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none">{{ old('comment') }}</textarea>
+                        <button type="submit" class="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition inline-flex items-center gap-2">
+                            <i data-lucide="message-square" class="w-5 h-5"></i>
+                            Submit review
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <section class="py-16 mesh-gradient">
         <div class="container mx-auto px-4">

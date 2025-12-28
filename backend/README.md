@@ -1,6 +1,6 @@
-# 3DAssetHub Backend API
+# SketchUp Collection Backend API
 
-Laravel backend API for the 3DAssetHub project with Filament admin panel.
+Laravel backend API for the SketchUp Collection project with Filament admin panel.
 
 ## Features
 

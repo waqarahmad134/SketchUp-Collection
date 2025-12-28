@@ -69,7 +69,7 @@
                     <h2 class="text-2xl font-bold font-display mb-4">5. Contact Us</h2>
                     <p class="text-muted-foreground">
                         If you have questions about this Privacy Policy, please contact us at
-                        <a href="mailto:privacy@3dassethub.com" class="text-cyan-400 hover:underline"> privacy@3dassethub.com</a>
+                        <a href="mailto:privacy@sketchupcollection.com" class="text-cyan-400 hover:underline"> privacy@sketchupcollection.com</a>
                     </p>
                 </div>
             </div>

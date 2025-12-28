@@ -38,7 +38,7 @@ class HomeController extends Controller
         }
 
         return view('home', [
-            'title' => '3DAssetHub | Premium 3D Assets for Designers',
+            'title' => 'SketchUp Collection | Premium 3D Assets for Designers',
             'metaDescription' => 'Access 1TB+ of professional SketchUp models, textures, and exclusive designer bundles.',
             'products' => $products,
             'featuredPosts' => $featuredPosts,

@@ -32,14 +32,14 @@
                         <div class="space-y-2">
                             <label for="email" class="font-medium">Email</label>
                             <div class="relative">
-                                <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"></i>
+                                <i data-lucide="mail" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10"></i>
                                 <input
                                     id="email"
                                     name="email"
                                     type="email"
                                     value="{{ old('email') }}"
                                     required
-                                    class="w-full px-10 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none"
+                                    class="w-full pl-14 pr-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none"
                                     placeholder="your@email.com"
                                 >
                             </div>
@@ -51,13 +51,13 @@
                                 <a href="#" class="text-sm text-cyan-400 hover:underline">Forgot password?</a>
                             </div>
                             <div class="relative">
-                                <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"></i>
+                                <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10"></i>
                                 <input
                                     id="password"
                                     name="password"
                                     type="password"
                                     required
-                                    class="w-full px-10 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none"
+                                    class="w-full pl-14 pr-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none"
                                     placeholder="••••••••"
                                 >
                             </div>

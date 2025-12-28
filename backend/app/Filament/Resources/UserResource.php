@@ -40,6 +40,16 @@ class UserResource extends Resource
                             ->dehydrated(fn ($state) => filled($state))
                             ->maxLength(255)
                             ->helperText('Leave blank to keep current password when editing'),
+                        Forms\Components\Select::make('role')
+                            ->options([
+                                'user' => 'User',
+                                'seller' => 'Seller',
+                                'manager' => 'Manager',
+                                'admin' => 'Admin',
+                            ])
+                            ->default('user')
+                            ->required()
+                            ->native(false),
                         Forms\Components\DateTimePicker::make('email_verified_at')
                             ->label('Email Verified At'),
                     ])->columns(2),
@@ -57,6 +67,16 @@ class UserResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->copyable(),
+                Tables\Columns\TextColumn::make('role')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'admin' => 'danger',
+                        'manager' => 'warning',
+                        'seller' => 'success',
+                        'user' => 'gray',
+                        default => 'gray',
+                    })
+                    ->sortable(),
                 Tables\Columns\IconColumn::make('email_verified_at')
                     ->boolean()
                     ->label('Verified')
@@ -73,6 +93,13 @@ class UserResource extends Resource
                     ->label('Posts'),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('role')
+                    ->options([
+                        'user' => 'User',
+                        'seller' => 'Seller',
+                        'manager' => 'Manager',
+                        'admin' => 'Admin',
+                    ]),
                 Tables\Filters\TernaryFilter::make('email_verified_at')
                     ->label('Email Verified')
                     ->nullable(),

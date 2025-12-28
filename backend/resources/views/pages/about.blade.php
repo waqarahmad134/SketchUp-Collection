@@ -16,7 +16,7 @@
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center mb-16 space-y-4 max-w-3xl mx-auto">
                 <h1 class="text-4xl md:text-6xl font-bold font-display">
-                    About <span class="gradient-text">3DAssetHub</span>
+                    About <span class="gradient-text">SketchUp Collection</span>
                 </h1>
                 <p class="text-xl text-muted-foreground">
                     We're on a mission to revolutionize how designers access and use 3D assets.
@@ -27,7 +27,7 @@
                 <h2 class="text-3xl font-bold font-display mb-6">Our Story</h2>
                 <div class="space-y-4 text-muted-foreground">
                     <p>
-                        3DAssetHub was born from a simple frustration: finding high-quality 3D assets for SketchUp was time-consuming and expensive. As designers ourselves, we knew there had to be a better way.
+                        SketchUp Collection was born from a simple frustration: finding high-quality 3D assets for SketchUp was time-consuming and expensive. As designers ourselves, we knew there had to be a better way.
                     </p>
                     <p>
                         Today, we've built a curated collection of premium SketchUp models, textures, and bundles serving over 50,000 designers worldwide.

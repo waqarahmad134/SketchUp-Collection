@@ -83,7 +83,7 @@
                         <h2 class="text-2xl font-bold font-display">Share Your Work</h2>
                     </div>
                     <p class="text-muted-foreground mb-6">
-                        Tag us on social media with #3DAssetHub to get featured! We love seeing what you create with our assets.
+                        Tag us on social media with #SketchUpCollection to get featured! We love seeing what you create with our assets.
                     </p>
                     <button class="px-6 py-3 rounded-xl border border-border text-foreground font-semibold hover:border-foreground transition">
                         View Gallery

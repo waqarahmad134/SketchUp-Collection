@@ -32,7 +32,7 @@
                     License <span class="gradient-text">Agreement</span>
                 </h1>
                 <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    Understand what you can and cannot do with 3DAssetHub assets.
+                    Understand what you can and cannot do with SketchUp Collection assets.
                 </p>
             </div>
 
@@ -40,7 +40,7 @@
                 <div class="glass-card rounded-3xl p-8">
                     <h2 class="text-2xl font-bold font-display mb-6">What's Included</h2>
                     <p class="text-muted-foreground mb-6">
-                        When you purchase assets from 3DAssetHub, you receive a commercial license that allows you to:
+                        When you purchase assets from SketchUp Collection, you receive a commercial license that allows you to:
                     </p>
                     <div class="space-y-3">
                         @foreach($allowed as $item)
@@ -93,7 +93,7 @@
                     <h2 class="text-2xl font-bold font-display mb-4">Questions?</h2>
                     <p class="text-muted-foreground">
                         If you have questions about licensing or need clarification on what's allowed, please contact us at
-                        <a href="mailto:license@3dassethub.com" class="text-cyan-400 hover:underline"> license@3dassethub.com </a>
+                        <a href="mailto:license@sketchupcollection.com" class="text-cyan-400 hover:underline"> license@sketchupcollection.com </a>
                     </p>
                 </div>
             </div>

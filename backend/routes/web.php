@@ -4,6 +4,8 @@ use App\Http\Controllers\BlogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProductPageController;
+use App\Http\Controllers\CreatorController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -18,68 +20,71 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('/bundles', [ProductPageController::class, 'index'])->name('bundles.index');
 Route::get('/bundles/{slug}', [ProductPageController::class, 'show'])->name('bundles.show');
+Route::post('/bundles/{slug}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
+Route::get('/creators/{user}', [CreatorController::class, 'show'])->name('creators.show');
 
 Route::view('/about', 'pages.about', [
-    'title' => 'About Us - 3DAssetHub',
-    'metaDescription' => 'Learn about 3DAssetHub, our mission to empower designers, and our commitment to providing premium 3D assets.',
+    'title' => 'About Us - SketchUp Collection',
+    'metaDescription' => 'Learn about SketchUp Collection, our mission to empower designers, and our commitment to providing premium 3D assets.',
 ])->name('about');
 
 Route::view('/pricing', 'pages.pricing', [
-    'title' => 'Pricing - 3DAssetHub',
+    'title' => 'Pricing - SketchUp Collection',
     'metaDescription' => 'Flexible pricing options for designers of all levels.',
 ])->name('pricing');
 
 Route::view('/contact', 'pages.contact', [
-    'title' => 'Contact Us - 3DAssetHub',
+    'title' => 'Contact Us - SketchUp Collection',
     'metaDescription' => 'Have questions? Contact our team.',
 ])->name('contact');
 
 Route::view('/careers', 'pages.careers', [
-    'title' => 'Careers - 3DAssetHub',
-    'metaDescription' => 'Join the 3DAssetHub team.',
+    'title' => 'Careers - SketchUp Collection',
+    'metaDescription' => 'Join the SketchUp Collection team.',
 ])->name('careers');
 
 Route::view('/support', 'pages.support', [
-    'title' => 'Support - 3DAssetHub',
-    'metaDescription' => 'Get help with 3DAssetHub.',
+    'title' => 'Support - SketchUp Collection',
+    'metaDescription' => 'Get help with SketchUp Collection.',
 ])->name('support');
 
 Route::view('/community', 'pages.community', [
-    'title' => 'Community - 3DAssetHub',
+    'title' => 'Community - SketchUp Collection',
     'metaDescription' => 'Join our designer community.',
 ])->name('community');
 
 Route::view('/free-assets', 'pages.free-assets', [
-    'title' => 'Free Assets - 3DAssetHub',
+    'title' => 'Free Assets - SketchUp Collection',
     'metaDescription' => 'Download free premium 3D assets.',
 ])->name('free-assets');
 
 Route::view('/documentation', 'pages.documentation', [
-    'title' => 'Documentation - 3DAssetHub',
-    'metaDescription' => 'Guides and docs for using 3DAssetHub.',
+    'title' => 'Documentation - SketchUp Collection',
+    'metaDescription' => 'Guides and docs for using SketchUp Collection.',
 ])->name('documentation');
 
 Route::view('/tutorials', 'pages.tutorials', [
-    'title' => 'Tutorials - 3DAssetHub',
+    'title' => 'Tutorials - SketchUp Collection',
     'metaDescription' => 'Video guides and tutorials.',
 ])->name('tutorials');
 
 Route::view('/updates', 'pages.updates', [
-    'title' => 'Updates - 3DAssetHub',
+    'title' => 'Updates - SketchUp Collection',
     'metaDescription' => 'Latest news and releases.',
 ])->name('updates');
 
 Route::view('/license', 'pages.license', [
-    'title' => 'License Agreement - 3DAssetHub',
+    'title' => 'License Agreement - SketchUp Collection',
     'metaDescription' => 'Understand your licensing rights.',
 ])->name('license');
 
 Route::view('/privacy-policy', 'pages.privacy-policy', [
-    'title' => 'Privacy Policy - 3DAssetHub',
+    'title' => 'Privacy Policy - SketchUp Collection',
     'metaDescription' => 'How we collect, use, and protect your data.',
 ])->name('privacy-policy');
 
 Route::view('/terms-of-service', 'pages.terms-of-service', [
-    'title' => 'Terms of Service - 3DAssetHub',
-    'metaDescription' => 'Rules and guidelines for using 3DAssetHub.',
+    'title' => 'Terms of Service - SketchUp Collection',
+    'metaDescription' => 'Rules and guidelines for using SketchUp Collection.',
 ])->name('terms-of-service');

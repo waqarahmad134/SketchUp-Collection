@@ -5,9 +5,9 @@
         $docsCategories = [
             [
                 'title' => 'Getting Started',
-                'description' => 'Learn the basics of using 3DAssetHub',
+                'description' => 'Learn the basics of using SketchUp Collection',
                 'articles' => [
-                    'Introduction to 3DAssetHub',
+                    'Introduction to SketchUp Collection',
                     'Creating Your Account',
                     'Downloading Your First Asset',
                     'Understanding File Formats',
@@ -49,7 +49,7 @@
                     Documentation
                 </h1>
                 <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    Everything you need to know about using 3DAssetHub assets effectively.
+                    Everything you need to know about using SketchUp Collection assets effectively.
                 </p>
             </div>
 

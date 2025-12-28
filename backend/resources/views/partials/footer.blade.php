@@ -83,7 +83,7 @@
 
         <div class="border-t border-border mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p class="text-sm text-muted-foreground">
-                © {{ $currentYear }} 3DAssetHub. All rights reserved.
+                © {{ $currentYear }} SketchUp Collection. All rights reserved.
             </p>
             <p class="text-sm text-muted-foreground">
                 Made with ❤️ for designers worldwide

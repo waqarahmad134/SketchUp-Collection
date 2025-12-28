@@ -30,7 +30,7 @@
                     Support <span class="gradient-text">Center</span>
                 </h1>
                 <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
-                    Find answers, get help, and make the most of your 3DAssetHub experience.
+                    Find answers, get help, and make the most of your SketchUp Collection experience.
                 </p>
             </div>
 

@@ -19,7 +19,7 @@ class RobotsController extends Controller
         $appUrl = config('app.url');
         
         return <<<TXT
-# robots.txt for 3DAssetHub
+# robots.txt for SketchUp Collection
 
 User-agent: *
 Allow: /

@@ -21,17 +21,17 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "3DAssetHub - Premium 3D Assets for Designers | SketchUp Models & Textures",
+  title: "SketchUp Collection - Premium 3D Assets for Designers | SketchUp Models & Textures",
   description: "Access 1TB+ of premium SketchUp models, textures, and exclusive designer bundles. Elevate your 3D projects with professional-grade assets trusted by 50,000+ designers.",
   keywords: ["3D assets", "SketchUp models", "SKP files", "interior design", "architecture", "3D textures", "design bundles"],
   openGraph: {
-    title: "3DAssetHub - Premium 3D Assets for Designers",
+    title: "SketchUp Collection - Premium 3D Assets for Designers",
     description: "Access 1TB+ of premium SketchUp models and textures. 50% off all bundles.",
     type: "website",
-    url: "https://3dassethub.com",
+    url: "https://sketchupcollection.com",
   },
   alternates: {
-    canonical: "https://3dassethub.com",
+    canonical: "https://sketchupcollection.com",
   },
 };
 

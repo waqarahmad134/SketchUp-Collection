@@ -14,7 +14,7 @@ class AuthController extends Controller
     public function showLogin(): View
     {
         return view('auth.login', [
-            'title' => 'Login - 3DAssetHub',
+            'title' => 'Login - SketchUp Collection',
             'metaDescription' => 'Sign in to access your purchased assets and manage your profile.',
         ]);
     }
@@ -22,8 +22,8 @@ class AuthController extends Controller
     public function showRegister(): View
     {
         return view('auth.register', [
-            'title' => 'Sign Up - 3DAssetHub',
-            'metaDescription' => 'Create a free 3DAssetHub account to access assets and bundles.',
+            'title' => 'Sign Up - SketchUp Collection',
+            'metaDescription' => 'Create a free SketchUp Collection account to access assets and bundles.',
         ]);
     }
 

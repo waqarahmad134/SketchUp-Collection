@@ -25,7 +25,7 @@
                                 </div>
                                 <div>
                                     <h3 class="font-semibold mb-1">Email</h3>
-                                    <p class="text-muted-foreground">support@3dassethub.com</p>
+                                    <p class="text-muted-foreground">support@sketchupcollection.com</p>
                                 </div>
                             </div>
                             <div class="flex items-start gap-4">

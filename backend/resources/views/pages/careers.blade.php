@@ -28,7 +28,7 @@
                     <span class="text-sm text-cyan-400 font-medium">Join Our Team</span>
                 </div>
                 <h1 class="text-4xl md:text-6xl font-bold font-display">
-                    Careers at <span class="gradient-text">3DAssetHub</span>
+                    Careers at <span class="gradient-text">SketchUp Collection</span>
                 </h1>
                 <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
                     Help us build the future of 3D asset distribution for designers worldwide.

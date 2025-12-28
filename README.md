@@ -1,4 +1,4 @@
-# 3DAssetHub
+# SketchUp Collection
 
 Premium 3D assets marketplace for designers. Built with Next.js, TypeScript, and Tailwind CSS.
 

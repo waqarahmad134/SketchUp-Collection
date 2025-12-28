@@ -20,14 +20,14 @@
                 <div class="glass-card rounded-3xl p-8">
                     <h2 class="text-2xl font-bold font-display mb-4">1. Acceptance of Terms</h2>
                     <p class="text-muted-foreground">
-                        By accessing and using 3DAssetHub, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our service.
+                        By accessing and using SketchUp Collection, you accept and agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our service.
                     </p>
                 </div>
 
                 <div class="glass-card rounded-3xl p-8">
                     <h2 class="text-2xl font-bold font-display mb-4">2. Use License</h2>
                     <p class="text-muted-foreground mb-4">
-                        When you purchase assets from 3DAssetHub, you receive:
+                        When you purchase assets from SketchUp Collection, you receive:
                     </p>
                     <ul class="list-disc list-inside space-y-2 text-muted-foreground ml-4">
                         <li>A commercial license to use the assets in your projects</li>
@@ -72,7 +72,7 @@
                 <div class="glass-card rounded-3xl p-8">
                     <h2 class="text-2xl font-bold font-display mb-4">6. Limitation of Liability</h2>
                     <p class="text-muted-foreground">
-                        3DAssetHub shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our service or assets.
+                        SketchUp Collection shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our service or assets.
                     </p>
                 </div>
 

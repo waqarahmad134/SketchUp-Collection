@@ -50,6 +50,13 @@ class Order extends Model
                 $order->order_number = 'ORD-' . strtoupper(Str::random(10));
             }
         });
+
+        // Upgrade user to seller when order is completed
+        static::updated(function ($order) {
+            if ($order->wasChanged('status') && $order->status === 'completed' && $order->user_id) {
+                $order->user->upgradeToSeller();
+            }
+        });
     }
 
     public function user(): BelongsTo

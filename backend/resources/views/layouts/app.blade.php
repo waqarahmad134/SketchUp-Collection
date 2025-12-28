@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? config('app.name', '3DAssetHub') }}</title>
+    <title>{{ $title ?? config('app.name', 'SketchUp Collection') }}</title>
     <meta name="description" content="{{ $metaDescription ?? 'Premium 3D assets, bundles, and blog for designers.' }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
