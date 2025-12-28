@@ -6,6 +6,7 @@ use App\Filament\Resources\TransactionResource\Pages;
 use App\Models\Transaction;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -20,7 +21,7 @@ class TransactionResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Transaction Information')
+                Section::make('Transaction Information')
                     ->schema([
                         Forms\Components\TextInput::make('transaction_id')
                             ->required()
@@ -53,7 +54,7 @@ class TransactionResource extends Resource
                             ->default('pending'),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Payment Details')
+                Section::make('Payment Details')
                     ->schema([
                         Forms\Components\TextInput::make('amount')
                             ->required()
@@ -73,7 +74,7 @@ class TransactionResource extends Resource
                         Forms\Components\DateTimePicker::make('completed_at'),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Additional Information')
+                Section::make('Additional Information')
                     ->schema([
                         Forms\Components\Textarea::make('description')
                             ->rows(3)

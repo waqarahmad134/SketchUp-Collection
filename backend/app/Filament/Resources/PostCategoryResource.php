@@ -6,6 +6,7 @@ use App\Filament\Resources\PostCategoryResource\Pages;
 use App\Models\PostCategory;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -32,7 +33,7 @@ class PostCategoryResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Category Information')
+                Section::make('Category Information')
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
@@ -54,7 +55,7 @@ class PostCategoryResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Visual Settings')
+                Section::make('Visual Settings')
                     ->schema([
                         Forms\Components\FileUpload::make('image')
                             ->image()
@@ -72,7 +73,7 @@ class PostCategoryResource extends Resource
                             ->default(true),
                     ])->columns(3),
 
-                Forms\Components\Section::make('SEO')
+                Section::make('SEO')
                     ->schema([
                         Forms\Components\TextInput::make('meta_title')
                             ->maxLength(60),

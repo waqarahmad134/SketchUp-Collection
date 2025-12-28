@@ -6,6 +6,7 @@ use App\Filament\Resources\TagResource\Pages;
 use App\Models\Tag;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,7 +23,7 @@ class TagResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Tag Information')
+                Section::make('Tag Information')
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
@@ -46,7 +47,7 @@ class TagResource extends Resource
                             ->default(true),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Description')
+                Section::make('Description')
                     ->schema([
                         Forms\Components\Textarea::make('description')
                             ->rows(3)

@@ -6,6 +6,7 @@ use App\Filament\Resources\OrderResource\Pages;
 use App\Models\Order;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -21,7 +22,7 @@ class OrderResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Order Information')
+                Section::make('Order Information')
                     ->schema([
                         Forms\Components\TextInput::make('order_number')
                             ->required()
@@ -54,7 +55,7 @@ class OrderResource extends Resource
                             ->maxLength(255),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Customer Information')
+                Section::make('Customer Information')
                     ->schema([
                         Forms\Components\TextInput::make('customer_name')
                             ->required()
@@ -71,7 +72,7 @@ class OrderResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Pricing')
+                Section::make('Pricing')
                     ->schema([
                         Forms\Components\TextInput::make('subtotal')
                             ->required()

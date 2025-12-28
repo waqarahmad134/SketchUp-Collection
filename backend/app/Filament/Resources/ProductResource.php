@@ -7,6 +7,7 @@ use App\Models\Product;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Actions\EditAction;
@@ -20,9 +21,9 @@ class ProductResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
-                Forms\Components\Section::make('Basic Information')
+                Section::make('Basic Information')
                     ->schema([
                         Forms\Components\TextInput::make('title')
                             ->required()
@@ -41,7 +42,7 @@ class ProductResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Pricing')
+                Section::make('Pricing')
                     ->schema([
                         Forms\Components\TextInput::make('price')
                             ->required()
@@ -55,7 +56,7 @@ class ProductResource extends Resource
                             ->default(0),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Product Details')
+                Section::make('Product Details')
                     ->schema([
                         Forms\Components\Select::make('category_id')
                             ->label('Category')
@@ -82,7 +83,7 @@ class ProductResource extends Resource
                             ->default(true),
                     ])->columns(3),
 
-                Forms\Components\Section::make('Media')
+                Section::make('Media')
                     ->schema([
                         Forms\Components\FileUpload::make('image')
                             ->image()
@@ -96,7 +97,7 @@ class ProductResource extends Resource
                             ->visibility('public'),
                     ]),
 
-                Forms\Components\Section::make('Additional Information')
+                Section::make('Additional Information')
                     ->schema([
                         Forms\Components\TagsInput::make('features')
                             ->placeholder('Add a feature and press Enter'),

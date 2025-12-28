@@ -6,6 +6,7 @@ use App\Filament\Resources\MenuResource\Pages;
 use App\Models\Menu;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -31,7 +32,7 @@ class MenuResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Menu Item Information')
+                Section::make('Menu Item Information')
                     ->schema([
                         Forms\Components\TextInput::make('label')
                             ->required()

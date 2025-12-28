@@ -6,6 +6,7 @@ use App\Filament\Resources\PostResource\Pages;
 use App\Models\Post;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -22,7 +23,7 @@ class PostResource extends Resource
     {
         return $schema
             ->schema([
-                Forms\Components\Section::make('Post Information')
+                Section::make('Post Information')
                     ->schema([
                         Forms\Components\TextInput::make('title')
                             ->required()
@@ -61,7 +62,7 @@ class PostResource extends Resource
                             ->default(false),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Content')
+                Section::make('Content')
                     ->schema([
                         Forms\Components\Textarea::make('excerpt')
                             ->rows(3)
@@ -71,7 +72,7 @@ class PostResource extends Resource
                             ->columnSpanFull(),
                     ]),
 
-                Forms\Components\Section::make('Media')
+                Section::make('Media')
                     ->schema([
                         Forms\Components\FileUpload::make('featured_image')
                             ->image()
@@ -84,7 +85,7 @@ class PostResource extends Resource
                             ->visibility('public'),
                     ]),
 
-                Forms\Components\Section::make('SEO')
+                Section::make('SEO')
                     ->schema([
                         Forms\Components\TextInput::make('meta_title')
                             ->maxLength(60),
