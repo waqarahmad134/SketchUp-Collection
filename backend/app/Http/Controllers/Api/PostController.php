@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Post;
+use App\Models\PostCategory;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -11,13 +12,17 @@ class PostController extends Controller
     public function index(Request $request)
     {
         $query = Post::where('status', 'published')
-                    ->whereNotNull('published_at')
-                    ->where('published_at', '<=', now())
-                    ->with('user:id,name');
+                    ->where(function ($q) {
+                        $q->whereNull('published_at')
+                          ->orWhere('published_at', '<=', now());
+                    })
+                    ->with(['user:id,name', 'category:id,name,slug']);
 
-        // Filter by category
+        // Filter by category (by slug)
         if ($request->has('category')) {
-            $query->where('category', $request->category);
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('slug', $request->input('category'));
+            });
         }
 
         // Filter by featured
@@ -36,6 +41,7 @@ class PostController extends Controller
         }
 
         $posts = $query->orderBy('published_at', 'desc')
+                      ->orderBy('created_at', 'desc')
                       ->paginate($request->get('per_page', 15));
 
         return response()->json($posts);
@@ -48,7 +54,11 @@ class PostController extends Controller
                        $query->where('id', $slug)
                              ->orWhere('slug', $slug);
                    })
-                   ->with('user:id,name')
+                   ->where(function ($q) {
+                       $q->whereNull('published_at')
+                         ->orWhere('published_at', '<=', now());
+                   })
+                   ->with(['user:id,name', 'category:id,name,slug'])
                    ->firstOrFail();
 
         // Increment views

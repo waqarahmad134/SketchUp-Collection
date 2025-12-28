@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RobotsController;
 
@@ -19,6 +20,7 @@ Route::get('/robots.txt', [RobotsController::class, 'index']);
 
 Route::prefix('v1')->group(function () {
     // Public routes
+    Route::get('/menus', [MenuController::class, 'index']);
     Route::get('/products', [ProductController::class, 'index']);
     Route::get('/products/{id}', [ProductController::class, 'show']);
     

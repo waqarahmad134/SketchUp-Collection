@@ -4,6 +4,7 @@ import StatsSection from "@/components/StatsSection";
 import BundlesSection from "@/components/BundlesSection";
 import FeaturesSection from "@/components/FeaturesSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import BlogSection from "@/components/BlogSection";
 import CTASection from "@/components/CTASection";
 import Footer from "@/components/Footer";
 
@@ -23,6 +24,7 @@ export default function Home() {
         <section id="testimonials">
           <TestimonialsSection />
         </section>
+        <BlogSection />
         <CTASection />
       </main>
       <Footer />

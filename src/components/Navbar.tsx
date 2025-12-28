@@ -3,17 +3,19 @@
 import { Box, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getMenusClient, getMenuItemHref, type MenuItem } from "@/lib/api";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [navLinks, setNavLinks] = useState<MenuItem[]>([]);
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Bundles", href: "/bundles" },
-    { name: "Features", href: "/#features" },
-    { name: "Testimonials", href: "/#testimonials" },
-  ];
+  useEffect(() => {
+    // Fetch menus from API
+    getMenusClient().then((menus) => {
+      setNavLinks(menus);
+    });
+  }, []);
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border">
@@ -33,11 +35,12 @@ const Navbar = () => {
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
-                key={link.name}
-                href={link.href}
-                className="text-muted-foreground hover:text-foreground transition-colors relative group"
+                key={link.id}
+                href={getMenuItemHref(link)}
+                target={link.target || '_self'}
+                className={`text-muted-foreground hover:text-foreground transition-colors relative group ${link.css_class || ''}`}
               >
-                {link.name}
+                {link.label}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-violet-500 transition-all group-hover:w-full" />
               </Link>
             ))}
@@ -72,12 +75,13 @@ const Navbar = () => {
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
                 <Link
-                  key={link.name}
-                  href={link.href}
-                  className="text-muted-foreground hover:text-foreground transition-colors py-2"
+                  key={link.id}
+                  href={getMenuItemHref(link)}
+                  target={link.target || '_self'}
+                  className={`text-muted-foreground hover:text-foreground transition-colors py-2 ${link.css_class || ''}`}
                   onClick={() => setIsOpen(false)}
                 >
-                  {link.name}
+                  {link.label}
                 </Link>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">

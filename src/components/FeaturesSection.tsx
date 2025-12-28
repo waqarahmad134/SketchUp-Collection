@@ -49,7 +49,7 @@ const FeaturesSection = () => {
             Everything You <span className="gradient-text">Need</span>
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            We've designed our platform with designers in mind. Here's why thousands choose us.
+            We&apos;ve designed our platform with designers in mind. Here&apos;s why thousands choose us.
           </p>
         </div>
 

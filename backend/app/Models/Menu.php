@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Menu extends Model
 {
@@ -23,6 +24,18 @@ class Menu extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected static function booted()
+    {
+        // Clear cache when menu is saved or deleted
+        static::saved(function () {
+            Cache::forget('api.menus');
+        });
+
+        static::deleted(function () {
+            Cache::forget('api.menus');
+        });
+    }
 
     public function scopeActive($query)
     {

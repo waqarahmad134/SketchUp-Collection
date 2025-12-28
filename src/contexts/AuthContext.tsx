@@ -99,13 +99,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
+        // Handle validation errors from Laravel
+        if (data.errors) {
+          const errorMessages = Object.values(data.errors).flat().join(', ');
+          throw new Error(errorMessages || 'Validation failed');
+        }
+        throw new Error(data.message || data.error || 'Registration failed');
       }
 
       localStorage.setItem('token', data.access_token);
-      setUser(data.user);
+      setUser(data.user || data.data?.user);
       router.push('/');
-    } catch (error) {
+    } catch (error: any) {
       throw error;
     }
   };

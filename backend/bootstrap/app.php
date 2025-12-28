@@ -12,9 +12,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
-        ]);
+        // Remove EnsureFrontendRequestsAreStateful from API routes
+        // This middleware enables CSRF protection, which we don't need for token-based API auth
+        // API routes should use token authentication, not cookie-based SPA authentication
         
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,

@@ -59,7 +59,7 @@ const TestimonialsSection = () => {
               </div>
 
               <p className="text-foreground mb-6 leading-relaxed">
-                "{testimonial.content}"
+                &ldquo;{testimonial.content}&rdquo;
               </p>
 
               <div className="flex items-center gap-4">
