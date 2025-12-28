@@ -54,7 +54,7 @@ export default function TermsOfServicePage() {
                 <h2 className="text-2xl font-bold font-display mb-4">3. Payment Terms</h2>
                 <p className="text-muted-foreground mb-4">
                   All purchases are one-time payments that grant you lifetime access. We accept major credit cards 
-                  and payment processors. Refunds are available within 30 days of purchase if you're not satisfied.
+                  and payment processors. Refunds are available within 30 days of purchase if you&apos;re not satisfied.
                 </p>
               </div>
 

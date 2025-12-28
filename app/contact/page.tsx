@@ -26,7 +26,7 @@ export default function ContactPage() {
                 Get in <span className="gradient-text">Touch</span>
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Have questions? We're here to help. Reach out to our team anytime.
+                Have questions? We&apos;re here to help. Reach out to our team anytime.
               </p>
             </div>
 

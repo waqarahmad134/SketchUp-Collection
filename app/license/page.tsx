@@ -48,7 +48,7 @@ export default function LicensePage() {
 
             <div className="max-w-4xl mx-auto space-y-8">
               <div className="glass-card rounded-3xl p-8">
-                <h2 className="text-2xl font-bold font-display mb-6">What's Included</h2>
+                <h2 className="text-2xl font-bold font-display mb-6">What&apos;s Included</h2>
                 <p className="text-muted-foreground mb-6">
                   When you purchase assets from 3DAssetHub, you receive a commercial license that allows you to:
                 </p>
@@ -65,7 +65,7 @@ export default function LicensePage() {
               </div>
 
               <div className="glass-card rounded-3xl p-8">
-                <h2 className="text-2xl font-bold font-display mb-6">What's Not Allowed</h2>
+                <h2 className="text-2xl font-bold font-display mb-6">What&apos;s Not Allowed</h2>
                 <p className="text-muted-foreground mb-6">
                   To protect our assets and community, the following are prohibited:
                 </p>
@@ -104,7 +104,7 @@ export default function LicensePage() {
               <div className="glass-card rounded-3xl p-8">
                 <h2 className="text-2xl font-bold font-display mb-4">Questions?</h2>
                 <p className="text-muted-foreground">
-                  If you have questions about licensing or need clarification on what's allowed, 
+                  If you have questions about licensing or need clarification on what&apos;s allowed, 
                   please contact us at{" "}
                   <a href="mailto:license@3dassethub.com" className="text-cyan-400 hover:underline">
                     license@3dassethub.com

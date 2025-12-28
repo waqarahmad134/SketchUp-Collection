@@ -45,7 +45,7 @@ export default function AboutPage() {
                 About <span className="gradient-text">3DAssetHub</span>
               </h1>
               <p className="text-xl text-muted-foreground">
-                We're on a mission to revolutionize how designers access and use 3D assets.
+                We&apos;re on a mission to revolutionize how designers access and use 3D assets.
               </p>
             </div>
 
@@ -58,13 +58,13 @@ export default function AboutPage() {
                   there had to be a better way.
                 </p>
                 <p>
-                  Today, we've built the largest curated collection of premium SketchUp models, 
+                  Today, we&apos;ve built the largest curated collection of premium SketchUp models, 
                   textures, and bundles. Our library serves over 50,000 designers worldwide, 
                   helping them bring their creative visions to life faster.
                 </p>
                 <p>
                   We believe every designer deserves access to professional-grade assets without 
-                  breaking the bank. That's why we offer lifetime access, commercial licenses, 
+                  breaking the bank. That&apos;s why we offer lifetime access, commercial licenses, 
                   and continuously expand our collection.
                 </p>
               </div>

@@ -67,7 +67,7 @@ export default function SupportPage() {
             <div className="text-center mb-16 space-y-4">
               <div className="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full">
                 <HelpCircle className="w-4 h-4 text-cyan-400" />
-                <span className="text-sm text-cyan-400 font-medium">We're Here to Help</span>
+                <span className="text-sm text-cyan-400 font-medium">We&apos;re Here to Help</span>
               </div>
               <h1 className="text-4xl md:text-6xl font-bold font-display">
                 Support <span className="gradient-text">Center</span>
@@ -125,7 +125,7 @@ export default function SupportPage() {
                   Still Need Help?
                 </h3>
                 <p className="text-muted-foreground mb-6">
-                  Can't find what you're looking for? Our support team is ready to help.
+                  Can&apos;t find what you&apos;re looking for? Our support team is ready to help.
                 </p>
                 <Button variant="hero" size="lg" asChild>
                   <a href="/contact">Contact Support</a>
