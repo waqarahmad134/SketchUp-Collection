@@ -1,15 +1,18 @@
+"use client";
+
 import { Box, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useState } from "react";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   const navLinks = [
-    { name: "Home", href: "#" },
-    { name: "Bundles", href: "#bundles" },
-    { name: "Features", href: "#features" },
-    { name: "Testimonials", href: "#testimonials" },
+    { name: "Home", href: "/" },
+    { name: "Bundles", href: "/bundles" },
+    { name: "Features", href: "/#features" },
+    { name: "Testimonials", href: "/#testimonials" },
   ];
 
   return (
@@ -17,36 +20,36 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2 group">
+          <Link href="/" className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Box className="w-5 h-5 text-background" />
             </div>
             <span className="text-xl font-bold font-display">
               <span className="gradient-text">3D</span>AssetHub
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.name}
                 href={link.href}
                 className="text-muted-foreground hover:text-foreground transition-colors relative group"
               >
                 {link.name}
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-violet-500 transition-all group-hover:w-full" />
-              </a>
+              </Link>
             ))}
           </div>
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              Login
+            <Button variant="ghost" size="sm" asChild>
+              <Link href="/login">Login</Link>
             </Button>
-            <Button variant="glow" size="sm">
-              Get Started
+            <Button variant="glow" size="sm" asChild>
+              <Link href="/signup">Get Started</Link>
             </Button>
           </div>
 
@@ -68,21 +71,21 @@ const Navbar = () => {
           <div className="md:hidden py-4 border-t border-border">
             <div className="flex flex-col gap-4">
               {navLinks.map((link) => (
-                <a
+                <Link
                   key={link.name}
                   href={link.href}
                   className="text-muted-foreground hover:text-foreground transition-colors py-2"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
-                </a>
+                </Link>
               ))}
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="ghost" className="w-full">
-                  Login
+                <Button variant="ghost" className="w-full" asChild>
+                  <Link href="/login">Login</Link>
                 </Button>
-                <Button variant="glow" className="w-full">
-                  Get Started
+                <Button variant="glow" className="w-full" asChild>
+                  <Link href="/signup">Get Started</Link>
                 </Button>
               </div>
             </div>

@@ -1,6 +1,6 @@
 import { Box, Download, Sparkles, Star, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroImage from "@/assets/hero-3d-workspace.jpg";
+import Image from "next/image";
 
 const HeroSection = () => {
   return (
@@ -99,10 +99,13 @@ const HeroSection = () => {
           <div className="relative animate-slide-in-up animation-delay-400">
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-violet-500/20 rounded-3xl blur-2xl" />
-              <img
-                src={heroImage}
+              <Image
+                src="/assets/hero-3d-workspace.jpg"
                 alt="3D Asset Workspace"
-                className="relative rounded-3xl shadow-2xl border border-border hover-lift"
+                width={800}
+                height={600}
+                className="relative rounded-3xl shadow-2xl border border-border hover-lift w-full h-auto"
+                priority
               />
               
               {/* Floating badge */}
