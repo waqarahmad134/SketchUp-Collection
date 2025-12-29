@@ -8,7 +8,11 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="antialiased bg-background text-foreground">
+<body
+    class="antialiased bg-background text-foreground"
+    data-toast-success="{{ session('status') }}"
+    data-toast-error="{{ session('error') ?? ($errors->first() ?? '') }}"
+>
     @include('partials.navbar')
 
     <main class="pt-20">
@@ -17,7 +21,10 @@
 
     @include('partials.footer')
 
+    <div id="toast-root" class="fixed top-5 right-5 z-[9999] space-y-3"></div>
+
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             if (window.lucide?.createIcons) {

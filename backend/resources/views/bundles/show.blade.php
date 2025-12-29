@@ -32,7 +32,7 @@
                         <div class="grid grid-cols-3 gap-4">
                             @foreach($images->slice(1) as $img)
                                 <div class="glass-card rounded-2xl overflow-hidden">
-                                    <img src="{{ \Illuminate\Support\Str::startsWith($img, ['http://', 'https://']) ? $img : \Illuminate\Support\Facades\Storage::url($img) }}" alt="{{ $product->title }} extra" class="w-full h-32 object-cover">
+                                    <img src="{{ \Illuminate\Support\Str::startsWith($img, ['http://', 'https://']) ? $img : \Illuminate\Support\Facades\Storage::disk('public')->url($img) }}" alt="{{ $product->title }} extra" class="w-full h-32 object-cover">
                                 </div>
                             @endforeach
                         </div>
@@ -76,17 +76,58 @@
                         <p class="text-sm text-muted-foreground mb-6">
                             One-time payment • Lifetime access • Commercial license included
                         </p>
-                        <div class="space-y-3">
-                            <button class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition inline-flex items-center justify-center gap-2">
-                                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                                Add to Cart
-                            </button>
-                            <button class="w-full px-4 py-3 rounded-xl border border-border text-foreground font-semibold hover:border-foreground transition inline-flex items-center justify-center gap-2">
-                                <i data-lucide="download" class="w-5 h-5"></i>
-                                Instant Download
-                            </button>
-                        </div>
+                        @if($product->is_digital && (float)$product->price <= 0 && $product->download_file_url)
+                            <div class="space-y-3">
+                                <a href="{{ $product->download_file_url }}" target="_blank" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition inline-flex items-center justify-center gap-2">
+                                    <i data-lucide="download" class="w-5 h-5"></i>
+                                    Instant Download
+                                </a>
+                            </div>
+                        @else
+                            <div class="space-y-3">
+                                <form method="POST" action="{{ route('cart.add', $product) }}" data-cart-add>
+                                    @csrf
+                                    <button type="submit" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition inline-flex items-center justify-center gap-2">
+                                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                                        Add to Cart
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('cart.buyNow', $product) }}">
+                                    @csrf
+                                    <button type="submit" class="w-full px-4 py-3 rounded-xl border border-border text-foreground font-semibold hover:border-foreground transition inline-flex items-center justify-center gap-2">
+                                        <i data-lucide="download" class="w-5 h-5"></i>
+                                        Buy Now
+                                    </button>
+                                </form>
+                            </div>
+                        @endif
                     </div>
+
+                    @if($product->is_digital && (float)$product->price <= 0 && ($product->download_links || $product->download_file_url))
+                        <div class="glass-card rounded-3xl p-6 space-y-4">
+                            <h3 class="font-semibold flex items-center gap-2">
+                                <i data-lucide="cloud-download" class="w-5 h-5"></i>
+                                Digital Delivery
+                            </h3>
+                            @if($product->download_file_url)
+                                <a href="{{ $product->download_file_url }}" class="flex items-center justify-between px-4 py-3 rounded-xl border border-border hover:border-foreground transition" target="_blank">
+                                    <span class="font-medium">Download File</span>
+                                    <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                                </a>
+                            @endif
+                            @if($product->download_links)
+                                <div class="space-y-2">
+                                    @foreach($product->download_links as $link)
+                                        <a href="{{ $link['url'] ?? '#' }}" target="_blank" class="flex items-center justify-between px-4 py-3 rounded-xl bg-card hover:border hover:border-foreground transition">
+                                            <span class="font-medium">{{ $link['title'] ?? 'Download Link' }}</span>
+                                            <i data-lucide="external-link" class="w-4 h-4"></i>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <p class="text-xs text-muted-foreground">Links can include Google Drive, Mega, Dropbox, or direct files.</p>
+                        </div>
+                    @endif
 
                     <div class="glass-card rounded-3xl p-6">
                         <h3 class="font-semibold mb-4">Product Details</h3>
@@ -106,7 +147,7 @@
                             @if($product->category)
                                 <div class="flex items-center justify-between">
                                     <span class="text-muted-foreground">Category</span>
-                                    <span class="font-medium capitalize">{{ $product->category }}</span>
+                                    <span class="font-medium capitalize">{{ $product->category->name }}</span>
                                 </div>
                             @endif
                             <div class="flex items-center justify-between">
@@ -121,8 +162,7 @@
                         $authorName = $creator->name ?? 'SketchUp Collection Team';
                         $authorRole = 'Uploader';
                         $authorAvatar = $creator?->avatar ?? 'https://ui-avatars.com/api/?name=' . urlencode($authorName) . '&background=22b5ff&color=fff';
-                    @endphp
-
+@endphp
                     <div class="glass-card rounded-3xl p-6 flex items-center gap-4">
                         @if($creator)
                             <a href="{{ route('creators.show', $creator) }}" class="flex-shrink-0 block">

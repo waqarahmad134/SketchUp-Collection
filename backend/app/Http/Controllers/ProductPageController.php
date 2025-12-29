@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Tag;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductPageController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request)
     {
         $query = Product::where('is_active', true)
             ->with(['category', 'tags']);
@@ -147,6 +149,23 @@ class ProductPageController extends Controller
             'product' => $product,
             'allProducts' => $allProducts,
         ]);
+    }
+
+    public function download(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        if (!$product->is_digital || !$product->download_file) {
+            abort(404);
+        }
+
+        if (!Storage::exists($product->download_file)) {
+            abort(404);
+        }
+
+        return Storage::download($product->download_file, Str::slug($product->title) . '.' . pathinfo($product->download_file, PATHINFO_EXTENSION));
     }
 }
 

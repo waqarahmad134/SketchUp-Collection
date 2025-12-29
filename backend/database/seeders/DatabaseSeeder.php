@@ -18,6 +18,10 @@ class DatabaseSeeder extends Seeder
         $this->call([
             AdminUserSeeder::class,
             MenuSeeder::class,
+            ProductCategorySeeder::class,
+            PostCategorySeeder::class,
+            TagSeeder::class,
+            SettingSeeder::class,
         ]);
     }
 }

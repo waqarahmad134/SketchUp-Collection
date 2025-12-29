@@ -70,6 +70,9 @@ class ProductResource extends Resource
                         Forms\Components\Toggle::make('is_bundle')
                             ->label('Is Bundle')
                             ->default(false),
+                        Forms\Components\Toggle::make('is_digital')
+                            ->label('Is Digital')
+                            ->default(true),
                         Forms\Components\TextInput::make('file_count')
                             ->numeric()
                             ->default(0),
@@ -89,12 +92,36 @@ class ProductResource extends Resource
                             ->image()
                             ->required()
                             ->directory('products')
+                            ->disk('public')
                             ->visibility('public'),
                         Forms\Components\FileUpload::make('images')
                             ->image()
                             ->multiple()
                             ->directory('products/gallery')
+                            ->disk('public')
                             ->visibility('public'),
+                        Forms\Components\FileUpload::make('download_file')
+                            ->label('Digital File')
+                            ->directory('products/downloads')
+                            ->disk('private')
+                            ->visibility('private')
+                            ->helperText('Private download file for digital products'),
+                        Forms\Components\Repeater::make('download_links')
+                            ->label('Download Links')
+                            ->schema([
+                                Forms\Components\TextInput::make('title')
+                                    ->label('Title')
+                                    ->placeholder('e.g., Mega Drive link')
+                                    ->required(),
+                                Forms\Components\TextInput::make('url')
+                                    ->label('URL')
+                                    ->url()
+                                    ->required(),
+                            ])
+                            ->addActionLabel('Add Link')
+                            ->default([])
+                            ->columns(2)
+                            ->hidden(fn ($get) => !$get('is_digital')),
                     ]),
 
                 Section::make('Additional Information')

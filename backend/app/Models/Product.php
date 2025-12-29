@@ -22,8 +22,11 @@ class Product extends Model
         'price',
         'original_price',
         'is_bundle',
+        'is_digital',
         'category_id',
         'features',
+        'download_links',
+        'download_file',
         'file_size',
         'file_count',
         'included_products',
@@ -39,8 +42,10 @@ class Product extends Model
     protected $casts = [
         'images' => 'array',
         'features' => 'array',
+        'download_links' => 'array',
         'included_products' => 'array',
         'is_bundle' => 'boolean',
+        'is_digital' => 'boolean',
         'is_active' => 'boolean',
         'price' => 'decimal:2',
         'original_price' => 'decimal:2',
@@ -76,7 +81,18 @@ class Product extends Model
             return $this->image;
         }
 
-        return Storage::url($this->image);
+        // Use public disk for images
+        return Storage::disk('public')->url($this->image);
+    }
+
+    public function getDownloadFileUrlAttribute(): ?string
+    {
+        if (!$this->download_file) {
+            return null;
+        }
+
+        // Serve private files via download route
+        return route('bundles.download', $this->slug);
     }
 
     protected static function boot()
