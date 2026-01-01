@@ -21,7 +21,7 @@ Route::get('/signup', [AuthController::class, 'showRegister'])->name('register')
 Route::post('/signup', [AuthController::class, 'register'])->name('register.submit');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-// Profile routes
+// Profile route
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function () {
         $userId = Auth::id();
