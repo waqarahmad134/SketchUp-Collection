@@ -1,0 +1,24 @@
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+# Block access to Dotfiles (like .env)
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to Composer files
+<FilesMatch "(^composer\.json|^composer\.lock)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to package logs
+<FilesMatch "(^package\.json|^package-lock\.json)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+# Disable Directory Browsing
+Options -Indexes
