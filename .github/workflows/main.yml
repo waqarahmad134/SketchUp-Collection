@@ -1,15 +1,15 @@
-name: 🚀 1. Deploy to Master
+name: 🚀 1. Deploy to Main
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   web-deploy:
     name: 🎉 Deploy to Master
     runs-on: ubuntu-latest
-    environment: master
+    environment: main
 
     steps:
       - name: 🚚 Get latest code
