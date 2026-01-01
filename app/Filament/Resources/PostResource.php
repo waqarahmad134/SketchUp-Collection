@@ -60,6 +60,18 @@ class PostResource extends Resource
                         Forms\Components\Toggle::make('is_featured')
                             ->label('Featured Post')
                             ->default(false),
+                        Forms\Components\Select::make('tags')
+                            ->label('Tags')
+                            ->relationship('tags', 'name', fn ($query) => $query->where('type', 'post')->where('is_active', true))
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')->required(),
+                                Forms\Components\TextInput::make('slug')->required(),
+                                Forms\Components\Select::make('type')->options(['post' => 'Post'])->default('post'),
+                            ])
+                            ->columnSpanFull(),
                     ])->columns(2),
 
                 Section::make('Content')
@@ -85,25 +97,116 @@ class PostResource extends Resource
                             ->visibility('public'),
                     ]),
 
-                Section::make('SEO')
+                Section::make('SEO & Meta Tags')
                     ->schema([
-                        Forms\Components\TextInput::make('meta_title')
-                            ->maxLength(60),
-                        Forms\Components\Textarea::make('meta_description')
-                            ->rows(3)
-                            ->maxLength(160),
-                        Forms\Components\Select::make('tags')
-                            ->label('Tags')
-                            ->relationship('tags', 'name', fn ($query) => $query->where('type', 'post')->where('is_active', true))
-                            ->multiple()
-                            ->searchable()
-                            ->preload()
-                            ->createOptionForm([
-                                Forms\Components\TextInput::make('name')->required(),
-                                Forms\Components\TextInput::make('slug')->required(),
-                                Forms\Components\Select::make('type')->options(['post' => 'Post'])->default('post'),
-                            ]),
-                    ]),
+                        Section::make('Basic SEO')
+                            ->schema([
+                                Forms\Components\TextInput::make('meta_title')
+                                    ->label('Meta Title')
+                                    ->maxLength(60)
+                                    ->helperText('Leave blank to use post title')
+                                    ->columnSpanFull(),
+                                Forms\Components\Textarea::make('meta_description')
+                                    ->label('Meta Description')
+                                    ->rows(3)
+                                    ->maxLength(160)
+                                    ->helperText('Leave blank to use post excerpt')
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('canonical_url')
+                                    ->label('Canonical URL')
+                                    ->url()
+                                    ->helperText('Leave blank to use current URL')
+                                    ->columnSpanFull(),
+                                Forms\Components\Select::make('robots_index')
+                                    ->label('Robots Index')
+                                    ->options([
+                                        'index' => 'Index',
+                                        'noindex' => 'No Index',
+                                    ])
+                                    ->default('index'),
+                                Forms\Components\Select::make('robots_follow')
+                                    ->label('Robots Follow')
+                                    ->options([
+                                        'follow' => 'Follow',
+                                        'nofollow' => 'No Follow',
+                                    ])
+                                    ->default('follow'),
+                            ])->columns(2)
+                            ->collapsible(),
+                        
+                        Section::make('Open Graph')
+                            ->schema([
+                                Forms\Components\TextInput::make('og_title')
+                                    ->label('OG Title')
+                                    ->maxLength(60)
+                                    ->helperText('Leave blank to use meta title')
+                                    ->columnSpanFull(),
+                                Forms\Components\Textarea::make('og_description')
+                                    ->label('OG Description')
+                                    ->rows(3)
+                                    ->maxLength(200)
+                                    ->helperText('Leave blank to use meta description')
+                                    ->columnSpanFull(),
+                                Forms\Components\FileUpload::make('og_image')
+                                    ->label('OG Image')
+                                    ->image()
+                                    ->directory('seo/og')
+                                    ->helperText('Leave blank to use featured image')
+                                    ->columnSpanFull(),
+                                Forms\Components\Select::make('og_type')
+                                    ->label('OG Type')
+                                    ->options([
+                                        'article' => 'Article',
+                                        'website' => 'Website',
+                                        'blog' => 'Blog',
+                                    ])
+                                    ->default('article'),
+                            ])
+                            ->collapsible(),
+                        
+                        Section::make('Twitter Card')
+                            ->schema([
+                                Forms\Components\Select::make('twitter_card')
+                                    ->label('Twitter Card Type')
+                                    ->options([
+                                        'summary' => 'Summary',
+                                        'summary_large_image' => 'Summary Large Image',
+                                        'player' => 'Player',
+                                        'app' => 'App',
+                                    ])
+                                    ->default('summary_large_image'),
+                                Forms\Components\TextInput::make('twitter_title')
+                                    ->label('Twitter Title')
+                                    ->maxLength(70)
+                                    ->helperText('Leave blank to use meta title')
+                                    ->columnSpanFull(),
+                                Forms\Components\Textarea::make('twitter_description')
+                                    ->label('Twitter Description')
+                                    ->rows(3)
+                                    ->maxLength(200)
+                                    ->helperText('Leave blank to use meta description')
+                                    ->columnSpanFull(),
+                                Forms\Components\FileUpload::make('twitter_image')
+                                    ->label('Twitter Image')
+                                    ->image()
+                                    ->directory('seo/twitter')
+                                    ->helperText('Leave blank to use featured image')
+                                    ->columnSpanFull(),
+                            ])
+                            ->collapsible(),
+                        
+                        Section::make('Schema.org')
+                            ->schema([
+                                Forms\Components\Textarea::make('schema_markup')
+                                    ->label('Custom Schema JSON-LD')
+                                    ->rows(10)
+                                    ->helperText('Custom JSON-LD schema. Leave blank to use auto-generated schema.')
+                                    ->columnSpanFull(),
+                            ])
+                            ->collapsible(),
+                    ])
+                    ->collapsed()
+                    ->collapsible(),
             ]);
     }
 
