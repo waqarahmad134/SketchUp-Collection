@@ -11,6 +11,30 @@ use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+
+// Clear Cache facade value:
+Route::get('/clear', function () {
+    $exitCode = Artisan::call('cache:clear');
+    $exitCode = Artisan::call('optimize');
+    $exitCode = Artisan::call('route:cache');
+    $exitCode = Artisan::call('route:clear');
+    $exitCode = Artisan::call('view:clear');
+    $exitCode = Artisan::call('config:cache');
+    $exitCode = Artisan::call('config:clear');
+    return '<h1>Cache facade value cleared</h1>';
+});
+
+Route::get('/migrations', function () {
+    Artisan::call('migrate');
+    return 'Migrations executed successfully!';
+});
+
+Route::get('/seed', function () {
+    Artisan::call('db:seed', ['--force' => true]);
+    return 'Database seeded successfully!';
+});
+
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
