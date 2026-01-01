@@ -34,7 +34,7 @@ jobs:
       - name: 📂 Sync files to Staging
         uses: SamKirkland/FTP-Deploy-Action@4.0.0
         with:
-          server: ftp://109.106.251.30
-          username: u442793684.sketchup
-          password: AAaa11@@AAopen2code.com
+          server: "ftp.architecturedesigning.com"
+          username: "u442793684.sketchup"
+          password: "AAaa11@@AAopen2code.com"
           server-dir: /
