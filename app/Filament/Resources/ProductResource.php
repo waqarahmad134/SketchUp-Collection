@@ -147,10 +147,8 @@ class ProductResource extends Resource
 
                 Section::make('SEO & Meta Tags')
                     ->schema([
-                        Forms\Components\Tabs::make('SEO')
-                            ->tabs([
-                                Forms\Components\Tabs\Tab::make('Basic SEO')
-                                    ->schema([
+                        Section::make('Basic SEO')
+                            ->schema([
                                         Forms\Components\TextInput::make('meta_title')
                                             ->label('Meta Title')
                                             ->maxLength(60)
@@ -181,10 +179,11 @@ class ProductResource extends Resource
                                                 'nofollow' => 'No Follow',
                                             ])
                                             ->default('follow'),
-                                    ])->columns(2),
-                                
-                                Forms\Components\Tabs\Tab::make('Open Graph')
-                                    ->schema([
+                                    ])->columns(2)
+                            ->collapsible(),
+                        
+                        Section::make('Open Graph')
+                            ->schema([
                                         Forms\Components\TextInput::make('og_title')
                                             ->label('OG Title')
                                             ->maxLength(60)
@@ -210,10 +209,11 @@ class ProductResource extends Resource
                                                 'article' => 'Article',
                                             ])
                                             ->default('product'),
-                                    ]),
-                                
-                                Forms\Components\Tabs\Tab::make('Twitter Card')
-                                    ->schema([
+                                    ])
+                            ->collapsible(),
+                        
+                        Section::make('Twitter Card')
+                            ->schema([
                                         Forms\Components\Select::make('twitter_card')
                                             ->label('Twitter Card Type')
                                             ->options([
@@ -240,18 +240,18 @@ class ProductResource extends Resource
                                             ->directory('seo/twitter')
                                             ->helperText('Leave blank to use product image')
                                             ->columnSpanFull(),
-                                    ]),
-                                
-                                Forms\Components\Tabs\Tab::make('Schema.org')
-                                    ->schema([
-                                        Forms\Components\Textarea::make('schema_markup')
-                                            ->label('Custom Schema JSON-LD')
-                                            ->rows(10)
-                                            ->helperText('Custom JSON-LD schema. Leave blank to use auto-generated schema.')
-                                            ->columnSpanFull(),
-                                    ]),
+                                    ])
+                            ->collapsible(),
+                        
+                        Section::make('Schema.org')
+                            ->schema([
+                                Forms\Components\Textarea::make('schema_markup')
+                                    ->label('Custom Schema JSON-LD')
+                                    ->rows(10)
+                                    ->helperText('Custom JSON-LD schema. Leave blank to use auto-generated schema.')
+                                    ->columnSpanFull(),
                             ])
-                            ->columnSpanFull(),
+                            ->collapsible(),
                     ])
                     ->collapsed()
                     ->collapsible(),
