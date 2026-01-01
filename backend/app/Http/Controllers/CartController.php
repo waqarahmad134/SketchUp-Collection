@@ -21,7 +21,7 @@ class CartController extends Controller
         ]);
     }
 
-    public function add(Product $product, Request $request): RedirectResponse
+    public function add(Product $product, Request $request)
     {
         $cart = $request->session()->get('cart', []);
         $already = isset($cart[$product->id]);
@@ -68,7 +68,8 @@ class CartController extends Controller
             return redirect()->route('login')->with('status', 'Please login to checkout.');
         }
 
-        return redirect()->route('checkout.show');
+        // Go straight to Stripe checkout
+        return redirect()->route('checkout.stripe.start');
     }
 
     private function cartCounts(array $cart): array

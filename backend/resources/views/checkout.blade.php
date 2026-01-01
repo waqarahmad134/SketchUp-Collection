@@ -22,8 +22,7 @@
                         </div>
                     @endif
                     <div class="space-y-4">
-                        <form method="POST" action="{{ route('checkout.stripe.start') }}" target="_blank">
-                            @csrf
+                        <form method="GET" action="{{ route('checkout.stripe.start') }}" target="_blank">
                             <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition">
                                 Pay with Stripe
                                 <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
