@@ -44,19 +44,21 @@ class SitemapController extends Controller
         });
 
         // Add product categories
-        ProductCategory::where('is_active', true)->get()->each(function (ProductCategory $category) use ($sitemap) {
-            $sitemap->add(
-                Url::create("/categories/{$category->slug}")
-                    ->setLastModificationDate($category->updated_at)
-                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-                    ->setPriority(0.6)
-            );
-        });
+        // ProductCategory::where('is_active', true)->get()->each(function (ProductCategory $category) use ($sitemap) {
+        //     $sitemap->add(
+        //         Url::create("/categories/{$category->slug}")
+        //             ->setLastModificationDate($category->updated_at)
+        //             ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+        //             ->setPriority(0.6)
+        //     );
+        // });
 
         // Add static pages
         $staticPages = [
             '/about' => 0.5,
             '/contact' => 0.5,
+            '/terms-of-service' => 0.5,
+            '/privacy-policy' => 0.5,
             '/pricing' => 0.7,
             '/bundles' => 0.9,
         ];

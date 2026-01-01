@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\Menu;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -23,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Force HTTPS in production
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+
         View::composer('*', function ($view) {
             $cart = Session::get('cart', []);
             $cartItems = is_array($cart) ? count($cart) : 0;

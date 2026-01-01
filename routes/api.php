@@ -5,18 +5,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\MenuController;
-use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\RobotsController;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 */
-
-// SEO Routes (outside API prefix)
-Route::get('/sitemap.xml', [SitemapController::class, 'index']);
-Route::get('/robots.txt', [RobotsController::class, 'index']);
 
 Route::prefix('v1')->group(function () {
     // Public routes
@@ -40,4 +34,3 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
     });
 });
-

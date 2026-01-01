@@ -8,9 +8,14 @@ use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\RobotsController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// SEO Routes
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 
 // Clear Cache facade value:
 Route::get('/clear', function () {
