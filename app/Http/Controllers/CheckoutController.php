@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -32,7 +33,7 @@ class CheckoutController extends Controller
             return back()->withErrors(['payment' => 'Your cart is empty.']);
         }
 
-        $secret = config('services.stripe.secret') ?? env('STRIPE_KEY');
+        $secret = Setting::get('stripe_key') ?? config('services.stripe.secret') ?? env('STRIPE_KEY');
         if (!$secret) {
             return back()->withErrors(['payment' => 'Stripe key not configured.']);
         }

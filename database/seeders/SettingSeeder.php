@@ -10,8 +10,8 @@ class SettingSeeder extends Seeder
     public function run(): void
     {
         Setting::updateOrCreate(
-            ['key' => 'stripe_checkout_url'],
-            ['value' => env('STRIPE_CHECKOUT_URL', '')]
+            ['key' => 'stripe_key'],
+            ['value' => env('STRIPE_KEY', '')]
         );
     }
 }

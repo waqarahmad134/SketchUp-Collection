@@ -87,6 +87,7 @@ class BlogController extends Controller
             'title' => $post->title . ' | Blog',
             'metaDescription' => $post->meta_description ?? $post->excerpt ?? $post->title,
             'post' => $post,
+            'seoModel' => $post,
         ]);
     }
 }

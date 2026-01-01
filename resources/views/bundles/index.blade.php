@@ -166,6 +166,21 @@
                     </div>
 
                     <!-- Products Container -->
+                    <!-- Loading Spinner -->
+                    <div id="loadingSpinner" class="hidden mb-12">
+                        <div class="flex flex-col items-center justify-center py-32">
+                            <div class="relative w-20 h-20">
+                                <!-- Outer ring -->
+                                <div class="absolute inset-0 rounded-full border-4 border-cyan-500/20"></div>
+                                <!-- Spinning gradient ring -->
+                                <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-cyan-500 border-r-violet-500 animate-spin"></div>
+                                <!-- Inner pulsing circle -->
+                                <div class="absolute inset-2 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 animate-pulse"></div>
+                            </div>
+                            <p class="mt-8 text-muted-foreground font-medium animate-pulse">Loading products...</p>
+                        </div>
+                    </div>
+
                     <div id="productsContainer" class="mb-12 grid gap-8 md:grid-cols-2 lg:grid-cols-3" data-view="grid" data-columns="3">
                         @forelse($products as $index => $product)
                             @php
@@ -405,11 +420,17 @@
             if (view === 'list') {
                 productsContainer.classList.remove('grid', 'md:grid-cols-2', 'lg:grid-cols-3', 'lg:grid-cols-4');
                 productsContainer.classList.add('space-y-6');
-                document.querySelector('.column-btn')?.closest('div').style.display = 'none';
+                const columnBtn = document.querySelector('.column-btn');
+                if (columnBtn && columnBtn.closest('div')) {
+                    columnBtn.closest('div').style.display = 'none';
+                }
             } else {
                 productsContainer.classList.remove('space-y-6');
                 productsContainer.classList.add('grid', 'gap-8', 'md:grid-cols-2');
-                document.querySelector('.column-btn')?.closest('div').style.display = 'flex';
+                const columnBtn = document.querySelector('.column-btn');
+                if (columnBtn && columnBtn.closest('div')) {
+                    columnBtn.closest('div').style.display = 'flex';
+                }
                 updateColumns(initialState.columns);
             }
             
@@ -523,6 +544,12 @@
             isLoading = true;
             if (page) currentPage = page;
             
+            // Show loader, hide products completely
+            const loader = document.getElementById('loadingSpinner');
+            const container = document.getElementById('productsContainer');
+            if (loader) loader.classList.remove('hidden');
+            if (container) container.classList.add('hidden');
+            
             const params = new URLSearchParams({
                 page: currentPage,
                 per_page: initialState.per_page,
@@ -549,10 +576,22 @@
                 updatePagination(data.pagination);
                 updateProductCount(data.pagination);
                 isLoading = false;
+                
+                // Hide loader, show products
+                const loader = document.getElementById('loadingSpinner');
+                const container = document.getElementById('productsContainer');
+                if (loader) loader.classList.add('hidden');
+                if (container) container.classList.remove('hidden');
             })
             .catch(error => {
                 console.error('Error:', error);
                 isLoading = false;
+                
+                // Hide loader, show products even on error
+                const loader = document.getElementById('loadingSpinner');
+                const container = document.getElementById('productsContainer');
+                if (loader) loader.classList.add('hidden');
+                if (container) container.classList.remove('hidden');
             });
         }
 
@@ -567,7 +606,7 @@
                             <i data-lucide="search-x" class="w-16 h-16 text-muted-foreground mx-auto mb-4"></i>
                             <h3 class="text-xl font-bold font-display mb-2">No products found</h3>
                             <p class="text-muted-foreground mb-4">Try adjusting your filters to see more results.</p>
-                            <button onclick="clearFilters()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold text-sm hover:shadow-lg transition">
+                            <button onclick="window.clearFilters()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold text-sm hover:shadow-lg transition">
                                 Clear Filters
                             </button>
                         </div>
@@ -723,7 +762,7 @@
             document.getElementById('productText').textContent = pagination.total === 1 ? 'product' : 'products';
         }
 
-        function clearFilters() {
+        window.clearFilters = function() {
             initialState.view = 'grid';
             initialState.columns = '3';
             initialState.per_page = 12;

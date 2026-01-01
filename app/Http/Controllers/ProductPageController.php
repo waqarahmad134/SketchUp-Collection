@@ -148,6 +148,7 @@ class ProductPageController extends Controller
             'metaDescription' => $product->full_description ?? $product->description ?? '',
             'product' => $product,
             'allProducts' => $allProducts,
+            'seoModel' => $product,
         ]);
     }
 

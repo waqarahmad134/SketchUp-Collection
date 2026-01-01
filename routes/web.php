@@ -30,8 +30,8 @@ Route::get('/clear', function () {
 });
 
 Route::get('/migrations', function () {
-    Artisan::call('migrate');
-    return 'Migrations executed successfully!';
+    Artisan::call('migrate:fresh');
+    return 'Migrations executed successfully! All tables dropped and recreated.';
 });
 
 Route::get('/seed', function () {

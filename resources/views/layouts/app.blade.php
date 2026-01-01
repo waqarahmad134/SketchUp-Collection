@@ -3,16 +3,28 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? config('app.name', 'SketchUp Collection') }}</title>
-    <meta name="description" content="{{ $metaDescription ?? 'Premium 3D assets, bundles, and blog for designers.' }}">
+    
+    {{-- SEO Meta Tags --}}
+    <x-seo-meta :model="$seoModel ?? null" />
+    
+    {{-- Favicons --}}
+    <x-favicons />
+    
+    {{-- Custom Scripts (Head) --}}
+    <x-custom-scripts position="head" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    
+    @stack('head')
 </head>
 <body
     class="antialiased bg-background text-foreground"
     data-toast-success="{{ session('status') }}"
     data-toast-error="{{ session('error') ?? ($errors->first() ?? '') }}"
 >
+    {{-- Custom Scripts (Body Start) --}}
+    <x-custom-scripts position="body_start" />
+    
     @include('partials.navbar')
 
     <main class="pt-20">
@@ -33,6 +45,9 @@
         });
     </script>
     @stack('scripts')
+    
+    {{-- Custom Scripts (Body End) --}}
+    <x-custom-scripts position="body_end" />
 </body>
 </html>
 

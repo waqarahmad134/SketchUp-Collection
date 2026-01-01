@@ -144,6 +144,117 @@ class ProductResource extends Resource
                             ->options(Product::pluck('title', 'id'))
                             ->visible(fn ($get) => $get('is_bundle')),
                     ]),
+
+                Section::make('SEO & Meta Tags')
+                    ->schema([
+                        Forms\Components\Tabs::make('SEO')
+                            ->tabs([
+                                Forms\Components\Tabs\Tab::make('Basic SEO')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('meta_title')
+                                            ->label('Meta Title')
+                                            ->maxLength(60)
+                                            ->helperText('Leave blank to use product title')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Textarea::make('meta_description')
+                                            ->label('Meta Description')
+                                            ->maxLength(155)
+                                            ->rows(3)
+                                            ->helperText('Leave blank to use product description')
+                                            ->columnSpanFull(),
+                                        Forms\Components\TextInput::make('canonical_url')
+                                            ->label('Canonical URL')
+                                            ->url()
+                                            ->helperText('Leave blank to use current URL')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Select::make('robots_index')
+                                            ->label('Robots Index')
+                                            ->options([
+                                                'index' => 'Index',
+                                                'noindex' => 'No Index',
+                                            ])
+                                            ->default('index'),
+                                        Forms\Components\Select::make('robots_follow')
+                                            ->label('Robots Follow')
+                                            ->options([
+                                                'follow' => 'Follow',
+                                                'nofollow' => 'No Follow',
+                                            ])
+                                            ->default('follow'),
+                                    ])->columns(2),
+                                
+                                Forms\Components\Tabs\Tab::make('Open Graph')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('og_title')
+                                            ->label('OG Title')
+                                            ->maxLength(60)
+                                            ->helperText('Leave blank to use meta title')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Textarea::make('og_description')
+                                            ->label('OG Description')
+                                            ->maxLength(200)
+                                            ->rows(3)
+                                            ->helperText('Leave blank to use meta description')
+                                            ->columnSpanFull(),
+                                        Forms\Components\FileUpload::make('og_image')
+                                            ->label('OG Image')
+                                            ->image()
+                                            ->directory('seo/og')
+                                            ->helperText('Leave blank to use product image')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Select::make('og_type')
+                                            ->label('OG Type')
+                                            ->options([
+                                                'product' => 'Product',
+                                                'website' => 'Website',
+                                                'article' => 'Article',
+                                            ])
+                                            ->default('product'),
+                                    ]),
+                                
+                                Forms\Components\Tabs\Tab::make('Twitter Card')
+                                    ->schema([
+                                        Forms\Components\Select::make('twitter_card')
+                                            ->label('Twitter Card Type')
+                                            ->options([
+                                                'summary' => 'Summary',
+                                                'summary_large_image' => 'Summary Large Image',
+                                                'player' => 'Player',
+                                                'app' => 'App',
+                                            ])
+                                            ->default('summary_large_image'),
+                                        Forms\Components\TextInput::make('twitter_title')
+                                            ->label('Twitter Title')
+                                            ->maxLength(70)
+                                            ->helperText('Leave blank to use meta title')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Textarea::make('twitter_description')
+                                            ->label('Twitter Description')
+                                            ->maxLength(200)
+                                            ->rows(3)
+                                            ->helperText('Leave blank to use meta description')
+                                            ->columnSpanFull(),
+                                        Forms\Components\FileUpload::make('twitter_image')
+                                            ->label('Twitter Image')
+                                            ->image()
+                                            ->directory('seo/twitter')
+                                            ->helperText('Leave blank to use product image')
+                                            ->columnSpanFull(),
+                                    ]),
+                                
+                                Forms\Components\Tabs\Tab::make('Schema.org')
+                                    ->schema([
+                                        Forms\Components\Textarea::make('schema_markup')
+                                            ->label('Custom Schema JSON-LD')
+                                            ->rows(10)
+                                            ->helperText('Custom JSON-LD schema. Leave blank to use auto-generated schema.')
+                                            ->columnSpanFull(),
+                                    ]),
+                            ])
+                            ->columnSpanFull(),
+                    ])
+                    ->collapsed()
+                    ->collapsible(),
             ]);
     }
 

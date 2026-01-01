@@ -7,8 +7,8 @@ use App\Models\Setting;
 use Filament\Actions\EditAction;
 use Filament\Forms;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Filament\Schemas\Components\Section;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -28,23 +28,22 @@ class SettingResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->schema([
-            Section::make('Stripe Checkout')
-                ->description('Configure Stripe checkout URL used for Buy Now / Checkout redirect.')
-                ->schema([
-                    Forms\Components\TextInput::make('key')
-                        ->label('Key')
-                        ->default('stripe_checkout_url')
-                        ->disabled()
-                        ->dehydrated(true),
-                    Forms\Components\TextInput::make('value')
-                        ->label('Stripe Checkout URL')
-                        ->placeholder('https://checkout.stripe.com/c/pay/...')
-                        ->required()
-                        ->url()
-                        ->maxLength(500),
-                ]),
-        ]);
+        return $schema
+            ->schema([
+                Section::make('Setting')
+                    ->schema([
+                        Forms\Components\TextInput::make('key')
+                            ->label('Key')
+                            ->required()
+                            ->maxLength(255)
+                            ->disabled(fn ($record) => $record !== null)
+                            ->dehydrated(),
+                        Forms\Components\Textarea::make('value')
+                            ->label('Value')
+                            ->rows(3)
+                            ->columnSpanFull(),
+                    ]),
+            ]);
     }
 
     public static function table(Table $table): Table
