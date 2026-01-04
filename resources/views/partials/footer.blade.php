@@ -35,6 +35,44 @@
 @endphp
 
 <footer class="bg-card border-t border-border">
+    {{-- Promotional Banner Section --}}
+    <div class="bg-card border-b border-border">
+        <div class="container mx-auto px-4 py-12">
+            <div class="max-w-4xl mx-auto text-center space-y-6">
+                {{-- Logo --}}
+                <div class="flex items-center justify-center gap-2">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center">
+                        <i data-lucide="box" class="w-5 h-5 text-background"></i>
+                    </div>
+                    <span class="text-2xl font-bold font-display gradient-text">
+                        3DAssetHub
+                    </span>
+                </div>
+                
+                {{-- Promotional Text --}}
+                <div class="space-y-2">
+                    <p class="text-foreground text-lg md:text-xl">
+                        Join over <span class="font-bold">10,000+</span> designers
+                    </p>
+                    <p class="text-foreground text-lg md:text-xl">
+                        using our <span class="font-bold">2025 SKP Model Bundle.</span>
+                    </p>
+                </div>
+                
+                {{-- CTA Button --}}
+                <div>
+                    <a 
+                        href="{{ route('bundles.index') }}" 
+                        class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                    >
+                        Get the Bundle Now
+                        <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <div class="container mx-auto px-4 py-16">
         <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
             <div class="col-span-2 space-y-4">

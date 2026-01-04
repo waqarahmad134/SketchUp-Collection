@@ -12,4 +12,4 @@
 <link rel="icon" type="image/png" sizes="32x32" href="{{ asset($favicon32) }}">
 <link rel="icon" type="image/png" sizes="16x16" href="{{ asset($favicon16) }}">
 <link rel="manifest" href="{{ asset($manifest) }}">
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#06b6d4">

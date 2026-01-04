@@ -29,6 +29,11 @@ class User extends Authenticatable
         'card_last4',
         'card_exp_month',
         'card_exp_year',
+        'referral_code',
+        'referred_by',
+        'referral_earnings',
+        'referral_count',
+        'points',
     ];
 
     /**
@@ -51,6 +56,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'referral_earnings' => 'decimal:2',
         ];
     }
 
@@ -77,6 +83,106 @@ class User extends Authenticatable
     public function reviews()
     {
         return $this->hasMany(Review::class);
+    }
+
+    // Referral relationships
+    public function referrer()
+    {
+        return $this->belongsTo(User::class, 'referred_by');
+    }
+
+    public function referrals()
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    public function referredBy()
+    {
+        return $this->hasOne(Referral::class, 'referred_id');
+    }
+
+    public function pointsTransactions()
+    {
+        return $this->hasMany(PointsTransaction::class);
+    }
+
+    // Referral methods
+    public function generateReferralCode(): string
+    {
+        if ($this->referral_code) {
+            return $this->referral_code;
+        }
+
+        do {
+            $code = strtoupper(substr($this->name, 0, 3) . rand(1000, 9999));
+        } while (User::where('referral_code', $code)->exists());
+
+        $this->update(['referral_code' => $code]);
+        return $code;
+    }
+
+    public function getReferralCode(): ?string
+    {
+        if (!$this->referral_code) {
+            return $this->generateReferralCode();
+        }
+        return $this->referral_code;
+    }
+
+    public function getReferralUrl(): string
+    {
+        return route('register', ['ref' => $this->getReferralCode()]);
+    }
+
+    public function incrementReferralCount(): void
+    {
+        $this->increment('referral_count');
+    }
+
+    public function addReferralEarnings(float $amount): void
+    {
+        $this->increment('referral_earnings', $amount);
+    }
+
+    // Points methods
+    public function addPoints(int $points, string $type, string $description = null, $relatedId = null, string $relatedType = null): PointsTransaction
+    {
+        $this->increment('points', $points);
+        
+        return PointsTransaction::create([
+            'user_id' => $this->id,
+            'points' => $points,
+            'type' => $type,
+            'description' => $description,
+            'related_id' => $relatedId,
+            'related_type' => $relatedType,
+            'balance_after' => $this->fresh()->points,
+        ]);
+    }
+
+    public function deductPoints(int $points, string $type, string $description = null, $relatedId = null, string $relatedType = null): PointsTransaction
+    {
+        $this->decrement('points', $points);
+        
+        return PointsTransaction::create([
+            'user_id' => $this->id,
+            'points' => -$points,
+            'type' => $type,
+            'description' => $description,
+            'related_id' => $relatedId,
+            'related_type' => $relatedType,
+            'balance_after' => $this->fresh()->points,
+        ]);
+    }
+
+    public function getPoints(): int
+    {
+        return $this->points ?? 0;
+    }
+
+    public function hasEnoughPoints(int $points): bool
+    {
+        return $this->getPoints() >= $points;
     }
 
     // Role helper methods

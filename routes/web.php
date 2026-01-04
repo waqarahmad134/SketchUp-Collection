@@ -8,6 +8,7 @@ use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\DailyLoginController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RobotsController;
 use Illuminate\Support\Facades\Auth;
@@ -56,6 +57,9 @@ Route::post('/signup', [AuthController::class, 'register'])->name('register.subm
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Profile route
+// Daily Login Bonus - status available to everyone, claim requires auth
+Route::get('/daily-login/status', [DailyLoginController::class, 'status'])->name('daily-login.status');
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', function () {
         $userId = Auth::id();
@@ -71,6 +75,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/stripe/start', [CheckoutController::class, 'stripeStart'])->name('checkout.stripe.start');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+    
+    // Daily Login Bonus - claim requires authentication
+    Route::post('/daily-login/claim', [DailyLoginController::class, 'claim'])->name('daily-login.claim');
 });
 
 Route::get('/bundles', [ProductPageController::class, 'index'])->name('bundles.index');

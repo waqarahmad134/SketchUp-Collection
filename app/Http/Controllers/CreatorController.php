@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PointsTransaction;
 use App\Models\Product;
+use App\Models\Referral;
 use App\Models\User;
 use App\Models\Order;
 use App\Models\Transaction;
@@ -35,9 +37,14 @@ class CreatorController extends Controller
             ->latest()
             ->paginate(10) : null;
 
-        // Get transactions (only for own profile)
+        // Get payment transactions (only for own profile)
         $transactions = $isOwnProfile ? Transaction::where('user_id', $user->id)
             ->with(['order'])
+            ->latest()
+            ->paginate(10) : null;
+
+        // Get points transactions (only for own profile)
+        $pointsTransactions = $isOwnProfile ? PointsTransaction::where('user_id', $user->id)
             ->latest()
             ->paginate(10) : null;
 
@@ -62,6 +69,20 @@ class CreatorController extends Controller
             ->filter()
             ->values() : collect();
 
+        // Get referral data (only for own profile)
+        $referrals = $isOwnProfile ? Referral::where('referrer_id', $user->id)
+            ->with(['referred'])
+            ->latest()
+            ->paginate(10) : null;
+
+        $referralStats = $isOwnProfile ? [
+            'total_referrals' => $user->referral_count ?? 0,
+            'total_earnings' => $user->referral_earnings ?? 0,
+            'pending_referrals' => Referral::where('referrer_id', $user->id)->where('status', 'pending')->count(),
+            'completed_referrals' => Referral::where('referrer_id', $user->id)->where('status', 'completed')->count(),
+            'rewarded_referrals' => Referral::where('referrer_id', $user->id)->where('status', 'rewarded')->count(),
+        ] : null;
+
         return view('creators.show', [
             'title' => $user->name . ($isOwnProfile ? ' - My Profile' : ' - Creator Profile'),
             'metaDescription' => $isOwnProfile ? 'Manage your profile, orders, and settings' : 'View products uploaded by ' . $user->name,
@@ -70,9 +91,12 @@ class CreatorController extends Controller
             'products' => $products,
             'orders' => $orders,
             'transactions' => $transactions,
+            'pointsTransactions' => $pointsTransactions,
             'reviewsGiven' => $reviewsGiven,
             'reviewsReceived' => $reviewsReceived,
             'paymentGateways' => $paymentGateways,
+            'referrals' => $referrals,
+            'referralStats' => $referralStats,
             'isOwnProfile' => $isOwnProfile,
             'isSeller' => $isSeller,
         ]);

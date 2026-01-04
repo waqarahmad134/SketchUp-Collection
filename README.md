@@ -132,3 +132,20 @@ php artisan storage:link
 ## License
 
 Proprietary - All rights reserved
+
+
+============
+Underdevelop
+============
+Coupons 
+Images With name and title
+Logo watermark auto handle using admin
+Images alt in DB
+Light box for images
+Images masonary in bundle case with respect to categories
+Remove Filter from bundles
+Breadcrumbs
+Self Service of interior , exterior and others
+===============
+Admin Panel New
+===============

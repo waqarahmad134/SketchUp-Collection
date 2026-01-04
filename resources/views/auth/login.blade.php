@@ -23,12 +23,22 @@
 
                     @if (session('status'))
                         <div class="mb-4 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-100 p-3 text-sm">
-                            {{ session('status') }}
+{{ session('status') }}
+                        </div>
+                    @endif
+
+                    @if($claimDailyBonus ?? false)
+                        <div class="mb-4 rounded-xl border border-yellow-500/40 bg-yellow-500/10 text-yellow-100 p-3 text-sm">
+                            <i data-lucide="gift" class="w-4 h-4 inline mr-2"></i>
+                            Login to claim your daily bonus!
                         </div>
                     @endif
 
                     <form class="space-y-6" method="POST" action="{{ route('login.submit') }}">
                         @csrf
+                        @if($claimDailyBonus ?? false)
+                            <input type="hidden" name="claim_daily_bonus" value="1">
+                        @endif
                         <div class="space-y-2">
                             <label for="email" class="font-medium">Email</label>
                             <div class="relative">

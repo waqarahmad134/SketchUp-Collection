@@ -77,7 +77,14 @@
                         </button>
                         <button onclick="showTab('payments')" class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all" data-tab="payments">
                             <i data-lucide="credit-card" class="w-4 h-4 inline mr-2"></i>
-                            Payment Gateways
+                            Transaction's 
+                        </button>
+                        <button onclick="showTab('referrals')" class="tab-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all" data-tab="referrals">
+                            <i data-lucide="users" class="w-4 h-4 inline mr-2"></i>
+                            Referrals
+                            @if($referralStats && $referralStats['total_referrals'] > 0)
+                                <span class="ml-2 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 text-xs">{{ $referralStats['total_referrals'] }}</span>
+                            @endif
                         </button>
                     @endif
                     @if($isSeller && $isOwnProfile)
@@ -189,32 +196,54 @@
                                         @if($order->items->count() > 0)
                                             <div class="space-y-2 mb-4">
                                                 @foreach($order->items as $item)
-                                                    <div class="flex items-center gap-4 p-3 rounded-lg bg-card">
-                                                        @if($item->product)
-                                                            <a href="{{ route('bundles.show', $item->product->slug) }}" class="flex items-center gap-3 flex-1">
-                                                                @if($item->product->image_url)
-                                                                    <img src="{{ $item->product->image_url }}" alt="{{ $item->product_name }}" class="w-16 h-16 rounded-lg object-cover">
-                                                                @else
+                                                    <div class="p-3 rounded-lg bg-card">
+                                                        <div class="flex items-center gap-4">
+                                                            @if($item->product)
+                                                                <a href="{{ route('bundles.show', $item->product->slug) }}" class="flex items-center gap-3 flex-1">
+                                                                    @if($item->product->image_url)
+                                                                        <img src="{{ $item->product->image_url }}" alt="{{ $item->product_name }}" class="w-16 h-16 rounded-lg object-cover">
+                                                                    @else
+                                                                        <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+                                                                            <i data-lucide="package" class="w-8 h-8 text-cyan-400/50"></i>
+                                                                        </div>
+                                                                    @endif
+                                                                    <div class="flex-1">
+                                                                        <p class="font-semibold">{{ $item->product_name }}</p>
+                                                                        <p class="text-sm text-muted-foreground">Qty: {{ $item->quantity }} × ${{ number_format($item->price, 2) }}</p>
+                                                                    </div>
+                                                                    <p class="font-bold">${{ number_format($item->total, 2) }}</p>
+                                                                </a>
+                                                            @else
+                                                                <div class="flex items-center gap-3 flex-1">
                                                                     <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
                                                                         <i data-lucide="package" class="w-8 h-8 text-cyan-400/50"></i>
                                                                     </div>
-                                                                @endif
-                                                                <div class="flex-1">
-                                                                    <p class="font-semibold">{{ $item->product_name }}</p>
-                                                                    <p class="text-sm text-muted-foreground">Qty: {{ $item->quantity }} × ${{ number_format($item->price, 2) }}</p>
+                                                                    <div class="flex-1">
+                                                                        <p class="font-semibold">{{ $item->product_name }}</p>
+                                                                        <p class="text-sm text-muted-foreground">Qty: {{ $item->quantity }} × ${{ number_format($item->price, 2) }}</p>
+                                                                    </div>
+                                                                    <p class="font-bold">${{ number_format($item->total, 2) }}</p>
                                                                 </div>
-                                                                <p class="font-bold">${{ number_format($item->total, 2) }}</p>
-                                                            </a>
-                                                        @else
-                                                            <div class="flex items-center gap-3 flex-1">
-                                                                <div class="w-16 h-16 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
-                                                                    <i data-lucide="package" class="w-8 h-8 text-cyan-400/50"></i>
+                                                            @endif
+                                                        </div>
+                                                        @if($order->status === 'completed' && $item->product && $item->product->is_digital)
+                                                            <div class="mt-3 pt-3 border-t border-border">
+                                                                <div class="flex flex-wrap gap-2">
+                                                                    @if($item->product->download_file)
+                                                                        <a href="{{ route('bundles.download', $item->product->slug) }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border hover:border-foreground transition text-sm font-semibold">
+                                                                            <i data-lucide="download" class="w-4 h-4"></i>
+                                                                            Download File
+                                                                        </a>
+                                                                    @endif
+                                                                    @if($item->product->download_links && is_array($item->product->download_links) && count($item->product->download_links) > 0)
+                                                                        @foreach($item->product->download_links as $link)
+                                                                            <a href="{{ $link['url'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-border hover:border-foreground transition text-sm font-semibold">
+                                                                                <i data-lucide="external-link" class="w-4 h-4"></i>
+                                                                                {{ $link['title'] ?? 'Download Link' }}
+                                                                            </a>
+                                                                        @endforeach
+                                                                    @endif
                                                                 </div>
-                                                                <div class="flex-1">
-                                                                    <p class="font-semibold">{{ $item->product_name }}</p>
-                                                                    <p class="text-sm text-muted-foreground">Qty: {{ $item->quantity }} × ${{ number_format($item->price, 2) }}</p>
-                                                                </div>
-                                                                <p class="font-bold">${{ number_format($item->total, 2) }}</p>
                                                             </div>
                                                         @endif
                                                     </div>
@@ -228,11 +257,6 @@
                                                     <p>Method: <span class="font-semibold text-foreground">{{ $order->payment_method }}</span></p>
                                                 @endif
                                             </div>
-                                            @if($order->status === 'completed')
-                                                <a href="#" class="px-4 py-2 rounded-xl border border-border hover:border-foreground transition text-sm font-semibold">
-                                                    Download
-                                                </a>
-                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
@@ -255,8 +279,10 @@
                         @endif
                     </div>
                 </div>
+                @endif
 
-                <!-- Payment Gateways Tab -->
+                <!-- Transaction Tab -->
+                @if($isOwnProfile)
                 <div id="tab-payments" class="tab-content hidden">
                     <div class="glass-card rounded-3xl p-8 space-y-6">
                         <div>
@@ -266,46 +292,239 @@
 
                         <div class="border border-border rounded-2xl p-6">
                             <h3 class="text-xl font-bold font-display mb-4">Transaction History</h3>
-                            @if($transactions && $transactions->count() > 0)
+                            
+                            @php
+                                // Combine payment transactions and points transactions, sort by date
+                                $allTransactions = collect();
+                                
+                                if ($transactions && $transactions->count() > 0) {
+                                    foreach ($transactions as $tx) {
+                                        $allTransactions->push([
+                                            'type' => 'payment',
+                                            'data' => $tx,
+                                            'date' => $tx->created_at,
+                                        ]);
+                                    }
+                                }
+                                
+                                if ($pointsTransactions && $pointsTransactions->count() > 0) {
+                                    foreach ($pointsTransactions as $pt) {
+                                        $allTransactions->push([
+                                            'type' => 'points',
+                                            'data' => $pt,
+                                            'date' => $pt->created_at,
+                                        ]);
+                                    }
+                                }
+                                
+                                $allTransactions = $allTransactions->sortByDesc('date');
+                            @endphp
+                            
+                            @if($allTransactions->count() > 0)
                                 <div class="space-y-3">
-                                    @foreach($transactions as $transaction)
-                                        <div class="flex items-center justify-between p-4 rounded-xl border border-border hover:border-foreground transition-colors">
-                                            <div class="flex items-center gap-4">
-                                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
-                                                    @if($transaction->type === 'payment')
-                                                        <i data-lucide="arrow-down-circle" class="w-6 h-6 text-green-400"></i>
-                                                    @elseif($transaction->type === 'refund')
-                                                        <i data-lucide="arrow-up-circle" class="w-6 h-6 text-red-400"></i>
-                                                    @else
-                                                        <i data-lucide="dollar-sign" class="w-6 h-6 text-cyan-400"></i>
+                                    @foreach($allTransactions as $item)
+                                        @if($item['type'] === 'payment')
+                                            @php $transaction = $item['data']; @endphp
+                                            <div class="flex items-center justify-between p-4 rounded-xl border border-border hover:border-foreground transition-colors">
+                                                <div class="flex items-center gap-4 flex-1">
+                                                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+                                                        @if($transaction->type === 'payment')
+                                                            <i data-lucide="arrow-down-circle" class="w-6 h-6 text-green-400"></i>
+                                                        @elseif($transaction->type === 'refund')
+                                                            <i data-lucide="arrow-up-circle" class="w-6 h-6 text-red-400"></i>
+                                                        @else
+                                                            <i data-lucide="dollar-sign" class="w-6 h-6 text-cyan-400"></i>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <p class="font-semibold">{{ ucfirst($transaction->type) }}
+                                                            @if($transaction->order)
+                                                                <span class="text-xs text-muted-foreground font-normal">• Order #{{ $transaction->order->order_number }}</span>
+                                                            @endif
+                                                        </p>
+                                                        <p class="text-sm text-muted-foreground">
+                                                            {{ $transaction->payment_gateway ?? 'Card' }} • {{ $transaction->created_at->format('M d, Y h:i A') }}
+                                                        </p>
+                                                        @if($transaction->description)
+                                                            <p class="text-xs text-muted-foreground mt-1">{{ $transaction->description }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="font-bold {{ $transaction->type === 'refund' ? 'text-red-400' : 'text-green-400' }}">
+                                                        {{ $transaction->type === 'refund' ? '-' : '+' }}${{ number_format($transaction->amount, 2) }}
+                                                    </p>
+                                                    <p class="text-xs text-muted-foreground capitalize">{{ $transaction->status }}</p>
+                                                    @if($transaction->transaction_id)
+                                                        <p class="text-xs text-muted-foreground mt-1">{{ $transaction->transaction_id }}</p>
                                                     @endif
                                                 </div>
-                                                <div>
-                                                    <p class="font-semibold">{{ ucfirst($transaction->type) }}</p>
-                                                    <p class="text-sm text-muted-foreground">
-                                                        {{ $transaction->payment_gateway ?? 'Card' }} • {{ $transaction->created_at->format('M d, Y') }}
+                                            </div>
+                                        @else
+                                            @php $pointsTx = $item['data']; @endphp
+                                            <div class="flex items-center justify-between p-4 rounded-xl border border-border hover:border-foreground transition-colors bg-yellow-500/5">
+                                                <div class="flex items-center gap-4 flex-1">
+                                                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-yellow-500/20 to-orange-500/20 flex items-center justify-center">
+                                                        @if($pointsTx->points > 0)
+                                                            <i data-lucide="coins" class="w-6 h-6 text-yellow-400"></i>
+                                                        @else
+                                                            <i data-lucide="minus-circle" class="w-6 h-6 text-red-400"></i>
+                                                        @endif
+                                                    </div>
+                                                    <div class="flex-1">
+                                                        <p class="font-semibold">
+                                                            @if($pointsTx->type === 'signup')
+                                                                Sign Up Bonus
+                                                            @elseif($pointsTx->type === 'referral')
+                                                                Referral Commission
+                                                            @else
+                                                                {{ ucfirst($pointsTx->type) }}
+                                                            @endif
+                                                        </p>
+                                                        <p class="text-sm text-muted-foreground">
+                                                            {{ $pointsTx->created_at->format('M d, Y h:i A') }}
+                                                        </p>
+                                                        @if($pointsTx->description)
+                                                            <p class="text-xs text-muted-foreground mt-1">{{ $pointsTx->description }}</p>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="text-right">
+                                                    <p class="font-bold {{ $pointsTx->points > 0 ? 'text-yellow-400' : 'text-red-400' }}">
+                                                        {{ $pointsTx->points > 0 ? '+' : '' }}{{ number_format($pointsTx->points, 0) }} SKP
+                                                    </p>
+                                                    <p class="text-xs text-muted-foreground">
+                                                        Balance: {{ number_format($pointsTx->balance_after ?? 0, 0) }}
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div class="text-right">
-                                                <p class="font-bold {{ $transaction->type === 'refund' ? 'text-red-400' : 'text-green-400' }}">
-                                                    {{ $transaction->type === 'refund' ? '-' : '+' }}${{ number_format($transaction->amount, 2) }}
-                                                </p>
-                                                <p class="text-xs text-muted-foreground capitalize">{{ $transaction->status }}</p>
-                                            </div>
-                                        </div>
+                                        @endif
                                     @endforeach
                                 </div>
-                                @if($transactions->hasPages())
-                                    <div class="mt-6">
-                                        {{ $transactions->links() }}
-                                    </div>
-                                @endif
                             @else
                                 <div class="text-center py-12">
                                     <i data-lucide="credit-card" class="w-16 h-16 mx-auto mb-4 text-muted-foreground"></i>
                                     <h3 class="text-xl font-bold font-display mb-2">No transactions yet</h3>
-                                    <p class="text-muted-foreground mb-6">Your payments and payouts will appear here.</p>
+                                    <p class="text-muted-foreground mb-6">Your payments and points transactions will appear here.</p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Referrals Tab -->
+                @if($isOwnProfile)
+                <div id="tab-referrals" class="tab-content hidden">
+                    <div class="glass-card rounded-3xl p-8 space-y-6">
+                        <div>
+                            <h2 class="text-2xl font-bold font-display mb-2">Referral Program</h2>
+                            <p class="text-sm text-muted-foreground">Earn rewards by referring friends to our platform.</p>
+                        </div>
+
+                        <!-- Referral Stats -->
+                        @if($referralStats)
+                        <div class="grid md:grid-cols-5 gap-4">
+                            <div class="border border-border rounded-xl p-4">
+                                <p class="text-sm text-muted-foreground mb-1">Total Referrals</p>
+                                <p class="text-2xl font-bold gradient-text">{{ $referralStats['total_referrals'] }}</p>
+                            </div>
+                            <div class="border border-border rounded-xl p-4">
+                                <p class="text-sm text-muted-foreground mb-1">Total Earnings</p>
+                                <p class="text-2xl font-bold gradient-text">${{ number_format($referralStats['total_earnings'], 2) }}</p>
+                                <p class="text-xs text-muted-foreground mt-1">
+                                    {{ number_format($referralStats['total_earnings'] * 1000, 0) }} SKP Coins
+                                </p>
+                            </div>
+                            <div class="border border-border rounded-xl p-4">
+                                <p class="text-sm text-muted-foreground mb-1">Your Coins</p>
+                                <p class="text-2xl font-bold text-yellow-400">{{ number_format($user->getPoints(), 0) }}</p>
+                                <p class="text-xs text-muted-foreground mt-1">SKP Points</p>
+                            </div>
+                            <div class="border border-border rounded-xl p-4">
+                                <p class="text-sm text-muted-foreground mb-1">Pending</p>
+                                <p class="text-2xl font-bold text-yellow-400">{{ $referralStats['pending_referrals'] }}</p>
+                            </div>
+                            <div class="border border-border rounded-xl p-4">
+                                <p class="text-sm text-muted-foreground mb-1">Rewarded</p>
+                                <p class="text-2xl font-bold text-green-400">{{ $referralStats['rewarded_referrals'] }}</p>
+                            </div>
+                        </div>
+                        @endif
+
+                        <!-- Referral Code Section -->
+                        <div class="border border-border rounded-2xl p-6">
+                            <h3 class="text-xl font-bold font-display mb-4">Your Referral Code</h3>
+                            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 p-4 rounded-xl bg-card border border-border">
+                                        <code class="text-2xl font-bold font-mono gradient-text">{{ $user->getReferralCode() }}</code>
+                                        <button onclick="copyReferralCode()" class="ml-auto px-4 py-2 rounded-lg border border-border hover:border-foreground transition text-sm font-semibold" title="Copy code">
+                                            <i data-lucide="copy" class="w-4 h-4"></i>
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-muted-foreground mt-2">Share this code with friends to earn rewards!</p>
+                                </div>
+                            </div>
+                            
+                            <!-- Referral Link -->
+                            <div class="mt-4">
+                                <label class="block text-sm font-semibold mb-2">Your Referral Link</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="referral-link" value="{{ $user->getReferralUrl() }}" readonly class="flex-1 px-4 py-3 rounded-xl bg-card border border-border text-sm">
+                                    <button onclick="copyReferralLink()" class="px-4 py-3 rounded-xl border border-border hover:border-foreground transition text-sm font-semibold">
+                                        <i data-lucide="copy" class="w-4 h-4"></i>
+                                    </button>
+                                    <a href="https://twitter.com/intent/tweet?text={{ urlencode('Join me on ' . config('app.name') . '! Use my referral code: ' . $user->getReferralCode()) }}&url={{ urlencode($user->getReferralUrl()) }}" target="_blank" class="px-4 py-3 rounded-xl border border-border hover:border-foreground transition text-sm font-semibold">
+                                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Referral History -->
+                        <div class="border border-border rounded-2xl p-6">
+                            <h3 class="text-xl font-bold font-display mb-4">Referral History</h3>
+                            @if($referrals && $referrals->count() > 0)
+                                <div class="space-y-3">
+                                    @foreach($referrals as $referral)
+                                        <div class="flex items-center justify-between p-4 rounded-xl border border-border hover:border-foreground transition-colors">
+                                            <div class="flex items-center gap-4">
+                                                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
+                                                    <i data-lucide="user" class="w-6 h-6 text-cyan-400"></i>
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold">{{ $referral->referred->name ?? 'Unknown User' }}</p>
+                                                    <p class="text-sm text-muted-foreground">
+                                                        {{ $referral->referred->email ?? 'N/A' }} • {{ $referral->created_at->format('M d, Y') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="px-3 py-1 rounded-lg text-sm font-semibold
+                                                    @if($referral->status === 'rewarded') bg-green-500/20 text-green-400
+                                                    @elseif($referral->status === 'completed') bg-blue-500/20 text-blue-400
+                                                    @else bg-yellow-500/20 text-yellow-400
+                                                    @endif">
+                                                    {{ ucfirst($referral->status) }}
+                                                </span>
+                                                @if($referral->reward_amount > 0)
+                                                    <p class="text-sm font-bold text-green-400 mt-1">+${{ number_format($referral->reward_amount, 2) }}</p>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                @if($referrals->hasPages())
+                                    <div class="mt-6">
+                                        {{ $referrals->links() }}
+                                    </div>
+                                @endif
+                            @else
+                                <div class="text-center py-12">
+                                    <i data-lucide="users" class="w-16 h-16 mx-auto mb-4 text-muted-foreground"></i>
+                                    <h3 class="text-xl font-bold font-display mb-2">No referrals yet</h3>
+                                    <p class="text-muted-foreground mb-6">Start sharing your referral code to earn rewards!</p>
                                 </div>
                             @endif
                         </div>
@@ -613,5 +832,41 @@
             // Show first tab by default
             showTab('general');
         });
+
+        // Copy referral code
+        function copyReferralCode() {
+            const code = '{{ $user->getReferralCode() }}';
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+                btn.classList.add('bg-green-500/20', 'border-green-500');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-green-500/20', 'border-green-500');
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }, 2000);
+            });
+        }
+
+        // Copy referral link
+        function copyReferralLink() {
+            const link = document.getElementById('referral-link').value;
+            navigator.clipboard.writeText(link).then(() => {
+                const btn = event.target.closest('button');
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i data-lucide="check" class="w-4 h-4"></i>';
+                btn.classList.add('bg-green-500/20', 'border-green-500');
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.classList.remove('bg-green-500/20', 'border-green-500');
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }, 2000);
+            });
+        }
     </script>
 @endsection

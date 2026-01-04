@@ -27,8 +27,25 @@
                         </div>
                     @endif
 
+                    @if($referrer)
+                        <div class="mb-4 rounded-xl border border-violet-500/40 bg-violet-500/10 text-violet-100 p-3 text-sm">
+                            <i data-lucide="gift" class="w-4 h-4 inline mr-2"></i>
+                            You were referred by <strong>{{ $referrer->name }}</strong>! 🎉
+                        </div>
+                    @endif
+
+                    @if($claimDailyBonus ?? false)
+                        <div class="mb-4 rounded-xl border border-yellow-500/40 bg-yellow-500/10 text-yellow-100 p-3 text-sm">
+                            <i data-lucide="gift" class="w-4 h-4 inline mr-2"></i>
+                            Sign up to claim your daily bonus!
+                        </div>
+                    @endif
+
                     <form class="space-y-6" method="POST" action="{{ route('register.submit') }}">
                         @csrf
+                        @if($claimDailyBonus ?? false)
+                            <input type="hidden" name="claim_daily_bonus" value="1">
+                        @endif
                         <div class="space-y-2">
                             <label for="name" class="font-medium">Full Name</label>
                             <div class="relative">
@@ -93,6 +110,34 @@
                             </div>
                         </div>
 
+                        <div class="space-y-2">
+                            <label for="referral_code" class="font-medium">
+                                Referral Code
+                                <span class="text-xs text-muted-foreground font-normal">(Optional)</span>
+                            </label>
+                            <div class="relative">
+                                <i data-lucide="gift" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none z-10"></i>
+                                <input
+                                    id="referral_code"
+                                    name="referral_code"
+                                    type="text"
+                                    value="{{ old('referral_code', $referralCode ?? '') }}"
+                                    class="w-full pl-14 pr-4 py-3 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none uppercase"
+                                    placeholder="Enter referral code"
+                                    style="text-transform: uppercase;"
+                                >
+                            </div>
+                            @if($errors->has('referral_code'))
+                                <p class="text-sm text-red-400 mt-1">{{ $errors->first('referral_code') }}</p>
+                            @endif
+                            @if($referralCode && !$errors->has('referral_code'))
+                                <p class="text-xs text-muted-foreground mt-1">
+                                    <i data-lucide="info" class="w-3 h-3 inline"></i>
+                                    You can change the referral code above if needed.
+                                </p>
+                            @endif
+                        </div>
+
                         <button type="submit" class="w-full px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition">
                             Create Account
                         </button>
@@ -108,5 +153,17 @@
             </div>
         </div>
     </section>
+
+    <script>
+        // Auto-uppercase referral code input
+        document.addEventListener('DOMContentLoaded', function() {
+            const referralInput = document.getElementById('referral_code');
+            if (referralInput) {
+                referralInput.addEventListener('input', function(e) {
+                    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                });
+            }
+        });
+    </script>
 @endsection
 

@@ -10,7 +10,7 @@
             <div class="space-y-8 animate-slide-in-up">
                 <div class="inline-flex items-center gap-2 glass-card px-4 py-2 rounded-full">
                     <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
-                    <span class="text-sm text-muted-foreground">Premium 2025 Collection</span>
+                    <span class="text-sm text-muted-foreground">Premium 2026 Collection</span>
                     <span class="bg-gradient-to-r from-cyan-500 to-violet-500 text-background text-xs font-bold px-2 py-0.5 rounded-full">
                         50% OFF
                     </span>
@@ -18,12 +18,12 @@
 
                 <h1 class="text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-tight">
                     <span class="text-foreground">Premium</span>
-                    <span class="gradient-text"> 3D Assets</span><br>
-                    <span class="text-foreground">for Designers</span>
+                    <span class="gradient-text"> Sketchup</span><br>
+                    <span class="text-foreground">Model Collection</span>
                 </h1>
 
                 <p class="text-xl text-muted-foreground max-w-lg">
-                    Access 1TB+ of professional SketchUp models, textures, and exclusive designer bundles. Elevate your projects instantly.
+                Premium SketchUp model bundle collection with high quality exterior, interior, landscape and misc 3D models. Ready to use for architects and designers.
                 </p>
 
                 <div class="glass-card p-6 rounded-2xl space-y-4 max-w-md">

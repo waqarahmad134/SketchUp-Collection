@@ -33,10 +33,19 @@ class ManageSettings extends ManageRecords
                       'og_default_image', 'twitter_default_image', 'organization_logo'];
         
         $formData = [];
+        $numericFields = ['signup_bonus_points', 'referral_commission_percentage', 'points_per_dollar', 'daily_login_max_weekly_coins'];
+        $booleanFields = ['daily_login_enabled'];
+        
         foreach ($settings as $key => $value) {
             // For file fields, keep as string path
             if (in_array($key, $fileFields)) {
                 $formData[$key] = is_string($value) && !empty($value) ? $value : null;
+            } elseif (in_array($key, $numericFields)) {
+                // For numeric fields, convert to int/float
+                $formData[$key] = $value !== null ? (is_numeric($value) ? (float) $value : null) : null;
+            } elseif (in_array($key, $booleanFields)) {
+                // For boolean fields
+                $formData[$key] = $value === '1' || $value === 'true' || $value === true || $value === 1;
             } else {
                 // For other fields, ensure string or null
                 $formData[$key] = $value !== null ? (string) $value : null;
@@ -99,6 +108,47 @@ class ManageSettings extends ManageRecords
                     ->schema([
                         Forms\Components\TextInput::make('stripe_key')->label('Stripe Key')->placeholder('sk_test_... or sk_live_...')->maxLength(200),
                     ]),
+
+                Section::make('Points & Referrals')
+                    ->schema([
+                        Forms\Components\TextInput::make('signup_bonus_points')
+                            ->label('Sign Up Bonus Points')
+                            ->helperText('Points awarded to new users when they sign up (default: 500)')
+                            ->numeric()
+                            ->default(500)
+                            ->required(),
+                        Forms\Components\TextInput::make('referral_commission_percentage')
+                            ->label('Referral Commission Percentage')
+                            ->helperText('Percentage of order total given as referral commission (default: 10)')
+                            ->numeric()
+                            ->default(10)
+                            ->suffix('%')
+                            ->required()
+                            ->minValue(0)
+                            ->maxValue(100),
+                        Forms\Components\TextInput::make('points_per_dollar')
+                            ->label('Points Per Dollar')
+                            ->helperText('How many SKP coins equal 1 dollar (default: 1000)')
+                            ->numeric()
+                            ->default(1000)
+                            ->required()
+                            ->minValue(1),
+                    ])->columns(3),
+
+                Section::make('Daily Login Bonus')
+                    ->schema([
+                        Forms\Components\TextInput::make('daily_login_max_weekly_coins')
+                            ->label('Maximum Weekly Coins')
+                            ->helperText('Maximum SKP coins a user can earn per week from daily login (default: 2000). Points are distributed across 7 days.')
+                            ->numeric()
+                            ->default(2000)
+                            ->required()
+                            ->minValue(1),
+                        Forms\Components\Toggle::make('daily_login_enabled')
+                            ->label('Enable Daily Login Bonus')
+                            ->helperText('Enable or disable the daily login bonus feature')
+                            ->default(true),
+                    ])->columns(2),
             ])
             ->statePath('data');
     }
@@ -110,6 +160,8 @@ class ManageSettings extends ManageRecords
             
             \Log::info('Saving settings', ['data_count' => count($data)]);
 
+            $booleanFields = ['daily_login_enabled'];
+            
             foreach ($data as $key => $value) {
                 // Handle file uploads
                 if (is_array($value)) {
@@ -120,8 +172,11 @@ class ManageSettings extends ManageRecords
                     }
                 }
                 
-                // Convert to string if not null
-                if ($value !== null && !is_string($value)) {
+                // Handle boolean fields
+                if (in_array($key, $booleanFields)) {
+                    $value = $value ? '1' : '0';
+                } elseif ($value !== null && !is_string($value)) {
+                    // Convert to string if not null
                     $value = (string) $value;
                 }
                 

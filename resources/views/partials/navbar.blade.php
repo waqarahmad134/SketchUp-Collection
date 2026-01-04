@@ -30,6 +30,18 @@
             </div>
 
             <div class="hidden md:flex items-center gap-4">
+                @auth
+                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl border border-border bg-card">
+                        <i data-lucide="coins" class="w-4 h-4 text-yellow-400"></i>
+                        <span class="text-sm font-semibold gradient-text">{{ number_format($userPoints ?? 0) }}</span>
+                        <span class="text-xs text-muted-foreground">SKP</span>
+                    </div>
+                    
+                    <button onclick="openDailyBonusModal()" class="relative inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border hover:border-yellow-500 transition-colors group" aria-label="Daily Bonus" title="Claim Daily Bonus">
+                        <i data-lucide="gift" class="w-5 h-5 text-yellow-400 group-hover:scale-110 transition-transform"></i>
+                    </button>
+                @endauth
+                
                 <a href="{{ route('cart.show') }}" class="relative inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border hover:border-foreground transition-colors" aria-label="Cart">
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                     <span data-cart-count class="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-[11px] font-bold text-background flex items-center justify-center">
@@ -101,6 +113,21 @@
                         {{ $link->label }}
                     </a>
                 @endforeach
+
+                @auth
+                    <div class="flex items-center gap-3 px-4 py-3 rounded-xl border border-border bg-card">
+                        <i data-lucide="coins" class="w-5 h-5 text-yellow-400"></i>
+                        <div>
+                            <span class="font-semibold gradient-text">{{ number_format($userPoints ?? 0) }}</span>
+                            <span class="text-xs text-muted-foreground ml-1">SKP</span>
+                        </div>
+                    </div>
+                    
+                    <button onclick="openDailyBonusModal()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-border hover:border-yellow-500 transition-colors" aria-label="Daily Bonus">
+                        <i data-lucide="gift" class="w-5 h-5 text-yellow-400"></i>
+                        <span class="font-medium">Claim Bonus</span>
+                    </button>
+                @endauth
 
                 <a href="{{ route('cart.show') }}" class="flex items-center gap-3 px-4 py-3 rounded-xl border border-border hover:border-foreground transition-colors">
                     <div class="relative">

@@ -36,11 +36,20 @@ class AppServiceProvider extends ServiceProvider
                 ? collect($cart)->sum(fn ($item) => $item['qty'] ?? 0)
                 : 0;
 
+            $userPoints = auth()->check() ? auth()->user()->getPoints() : 0;
+
+            $dailyBonusClaimed = session('daily_bonus_claimed');
+            if ($dailyBonusClaimed) {
+                session()->forget('daily_bonus_claimed');
+            }
+
             $view->with('navMenus', Cache::remember('view.menus', 3600, function () {
                 return Menu::active()->ordered()->get();
             }))
             ->with('cartItems', $cartItems)
-            ->with('cartQuantity', $cartQuantity);
+            ->with('cartQuantity', $cartQuantity)
+            ->with('userPoints', $userPoints)
+            ->with('dailyBonusClaimed', $dailyBonusClaimed);
         });
     }
 }

@@ -39,7 +39,7 @@ class HomeController extends Controller
 
         return view('home', [
             'title' => 'SketchUp Collection | Premium 3D Assets for Designers',
-            'metaDescription' => 'Access 1TB+ of professional SketchUp models, textures, and exclusive designer bundles.',
+            'metaDescription' => 'Premium SketchUp model bundle collection with high quality exterior, interior, landscape and misc 3D models. Ready to use for architects and designers.',
             'products' => $products,
             'featuredPosts' => $featuredPosts,
         ]);
