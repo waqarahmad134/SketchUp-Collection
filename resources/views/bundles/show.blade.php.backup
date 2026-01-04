@@ -34,44 +34,38 @@
             <div class="grid lg:grid-cols-2 gap-12">
                 <div class="space-y-4">
                     @if($allImages->count() > 0)
-                    {{-- Main Image Slider with Swiper --}}
-<div class="glass-card rounded-3xl overflow-hidden relative group">
-    <div class="swiper product-main-slider">
-        <div class="swiper-wrapper">
-            @foreach($allImages as $index => $imgUrl)
-                <div class="swiper-slide">
-                    <a href="{{ $imgUrl }}" class="glightbox" data-gallery="product-gallery">
-                        <img src="{{ $imgUrl }}" alt="{{ $product->title }} - Image {{ $index + 1 }}" class="w-full h-auto object-cover cursor-zoom-in">
-                    </a>
-                </div>
-            @endforeach
-        </div>
-        
-        @if($allImages->count() > 1)
-            <div class="swiper-button-prev !w-12 !h-12 !rounded-full !bg-background/80 !backdrop-blur-sm !border !border-border hover:!bg-background !opacity-0 group-hover:!opacity-100 !transition-opacity"></div>
-            <div class="swiper-button-next !w-12 !h-12 !rounded-full !bg-background/80 !backdrop-blur-sm !border !border-border hover:!bg-background !opacity-0 group-hover:!opacity-100 !transition-opacity"></div>
-            <div class="swiper-pagination !bottom-4"></div>
-        @endif
-        
-        <button onclick="openGallery()" class="absolute top-4 right-4 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100 z-20" title="View Gallery">
-            <i data-lucide="maximize" class="w-5 h-5"></i>
-        </button>
-    </div>
-    
-    @if($allImages->count() > 1)
-        <div class="swiper product-thumb-slider mt-4">
-            <div class="swiper-wrapper">
-                @foreach($allImages as $index => $imgUrl)
-                    <div class="swiper-slide !w-auto !cursor-pointer">
-                        <div class="glass-card rounded-2xl overflow-hidden border-2 border-transparent hover:border-cyan-500/50 transition-colors thumbnail-slide" data-index="{{ $index }}">
-                            <img src="{{ $imgUrl }}" alt="Thumbnail {{ $index + 1 }}" class="w-24 h-24 object-cover">
+                        {{-- Image Slider --}}
+                        <div class="glass-card rounded-3xl overflow-hidden relative group">
+                            <div id="product-image-slider" class="relative overflow-hidden">
+                                <div class="flex transition-transform duration-500 ease-in-out" id="slider-container">
+                                    @foreach($allImages as $index => $imgUrl)
+                                        <div class="w-full flex-shrink-0" data-slide="{{ $index }}">
+                                            <img src="{{ $imgUrl }}" alt="{{ $product->title }} - Image {{ $index + 1 }}" class="w-full h-auto object-cover">
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                                {{-- Navigation Arrows --}}
+                                @if($allImages->count() > 1)
+                                    <button id="slider-prev" class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100 z-10">
+                                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                                    </button>
+                                    <button id="slider-next" class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-background/80 backdrop-blur-sm border border-border hover:bg-background flex items-center justify-center transition-opacity opacity-0 group-hover:opacity-100 z-10">
+                                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                                    </button>
+                                    
+                                    {{-- Slide Indicators --}}
+                                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                                        @foreach($allImages as $index => $imgUrl)
+                                            <button 
+                                                class="slider-dot w-2 h-2 rounded-full transition-all {{ $index === 0 ? 'bg-cyan-400 w-6' : 'bg-background/50 hover:bg-background/75' }}"
+                                                data-slide-to="{{ $index }}"
+                                            ></button>
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-</div>
                     @else
                         <div class="glass-card rounded-3xl overflow-hidden">
                             <div class="w-full h-96 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
@@ -101,11 +95,7 @@
                         </h1>
                         @if($product->full_description || $product->description)
                             <div class="text-xl text-muted-foreground mb-6 prose prose-invert max-w-none">
-                                @if($product->full_description)
-                                    {!! $product->full_description !!}
-                                @else
-                                    {{ strip_tags($product->description) }}
-                                @endif
+                                {!! $product->full_description ?? strip_tags($product->description) !!}
                             </div>
                         @endif
                     </div>
@@ -408,22 +398,9 @@
             </div>
         </div>
     </section>
-    
 @endsection
 
-@push('head')
-    {{-- Swiper.js CSS --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-    {{-- GLightbox CSS --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
-@endpush
-
 @push('scripts')
-    {{-- Swiper.js JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-    {{-- GLightbox JS --}}
-    <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
-    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Initialize Lucide icons
@@ -431,118 +408,71 @@
                 window.lucide.createIcons();
             }
             
-            const imageCount = {{ $allImages->count() }};
-            let mainSwiper = null;
-            let lightbox = null;
+            // Image Slider Functionality
+            const sliderContainer = document.getElementById('slider-container');
+            const sliderPrev = document.getElementById('slider-prev');
+            const sliderNext = document.getElementById('slider-next');
+            const dots = document.querySelectorAll('.slider-dot');
             
-            // Initialize Swiper for main slider
-            @if($allImages->count() > 1)
-            // Initialize thumbnail slider first
-            const thumbSwiper = new Swiper('.product-thumb-slider', {
-                spaceBetween: 12,
-                slidesPerView: 4,
-                freeMode: true,
-                watchSlidesProgress: true,
-                breakpoints: {
-                    640: {
-                        slidesPerView: 5,
-                    },
-                    1024: {
-                        slidesPerView: 6,
-                    },
-                },
-            });
+            if (!sliderContainer || {{ $allImages->count() }}) {
+                return; // No slider needed if only one image
+            }
             
-            // Initialize main slider with thumbs
-            mainSwiper = new Swiper('.product-main-slider', {
-                spaceBetween: 0,
-                loop: false,
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
-                },
-                pagination: {
-                    el: '.swiper-pagination',
-                    clickable: true,
-                },
-                thumbs: {
-                    swiper: thumbSwiper,
-                },
-            });
+            let currentSlide = 0;
+            const totalSlides = {{ $allImages->count() }};
+            const slideWidth = 100; // 100% per slide
             
-            // Link thumbnails to main slider (click to navigate)
-            document.querySelectorAll('.thumbnail-slide').forEach((thumb, index) => {
-                thumb.addEventListener('click', () => {
-                    mainSwiper.slideTo(index);
-                });
-            });
-            
-            // Update active thumbnail on slide change
-            mainSwiper.on('slideChange', () => {
-                document.querySelectorAll('.thumbnail-slide').forEach((thumb, index) => {
-                    if (index === mainSwiper.activeIndex) {
-                        thumb.classList.add('!border-cyan-500');
-                        thumb.classList.remove('border-transparent');
+            function updateSlider() {
+                sliderContainer.style.transform = `translateX(-${currentSlide * slideWidth}%)`;
+                
+                // Update dots
+                dots.forEach((dot, index) => {
+                    if (index === currentSlide) {
+                        dot.classList.add('bg-cyan-400', 'w-6');
+                        dot.classList.remove('bg-background/50', 'w-2');
                     } else {
-                        thumb.classList.remove('!border-cyan-500');
-                        thumb.classList.add('border-transparent');
+                        dot.classList.remove('bg-cyan-400', 'w-6');
+                        dot.classList.add('bg-background/50', 'w-2');
                     }
                 });
-            });
-            
-            // Set initial active thumbnail
-            const firstThumb = document.querySelector('.thumbnail-slide');
-            if (firstThumb) {
-                firstThumb.classList.add('!border-cyan-500');
-                firstThumb.classList.remove('border-transparent');
             }
-            @endif
             
-            // Initialize GLightbox for gallery popup
-            lightbox = GLightbox({
-                selector: '.glightbox',
-                touchNavigation: true,
-                loop: true,
-                autoplayVideos: false,
-                openEffect: 'fade',
-                closeEffect: 'fade',
+            function nextSlide() {
+                currentSlide = (currentSlide + 1) % totalSlides;
+                updateSlider();
+            }
+            
+            function prevSlide() {
+                currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+                updateSlider();
+            }
+            
+            function goToSlide(index) {
+                currentSlide = index;
+                updateSlider();
+            }
+            
+            // Event listeners
+            if (sliderNext) {
+                sliderNext.addEventListener('click', nextSlide);
+            }
+            
+            if (sliderPrev) {
+                sliderPrev.addEventListener('click', prevSlide);
+            }
+            
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => goToSlide(index));
             });
             
-            // Function to open gallery (called by magnifier button)
-            window.openGallery = function() {
-                @if($allImages->count() > 0)
-                    const currentIndex = {{ $allImages->count() > 1 ? '(mainSwiper ? mainSwiper.activeIndex : 0)' : '0' }};
-                    lightbox.openAt(currentIndex);
-                @endif
-            };
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') prevSlide();
+                if (e.key === 'ArrowRight') nextSlide();
+            });
+            
+            // Initialize
+            updateSlider();
         });
     </script>
-    
-    <style>
-        /* Custom Swiper Styles */
-        .swiper-button-next,
-        .swiper-button-prev {
-            color: hsl(var(--foreground));
-        }
-        
-        .swiper-button-next:after,
-        .swiper-button-prev:after {
-            font-size: 18px;
-        }
-        
-        .swiper-pagination-bullet {
-            background: hsl(var(--muted-foreground) / 0.5);
-            opacity: 1;
-        }
-        
-        .swiper-pagination-bullet-active {
-            background: hsl(187 100% 50%);
-        }
-        
-        /* GLightbox Custom Styles */
-        .glightbox-clean .gslide-description {
-            background: hsl(var(--card));
-            color: hsl(var(--foreground));
-        }
-    </style>
 @endpush
