@@ -18,110 +18,31 @@
                 </p>
             </div>
 
-            <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Filters Sidebar -->
-                <aside class="lg:w-80 flex-shrink-0">
-                    <div class="glass-card rounded-3xl p-6 sticky top-24">
-                        <div class="flex items-center justify-between mb-6">
-                            <h2 class="text-xl font-bold font-display">Filters</h2>
-                            <button onclick="clearFilters()" class="text-sm text-cyan-400 hover:underline">Clear All</button>
-                        </div>
-
-                        <form id="filterForm" class="space-y-6">
-                            <!-- Sort Order -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-3">Sort By</label>
-                                <select name="sort" id="sortFilter" class="w-full px-4 py-2 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none">
-                                    <option value="default" {{ ($filters['sort'] ?? 'default') === 'default' ? 'selected' : '' }}>Default</option>
-                                    <option value="price_low" {{ ($filters['sort'] ?? '') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
-                                    <option value="price_high" {{ ($filters['sort'] ?? '') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
-                                    <option value="newest" {{ ($filters['sort'] ?? '') === 'newest' ? 'selected' : '' }}>Newest First</option>
-                                    <option value="oldest" {{ ($filters['sort'] ?? '') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
-                                </select>
-                            </div>
-
-                            <!-- Type Filter -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-3">Type</label>
-                                <div class="space-y-2">
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="type" value="" {{ empty($filters['type'] ?? '') ? 'checked' : '' }} class="w-4 h-4 text-cyan-500 border-border focus:ring-cyan-500">
-                                        <span class="text-sm text-muted-foreground">All</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="type" value="bundle" {{ ($filters['type'] ?? '') === 'bundle' ? 'checked' : '' }} class="w-4 h-4 text-cyan-500 border-border focus:ring-cyan-500">
-                                        <span class="text-sm text-muted-foreground">Bundles Only</span>
-                                    </label>
-                                    <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="radio" name="type" value="product" {{ ($filters['type'] ?? '') === 'product' ? 'checked' : '' }} class="w-4 h-4 text-cyan-500 border-border focus:ring-cyan-500">
-                                        <span class="text-sm text-muted-foreground">Products Only</span>
-                                    </label>
-                                </div>
-                            </div>
-
-                            <!-- Price Range -->
-                            <div>
-                                <label class="block text-sm font-semibold mb-3">Price Range</label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-xs text-muted-foreground mb-1">Min</label>
-                                        <input type="number" name="min_price" value="{{ $filters['min_price'] ?? '' }}" placeholder="${{ number_format($minPrice, 0) }}" step="0.01" min="0" class="w-full px-3 py-2 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm">
-                                    </div>
-                                    <div>
-                                        <label class="block text-xs text-muted-foreground mb-1">Max</label>
-                                        <input type="number" name="max_price" value="{{ $filters['max_price'] ?? '' }}" placeholder="${{ number_format($maxPrice, 0) }}" step="0.01" min="0" class="w-full px-3 py-2 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm">
-                                    </div>
-                                </div>
-                                <button type="button" id="applyPriceFilter" class="w-full mt-3 px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold text-sm hover:shadow-lg transition">
-                                    Apply Price Filter
-                                </button>
-                            </div>
-
-                            <!-- Categories -->
-                            @if($categories->count() > 0)
-                                <div>
-                                    <label class="block text-sm font-semibold mb-3">Categories</label>
-                                    <div class="space-y-2 max-h-48 overflow-y-auto">
-                                        @foreach($categories as $category)
-                                            <label class="flex items-center gap-2 cursor-pointer hover:text-foreground transition">
-                                                <input type="checkbox" name="category[]" value="{{ $category->id }}" {{ in_array($category->id, (array)($filters['category'] ?? [])) ? 'checked' : '' }} class="filter-checkbox w-4 h-4 text-cyan-500 border-border rounded focus:ring-cyan-500">
-                                                <span class="text-sm text-muted-foreground">{{ $category->name }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Tags -->
-                            @if($tags->count() > 0)
-                                <div>
-                                    <label class="block text-sm font-semibold mb-3">Tags</label>
-                                    <div class="space-y-2 max-h-48 overflow-y-auto">
-                                        @foreach($tags as $tag)
-                                            <label class="flex items-center gap-2 cursor-pointer hover:text-foreground transition">
-                                                <input type="checkbox" name="tags[]" value="{{ $tag->id }}" {{ in_array($tag->id, (array)($filters['tags'] ?? [])) ? 'checked' : '' }} class="filter-checkbox w-4 h-4 text-cyan-500 border-border rounded focus:ring-cyan-500">
-                                                <span class="text-sm text-muted-foreground">{{ $tag->name }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
-                        </form>
-                    </div>
-                </aside>
-
+            <div>
                 <!-- Products Grid -->
-                <div class="flex-1">
+                <div>
                     <!-- Toolbar -->
                     <div class="glass-card rounded-2xl p-4 mb-6">
                         <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div class="flex items-center gap-4">
                                 <p class="text-sm text-muted-foreground">
-                                    Showing <strong id="showingFrom">0</strong>-<strong id="showingTo">0</strong> of <strong id="showingTotal">0</strong> <span id="productText">products</span>
+                                    Showing <strong id="showingFrom">{{ $products->firstItem() ?? 0 }}</strong>-<strong id="showingTo">{{ $products->lastItem() ?? 0 }}</strong> of <strong id="showingTotal">{{ $products->total() }}</strong> <span id="productText">{{ $products->total() == 1 ? 'product' : 'products' }}</span>
                                 </p>
                             </div>
                             
                             <div class="flex items-center gap-3 flex-wrap">
+                                <!-- Sort By -->
+                                <div class="flex items-center gap-2">
+                                    <label class="text-xs text-muted-foreground">Sort:</label>
+                                    <select name="sort" id="sortFilter" class="px-3 py-1.5 rounded-lg bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm">
+                                        <option value="default" {{ ($filters['sort'] ?? 'default') === 'default' ? 'selected' : '' }}>Default</option>
+                                        <option value="price_low" {{ ($filters['sort'] ?? '') === 'price_low' ? 'selected' : '' }}>Price: Low to High</option>
+                                        <option value="price_high" {{ ($filters['sort'] ?? '') === 'price_high' ? 'selected' : '' }}>Price: High to Low</option>
+                                        <option value="newest" {{ ($filters['sort'] ?? '') === 'newest' ? 'selected' : '' }}>Newest First</option>
+                                        <option value="oldest" {{ ($filters['sort'] ?? '') === 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                                    </select>
+                                </div>
+
                                 <!-- Items per page -->
                                 <div class="flex items-center gap-2">
                                     <label class="text-xs text-muted-foreground">Show:</label>
@@ -492,50 +413,6 @@
             loadProducts();
         });
 
-        document.querySelectorAll('input[name="type"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                initialState.type = e.target.value;
-                currentPage = 1;
-                loadProducts();
-            });
-        });
-
-        document.querySelectorAll('.filter-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                const name = checkbox.name;
-                const value = parseInt(checkbox.value);
-                
-                if (name === 'category[]') {
-                    if (checkbox.checked) {
-                        if (!initialState.category.includes(value)) {
-                            initialState.category.push(value);
-                        }
-                    } else {
-                        initialState.category = initialState.category.filter(id => id !== value);
-                    }
-                } else if (name === 'tags[]') {
-                    if (checkbox.checked) {
-                        if (!initialState.tags.includes(value)) {
-                            initialState.tags.push(value);
-                        }
-                    } else {
-                        initialState.tags = initialState.tags.filter(id => id !== value);
-                    }
-                }
-                
-                currentPage = 1;
-                loadProducts();
-            });
-        });
-
-        document.getElementById('applyPriceFilter')?.addEventListener('click', () => {
-            const minPrice = document.querySelector('input[name="min_price"]').value;
-            const maxPrice = document.querySelector('input[name="max_price"]').value;
-            initialState.min_price = minPrice;
-            initialState.max_price = maxPrice;
-            currentPage = 1;
-            loadProducts();
-        });
 
         // Load products via AJAX
         function loadProducts(page = null) {
@@ -556,13 +433,7 @@
                 sort: initialState.sort,
                 view: initialState.view,
                 columns: initialState.columns,
-                ...(initialState.type && { type: initialState.type }),
-                ...(initialState.min_price && { min_price: initialState.min_price }),
-                ...(initialState.max_price && { max_price: initialState.max_price }),
             });
-            
-            initialState.category.forEach(id => params.append('category[]', id));
-            initialState.tags.forEach(id => params.append('tags[]', id));
             
             fetch('{{ route('bundles.index') }}?' + params.toString(), {
                 headers: {
@@ -767,16 +638,15 @@
             initialState.columns = '3';
             initialState.per_page = 12;
             initialState.sort = 'default';
-            initialState.type = '';
-            initialState.category = [];
-            initialState.tags = [];
-            initialState.min_price = '';
-            initialState.max_price = '';
             currentPage = 1;
             
-            // Reset form
-            document.getElementById('filterForm').reset();
-            document.querySelector('input[name="type"][value=""]').checked = true;
+            // Reset sort dropdown
+            const sortFilter = document.getElementById('sortFilter');
+            if (sortFilter) sortFilter.value = 'default';
+            
+            // Reset per page dropdown
+            const perPageFilter = document.getElementById('perPageFilter');
+            if (perPageFilter) perPageFilter.value = 12;
             
             updateView('grid');
             updateColumns('3');
