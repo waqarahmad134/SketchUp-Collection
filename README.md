@@ -137,16 +137,19 @@ Proprietary - All rights reserved
 ============
 Underdevelop
 ============
-Coupons 
+
+Light box for images // Done but need ui improvement
+Swiper added in product detail page // Done need little improvement
+Remove Filter from bundles // Done with extra api call remove
+
+Coupons // Working
+Breadcrumbs
 Images With name and title while saving not the random name 
 Logo watermark auto handle using admin
 Images alt in DB
-Light box for images // Done but need ui improvement
-Swiper added in product detail page // Done need little improvement
 Images masonary in bundle case with respect to categories
-Remove Filter from bundles // Done with extra api call remove
-Breadcrumbs
 Self Service of interior , exterior and others
+
 ===============
 Admin Panel New
 ===============

@@ -108,6 +108,24 @@
                                 @endif
                             </div>
                         @endif
+                        
+                        @if($product->tags && $product->tags->count() > 0)
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                @foreach($product->tags as $tag)
+                                    <a href="{{ route('bundles.index', ['tag' => $tag->slug]) }}" 
+                                       class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all hover:scale-105 {{ $tag->color ? '' : 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/40' }}"
+                                       @if($tag->color)
+                                           style="background-color: {{ $tag->color }}20; color: {{ $tag->color }}; border: 1px solid {{ $tag->color }}40;"
+                                       @endif
+                                    >
+                                        @if($tag->color)
+                                            <span class="w-2 h-2 rounded-full" style="background-color: {{ $tag->color }}"></span>
+                                        @endif
+                                        {{ $tag->name }}
+                                    </a>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
                     <div class="glass-card rounded-3xl p-6">
@@ -255,7 +273,7 @@
         </section>
     @endif
 
-    @if($product->is_bundle && $product->included_products)
+    @if($product->is_bundle && $product->included_products_models->isNotEmpty())
         <section class="py-16 bg-card">
             <div class="container mx-auto px-4">
                 <div class="max-w-4xl mx-auto">
@@ -263,24 +281,24 @@
                         This Bundle Includes
                     </h2>
                     <p class="text-muted-foreground mb-6">
-                        This bundle combines {{ count($product->included_products) }} products for maximum value:
+                        This bundle combines {{ $product->included_products_models->count() }} products for maximum value:
+                        @if($product->bundle_savings_percentage > 0)
+                            <span class="text-cyan-400 font-semibold">Save {{ $product->bundle_savings_percentage }}%</span>
+                        @endif
                     </p>
                     <div class="grid md:grid-cols-2 gap-4">
-                        @foreach($product->included_products as $includedId)
-                            @php $included = $allProducts->get($includedId); @endphp
-                            @if($included)
-                                <div class="glass-card rounded-2xl p-4 flex items-center gap-4">
-                                    <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
-                                        <i data-lucide="file-box" class="w-6 h-6 text-cyan-400"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold">{{ $included->title }}</h4>
-                                        <p class="text-sm text-muted-foreground">
-                                            {{ $included->file_count }} files • {{ $included->file_size }}
-                                        </p>
-                                    </div>
+                        @foreach($product->included_products_models as $included)
+                            <div class="glass-card rounded-2xl p-4 flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center flex-shrink-0">
+                                    <i data-lucide="file-box" class="w-6 h-6 text-cyan-400"></i>
                                 </div>
-                            @endif
+                                <div class="flex-1">
+                                    <h4 class="font-semibold">{{ $included->title }}</h4>
+                                    <p class="text-sm text-muted-foreground">
+                                        {{ $included->file_count }} files • {{ $included->file_size }}
+                                    </p>
+                                </div>
+                            </div>
                         @endforeach
                     </div>
                 </div>

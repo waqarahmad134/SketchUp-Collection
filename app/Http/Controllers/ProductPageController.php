@@ -134,13 +134,35 @@ class ProductPageController extends Controller
 
     public function show(string $slug): View
     {
-        $product = Product::with(['user', 'reviews' => function ($q) {
-            $q->where('status', 'approved')->latest();
-        }])
+        $product = Product::with([
+            'user', 
+            'tags' => function ($q) {
+                $q->where('is_active', true);
+            },
+            'reviews' => function ($q) {
+                $q->where('status', 'approved')->latest();
+            }
+        ])
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
 
+        // Optimize included products loading for bundles
+        $includedProducts = collect();
+        if ($product->is_bundle && !empty($product->included_products)) {
+            $ids = is_array($product->included_products) 
+                ? $product->included_products 
+                : json_decode($product->included_products, true) ?? [];
+            
+            if (!empty($ids)) {
+                $includedProducts = Product::whereIn('id', $ids)
+                    ->where('is_active', true)
+                    ->get()
+                    ->keyBy('id');
+            }
+        }
+
+        // Keep allProducts for backward compatibility, but use includedProducts when available
         $allProducts = Product::where('is_active', true)->get()->keyBy('id');
 
         return view('bundles.show', [
@@ -148,6 +170,7 @@ class ProductPageController extends Controller
             'metaDescription' => $product->full_description ?? $product->description ?? '',
             'product' => $product,
             'allProducts' => $allProducts,
+            'includedProducts' => $includedProducts, // Optimized collection
             'seoModel' => $product,
         ]);
     }

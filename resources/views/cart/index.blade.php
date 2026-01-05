@@ -16,7 +16,9 @@
 
             @php
                 $items = collect($cart);
-                $total = $items->sum(fn ($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
+                $subtotal = $items->sum(fn ($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
+                $discountAmount = $discount ?? 0;
+                $total = $subtotal - $discountAmount;
             @endphp
 
             @if($items->isEmpty())
@@ -54,14 +56,67 @@
                     </div>
                     <div class="glass-card rounded-2xl p-6 space-y-4">
                         <h3 class="text-xl font-bold font-display">Order Summary</h3>
+                        
+                        {{-- Coupon Section --}}
+                        <div class="space-y-3 pb-4 border-b border-border">
+                            @if($coupon)
+                                <div class="flex items-center justify-between p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="ticket" class="w-4 h-4 text-cyan-400"></i>
+                                            <span class="font-semibold text-sm">{{ $coupon->code }}</span>
+                                        </div>
+                                        <p class="text-xs text-muted-foreground mt-1">
+                                            {{ $coupon->type === 'percentage' ? $coupon->value . '% off' : '$' . number_format($coupon->value, 2) . ' off' }}
+                                        </p>
+                                    </div>
+                                    <form action="{{ route('cart.coupon.remove') }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-red-400 hover:text-red-300 p-1" title="Remove coupon">
+                                            <i data-lucide="x" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <form action="{{ route('cart.coupon.apply') }}" method="POST" class="space-y-2" id="couponForm">
+                                    @csrf
+                                    <div class="flex gap-2">
+                                        <input 
+                                            type="text" 
+                                            name="code" 
+                                            id="couponCode"
+                                            placeholder="Enter coupon code"
+                                            class="flex-1 px-4 py-2 rounded-xl bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm"
+                                            value="{{ old('code') }}"
+                                        >
+                                        <button 
+                                            type="submit" 
+                                            class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold text-sm hover:shadow-lg transition"
+                                        >
+                                            Apply
+                                        </button>
+                                    </div>
+                                    @error('coupon')
+                                        <p class="text-xs text-red-400">{{ $message }}</p>
+                                    @enderror
+                                </form>
+                            @endif
+                        </div>
+
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-muted-foreground">Items</span>
                             <span>{{ $items->count() }}</span>
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-muted-foreground">Subtotal</span>
-                            <span>${{ number_format($total, 2) }}</span>
+                            <span>${{ number_format($subtotal, 2) }}</span>
                         </div>
+                        @if($discountAmount > 0)
+                            <div class="flex items-center justify-between text-sm text-cyan-400">
+                                <span>Discount</span>
+                                <span>-${{ number_format($discountAmount, 2) }}</span>
+                            </div>
+                        @endif
                         <div class="pt-4 border-t border-border flex items-center justify-between">
                             <span class="text-lg font-semibold">Total</span>
                             <span class="text-2xl font-bold gradient-text">${{ number_format($total, 2) }}</span>

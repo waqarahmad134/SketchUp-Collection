@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Admin Login - Rutificador Chile</title>
+    <title>Admin Login</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=barlow:400,500,600&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -36,22 +36,22 @@
                     </svg>
                 </div>
             </div>
-            <h2 class="text-2xl font-bold">Panel de Administración</h2>
+            <h2 class="text-2xl font-bold">Admin Panel</h2>
             <p class="text-sm text-muted-foreground">
-                Ingresa tus credenciales para acceder
+                Enter your credentials to access
             </p>
         </div>
         <div class="p-6 pt-0">
-            <form method="POST" action="{{ route('login') }}" class="space-y-4">
+            <form method="POST" action="{{ route('newadmin.login') }}" class="space-y-4">
                 @csrf
                 <div class="space-y-2">
-                    <label for="email" class="text-sm font-medium">Correo Electrónico</label>
+                    <label for="email" class="text-sm font-medium">Email</label>
                     <input
                         id="email"
                         type="email"
                         name="email"
                         value="{{ old('email') }}"
-                        placeholder="admin@ejemplo.com"
+                        placeholder="admin@example.com"
                         required
                         autofocus
                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -62,7 +62,7 @@
                     @enderror
                 </div>
                 <div class="space-y-2">
-                    <label for="password" class="text-sm font-medium">Contraseña</label>
+                    <label for="password" class="text-sm font-medium">Password</label>
                     <input
                         id="password"
                         type="password"
@@ -81,7 +81,7 @@
                     class="w-full inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium min-h-10 px-4 py-2 bg-primary text-primary-foreground border border-primary-border hover-elevate active-elevate-2"
                     data-testid="button-login"
                 >
-                    Iniciar Sesión
+                    Sign In
                 </button>
             </form>
         </div>

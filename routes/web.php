@@ -11,6 +11,20 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\DailyLoginController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RobotsController;
+use App\Http\Controllers\NewAdmin\NewAdminController;
+use App\Http\Controllers\NewAdmin\NewAdminPostController;
+use App\Http\Controllers\NewAdmin\NewAdminCategoryController;
+use App\Http\Controllers\NewAdmin\NewAdminTagController;
+use App\Http\Controllers\NewAdmin\NewAdminMediaController;
+use App\Http\Controllers\NewAdmin\NewAdminProductController;
+use App\Http\Controllers\NewAdmin\NewAdminProductCategoryController;
+use App\Http\Controllers\NewAdmin\NewAdminUserController;
+use App\Http\Controllers\NewAdmin\NewAdminOrderController;
+use App\Http\Controllers\NewAdmin\NewAdminTransactionController;
+use App\Http\Controllers\NewAdmin\NewAdminCouponController;
+use App\Http\Controllers\NewAdmin\NewAdminMenuController;
+use App\Http\Controllers\NewAdmin\NewAdminSettingController;
+use App\Http\Controllers\NewAdmin\NewAdminCustomScriptController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -87,6 +101,8 @@ Route::post('/bundles/{slug}/reviews', [ReviewController::class, 'store'])->name
 Route::post('/bundles/{product}/add-to-cart', [CartController::class, 'add'])->name('cart.add');
 Route::post('/bundles/{product}/buy-now', [CartController::class, 'buyNow'])->name('cart.buyNow');
 Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
+Route::post('/cart/coupon/apply', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
+Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 Route::get('/creators/{user}', [CreatorController::class, 'show'])->name('creators.show');
 
@@ -154,3 +170,68 @@ Route::view('/terms-of-service', 'pages.terms-of-service', [
     'title' => 'Terms of Service - SketchUp Collection',
     'metaDescription' => 'Rules and guidelines for using SketchUp Collection.',
 ])->name('terms-of-service');
+
+// New Admin Panel Routes (Development)
+Route::prefix('newadmin')->name('newadmin.')->group(function () {
+    // Login routes (guest middleware - only accessible when not logged in)
+    Route::middleware('guest')->group(function () {
+        Route::get('/login', [NewAdminController::class, 'showLogin'])->name('login');
+        Route::post('/login', [NewAdminController::class, 'login']);
+    });
+
+    // Protected admin routes (auth middleware)
+    Route::middleware('auth')->group(function () {
+        Route::post('/logout', [NewAdminController::class, 'logout'])->name('logout');
+        Route::get('/dashboard', [NewAdminController::class, 'dashboard'])->name('dashboard');
+        
+        // Posts routes
+        Route::resource('posts', NewAdminPostController::class);
+        
+        // Categories routes
+        Route::get('/categories', [NewAdminCategoryController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [NewAdminCategoryController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{id}', [NewAdminCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{id}', [NewAdminCategoryController::class, 'destroy'])->name('categories.destroy');
+        
+        // Tags routes
+        Route::get('/tags', [NewAdminTagController::class, 'index'])->name('tags.index');
+        Route::post('/tags', [NewAdminTagController::class, 'store'])->name('tags.store');
+        Route::put('/tags/{id}', [NewAdminTagController::class, 'update'])->name('tags.update');
+        Route::delete('/tags/{id}', [NewAdminTagController::class, 'destroy'])->name('tags.destroy');
+        
+        // Media routes
+        Route::get('/media', [NewAdminMediaController::class, 'index'])->name('media.index');
+        Route::post('/media', [NewAdminMediaController::class, 'store'])->name('media.store');
+        Route::delete('/media/{id}', [NewAdminMediaController::class, 'destroy'])->name('media.destroy');
+        
+        // Products routes
+        Route::resource('products', NewAdminProductController::class);
+        
+        // Product Categories routes
+        Route::resource('product-categories', NewAdminProductCategoryController::class);
+        
+        // Users routes
+        Route::resource('users', NewAdminUserController::class);
+        
+        // Orders routes
+        Route::resource('orders', NewAdminOrderController::class);
+        
+        // Transactions routes
+        Route::resource('transactions', NewAdminTransactionController::class);
+        
+        // Coupons routes
+        Route::resource('coupons', NewAdminCouponController::class);
+        
+        // Menus routes
+        Route::resource('menus', NewAdminMenuController::class);
+        
+        // Settings routes
+        Route::get('/settings', [NewAdminSettingController::class, 'index'])->name('settings.index');
+        Route::get('/settings/{key}/edit', [NewAdminSettingController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings/{key}', [NewAdminSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings', [NewAdminSettingController::class, 'store'])->name('settings.store');
+        
+        // Custom Scripts routes
+        Route::resource('custom-scripts', NewAdminCustomScriptController::class);
+    });
+});

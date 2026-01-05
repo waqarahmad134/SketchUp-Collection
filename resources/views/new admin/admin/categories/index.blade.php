@@ -1,16 +1,16 @@
 @extends('layouts.admin')
 
-@section('title', 'Categorías')
+@section('title', 'Categories')
 
 @section('content')
 <div class="p-6 md:p-8" x-data="categoryManager()">
     <div class="flex items-center justify-between mb-8">
         <div>
             <h1 class="text-3xl font-bold text-foreground" data-testid="text-categories-title">
-                Categorías
+                Categories
             </h1>
             <p class="text-muted-foreground">
-                Organiza tus posts en categorías
+                Organize your posts in categories
             </p>
         </div>
         <button
@@ -21,22 +21,22 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            Nueva Categoría
+            New Category
         </button>
     </div>
 
     <!-- Dialog -->
     <div x-show="isOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-background/80" @click.self="closeDialog()">
         <div class="bg-card border border-card-border rounded-lg p-6 w-full max-w-md mx-4" @click.stop>
-            <h2 class="text-lg font-semibold mb-4" x-text="editingId ? 'Editar Categoría' : 'Nueva Categoría'"></h2>
+            <h2 class="text-lg font-semibold mb-4" x-text="editingId ? 'Edit Category' : 'New Category'"></h2>
             <div class="space-y-4">
                 <div class="space-y-2">
-                    <label class="text-sm font-medium">Nombre *</label>
+                    <label class="text-sm font-medium">Name *</label>
                     <input
                         type="text"
                         x-model="name"
                         @input="if (!editingId) slug = generateSlug(name)"
-                        placeholder="Nombre de la categoría"
+                        placeholder="Category name"
                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         data-testid="input-category-name"
                     />
@@ -52,10 +52,10 @@
                     />
                 </div>
                 <div class="space-y-2">
-                    <label class="text-sm font-medium">Descripción</label>
+                    <label class="text-sm font-medium">Description</label>
                     <textarea
                         x-model="description"
-                        placeholder="Descripción de la categoría"
+                        placeholder="Category description"
                         rows="3"
                         class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         data-testid="input-category-description"
@@ -68,14 +68,14 @@
                         class="flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium min-h-10 px-4 py-2 bg-primary text-primary-foreground border border-primary-border hover-elevate active-elevate-2 disabled:opacity-50"
                         data-testid="button-save-category"
                     >
-                        <span x-text="saving ? 'Guardando...' : 'Guardar'"></span>
+                        <span x-text="saving ? 'Saving...' : 'Save'"></span>
                     </button>
                     <button
                         @click="closeDialog()"
                         :disabled="saving"
                         class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium min-h-10 px-4 py-2 border border-input bg-background text-foreground hover-elevate active-elevate-2"
                     >
-                        Cancelar
+                        Cancel
                     </button>
                 </div>
             </div>
@@ -98,7 +98,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                             </svg>
                         </button>
-                        <form method="POST" action="{{ route('admin.categories.destroy', $category->id) }}" onsubmit="return confirm('¿Estás seguro?');" class="inline">
+                        <form method="POST" action="{{ route('newadmin.categories.destroy', $category->id) }}" onsubmit="return confirm('Are you sure?');" class="inline">
                             @csrf
                             @method('DELETE')
                             <button
@@ -116,7 +116,7 @@
             </div>
             <div class="p-6 pt-0">
                 <p class="text-sm text-muted-foreground mb-2">
-                    {{ $category->description ?? 'Sin descripción' }}
+                    {{ $category->description ?? 'No description' }}
                 </p>
                 <code class="text-xs bg-muted px-2 py-1 rounded">
                     {{ $category->slug }}
@@ -129,13 +129,13 @@
     @if($categories->count() === 0)
     <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm p-12 text-center">
         <p class="text-muted-foreground mb-4">
-            No hay categorías aún
+            No categories yet
         </p>
         <button @click="openDialog()" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium min-h-10 px-4 py-2 bg-primary text-primary-foreground border border-primary-border hover-elevate active-elevate-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            Crear Primera Categoría
+            Create First Category
         </button>
     </div>
     @endif
@@ -188,8 +188,8 @@ function categoryManager() {
             
             this.saving = true;
             const url = this.editingId 
-                ? `/admin/categories/${this.editingId}`
-                : '/admin/categories';
+                ? `/newadmin/categories/${this.editingId}`
+                : '/newadmin/categories';
             const method = this.editingId ? 'PUT' : 'POST';
             
             try {
@@ -213,10 +213,10 @@ function categoryManager() {
                     window.location.reload();
                 } else {
                     const error = await response.json();
-                    alert(error.message || 'Error al guardar');
+                    alert(error.message || 'Error saving');
                 }
             } catch (error) {
-                alert('Error al guardar la categoría');
+                alert('Error saving the category');
             } finally {
                 this.saving = false;
             }

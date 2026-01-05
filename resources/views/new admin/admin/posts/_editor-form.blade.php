@@ -23,7 +23,7 @@ if ($post) {
 
 <div class="p-6 md:p-8" x-data="postEditor({{ $isEditMode ? 'true' : 'false' }}, @js($postData), @js($categories->toArray()), @js($tags->toArray()))" x-init="init()">
     <div class="flex items-center gap-4 mb-6">
-        <a href="{{ route('admin.posts.index') }}">
+        <a href="{{ route('newadmin.posts.index') }}">
             <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium min-h-9 w-9 border border-input bg-background text-foreground hover-elevate active-elevate-2" data-testid="button-back">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
@@ -32,10 +32,10 @@ if ($post) {
         </a>
         <div>
             <h1 class="text-3xl font-bold text-foreground" data-testid="text-editor-title">
-                {{ $isEditMode ? 'Editar Post' : 'Nuevo Post' }}
+                {{ $isEditMode ? 'Edit Post' : 'New Post' }}
             </h1>
             <p class="text-muted-foreground">
-                {{ $isEditMode ? 'Modifica el contenido de tu post' : 'Crea un nuevo post para tu blog' }}
+                {{ $isEditMode ? 'Modify your post content' : 'Create a new post for your blog' }}
             </p>
         </div>
     </div>
@@ -46,12 +46,12 @@ if ($post) {
             <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
                 <div class="p-6 space-y-4">
                     <div class="space-y-2">
-                        <label class="text-sm font-medium">Título *</label>
+                        <label class="text-sm font-medium">Title *</label>
                         <input
                             type="text"
                             x-model="title"
                             @input="if (!isEditMode) slug = generateSlug(title)"
-                            placeholder="Título del post"
+                            placeholder="Post title"
                             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             data-testid="input-title"
                             required
@@ -71,10 +71,10 @@ if ($post) {
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-medium">Extracto</label>
+                        <label class="text-sm font-medium">Excerpt</label>
                         <textarea
                             x-model="excerpt"
-                            placeholder="Breve descripción del post"
+                            placeholder="Brief description of the post"
                             rows="3"
                             class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             data-testid="input-excerpt"
@@ -82,7 +82,7 @@ if ($post) {
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-medium">Contenido *</label>
+                        <label class="text-sm font-medium">Content *</label>
                         <div x-ref="editorContainer" class="bg-background rounded-md border border-input">
                             <div id="content-editor" style="min-height: 400px;"></div>
                         </div>
@@ -102,29 +102,29 @@ if ($post) {
         <div class="space-y-6">
             <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
                 <div class="flex flex-col space-y-1.5 p-6">
-                    <h3 class="text-lg font-semibold leading-none tracking-tight">Publicación</h3>
+                    <h3 class="text-lg font-semibold leading-none tracking-tight">Publish</h3>
                 </div>
                 <div class="p-6 pt-0 space-y-4">
                     <div class="space-y-2">
-                        <label class="text-sm font-medium">Estado</label>
+                        <label class="text-sm font-medium">Status</label>
                         <select
                             x-model="status"
                             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             data-testid="select-status"
                         >
-                            <option value="draft">Borrador</option>
-                            <option value="published">Publicado</option>
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
                         </select>
                     </div>
 
                     <div class="space-y-2">
-                        <label class="text-sm font-medium">Categoría</label>
+                        <label class="text-sm font-medium">Category</label>
                         <select
                             x-model="categoryId"
                             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                             data-testid="select-category"
                         >
-                            <option value="">Selecciona una categoría</option>
+                            <option value="">Select a category</option>
                             <template x-for="cat in categories" :key="cat.id">
                                 <option :value="cat.id" x-text="cat.name"></option>
                             </template>
@@ -151,20 +151,20 @@ if ($post) {
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
-                        <span x-text="saving ? 'Guardando...' : 'Guardar Post'"></span>
+                        <span x-text="saving ? 'Saving...' : 'Save Post'"></span>
                     </button>
                 </div>
             </div>
 
             <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
                 <div class="flex flex-col space-y-1.5 p-6">
-                    <h3 class="text-lg font-semibold leading-none tracking-tight">Imagen Destacada</h3>
+                    <h3 class="text-lg font-semibold leading-none tracking-tight">Featured Image</h3>
                 </div>
                 <div class="p-6 pt-0">
                     <input
                         type="text"
                         x-model="featuredImage"
-                        placeholder="URL de la imagen"
+                        placeholder="Image URL"
                         class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         data-testid="input-featured-image"
                     />
@@ -312,14 +312,14 @@ function postEditor(isEdit, postData, categoriesData, tagsData) {
             }
             
             if (!this.title || !this.slug || !this.content) {
-                alert('Por favor completa todos los campos requeridos');
+                alert('Please complete all required fields');
                 return;
             }
             
             this.saving = true;
             const url = this.isEditMode 
-                ? `/admin/posts/${this.postId}`
-                : '/admin/posts';
+                ? `/newadmin/posts/${this.postId}`
+                : '/newadmin/posts';
             
             try {
                 const formData = new FormData();
@@ -345,13 +345,13 @@ function postEditor(isEdit, postData, categoriesData, tagsData) {
                 });
                 
                 if (response.ok) {
-                    window.location.href = '/admin/posts';
+                    window.location.href = '/newadmin/posts';
                 } else {
                     const error = await response.json();
-                    alert(error.message || 'Error al guardar el post');
+                    alert(error.message || 'Error saving the post');
                 }
             } catch (error) {
-                alert('Error al guardar el post');
+                alert('Error saving the post');
             } finally {
                 this.saving = false;
             }

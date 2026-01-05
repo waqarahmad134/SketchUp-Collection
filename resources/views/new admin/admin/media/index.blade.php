@@ -10,7 +10,7 @@
                 Media
             </h1>
             <p class="text-muted-foreground">
-                Gestiona tus imágenes y archivos
+                Manage your images and files
             </p>
         </div>
         <div>
@@ -31,7 +31,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                <span x-text="uploading ? 'Subiendo...' : 'Subir Imagen'"></span>
+                <span x-text="uploading ? 'Uploading...' : 'Upload Image'"></span>
             </button>
         </div>
     </div>
@@ -50,7 +50,7 @@
                     class="w-full h-full object-cover"
                 />
                 <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <form method="POST" action="{{ route('admin.media.destroy', $item->id) }}" onsubmit="return confirm('¿Estás seguro?');" @click.stop>
+                    <form method="POST" action="{{ route('newadmin.media.destroy', $item->id) }}" onsubmit="return confirm('Are you sure?');" @click.stop>
                         @csrf
                         @method('DELETE')
                         <button
@@ -76,13 +76,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
             </svg>
             <p class="text-muted-foreground mb-4">
-                No hay imágenes aún
+                No images yet
             </p>
             <button @click="openFileDialog()" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium min-h-10 px-4 py-2 bg-primary text-primary-foreground border border-primary-border hover-elevate active-elevate-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                 </svg>
-                Subir Primera Imagen
+                Upload First Image
             </button>
         </div>
     @endif
@@ -107,14 +107,14 @@ function mediaManager() {
             
             // Validate file type
             if (!file.type.startsWith('image/')) {
-                alert('Por favor, selecciona solo archivos de imagen');
+                alert('Please select only image files');
                 event.target.value = '';
                 return;
             }
             
             // Validate file size (5MB max)
             if (file.size > 5 * 1024 * 1024) {
-                alert('El archivo es demasiado grande. Máximo 5MB');
+                alert('File is too large. Maximum 5MB');
                 event.target.value = '';
                 return;
             }
@@ -126,10 +126,10 @@ function mediaManager() {
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
                 if (!csrfToken) {
-                    throw new Error('CSRF token no encontrado');
+                    throw new Error('CSRF token not found');
                 }
                 
-                const response = await fetch('{{ route('admin.media.store') }}', {
+                const response = await fetch('{{ route('newadmin.media.store') }}', {
                     method: 'POST',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
@@ -150,7 +150,7 @@ function mediaManager() {
                         window.location.reload();
                         return;
                     }
-                    throw new Error('Error al procesar la respuesta del servidor');
+                    throw new Error('Error processing server response');
                 }
                 
                 if (response.ok && (responseData.success || responseData.media)) {
@@ -158,7 +158,7 @@ function mediaManager() {
                     window.location.reload();
                 } else {
                     // Handle validation errors
-                    let errorMessage = 'Error al subir la imagen';
+                    let errorMessage = 'Error uploading image';
                     if (responseData.message) {
                         errorMessage = responseData.message;
                     } else if (responseData.errors && responseData.errors.file) {
@@ -170,7 +170,7 @@ function mediaManager() {
                 }
             } catch (error) {
                 console.error('Upload error:', error);
-                alert('Error al subir la imagen: ' + (error.message || 'Error desconocido'));
+                alert('Error uploading image: ' + (error.message || 'Unknown error'));
             } finally {
                 this.uploading = false;
                 event.target.value = '';
@@ -179,7 +179,7 @@ function mediaManager() {
         
         copyToClipboard(url) {
             navigator.clipboard.writeText(url);
-            alert('URL copiada al portapapeles');
+            alert('URL copied to clipboard');
         }
     }
 }

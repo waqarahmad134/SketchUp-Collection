@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Coupon;
+use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -45,20 +47,49 @@ class CheckoutController extends Controller
             return back()->withErrors(['payment' => 'Stripe key not configured.']);
         }
 
+        // Calculate subtotal and discount
+        $subtotal = collect($cart)->sum(function ($item) {
+            return ($item['price'] ?? 0) * ($item['qty'] ?? 1);
+        });
+        
+        $discount = 0;
+        $coupon = null;
+        $couponCode = $request->session()->get('coupon_code');
+        if ($couponCode) {
+            $coupon = Coupon::where('code', $couponCode)->first();
+            if ($coupon) {
+                $validation = $coupon->isValid($request->user()?->id, $subtotal);
+                if ($validation['valid']) {
+                    $discount = $coupon->calculateDiscount($subtotal);
+                } else {
+                    // Invalid coupon, remove it
+                    $request->session()->forget('coupon_code');
+                }
+            }
+        }
+        
+        $total = $subtotal - $discount;
+        
+        // For Stripe, we need to adjust line items proportionally to reflect the discount
+        // Calculate the discount ratio
+        $discountRatio = $subtotal > 0 ? ($total / $subtotal) : 1;
+
         $lineItems = collect($cart)
-            ->map(function ($item) {
+            ->map(function ($item) use ($discountRatio) {
                 $price = (float)($item['price'] ?? 0);
                 $qty = (int)($item['qty'] ?? 1);
                 if ($price <= 0 || $qty <= 0) {
                     return null;
                 }
+                // Apply discount proportionally
+                $adjustedPrice = $price * $discountRatio;
                 return [
                     'price_data' => [
                         'currency' => 'usd',
                         'product_data' => [
                             'name' => $item['title'] ?? 'Item',
                         ],
-                        'unit_amount' => (int)round($price * 100),
+                        'unit_amount' => (int)round($adjustedPrice * 100),
                     ],
                     'quantity' => $qty,
                 ];
@@ -153,7 +184,24 @@ class CheckoutController extends Controller
                 return ($item['price'] ?? 0) * ($item['qty'] ?? 1);
             });
             $tax = 0; // Add tax calculation if needed
-            $discount = 0; // Add discount calculation if needed
+            
+            // Apply coupon discount if exists
+            $discount = 0;
+            $coupon = null;
+            $couponCode = $request->session()->get('coupon_code');
+            if ($couponCode) {
+                $coupon = Coupon::where('code', $couponCode)->first();
+                if ($coupon) {
+                    $validation = $coupon->isValid($user->id, $subtotal);
+                    if ($validation['valid']) {
+                        $discount = $coupon->calculateDiscount($subtotal);
+                    } else {
+                        // Invalid coupon, remove it
+                        $request->session()->forget('coupon_code');
+                    }
+                }
+            }
+            
             $total = $subtotal + $tax - $discount;
 
             // Create order and order items in a transaction
@@ -216,6 +264,23 @@ class CheckoutController extends Controller
                     'description' => 'Order payment via Stripe',
                     'completed_at' => now(),
                 ]);
+
+                // Track coupon usage if coupon was applied
+                if ($coupon && $discount > 0) {
+                    CouponUsage::create([
+                        'coupon_id' => $coupon->id,
+                        'user_id' => $user->id,
+                        'order_id' => $order->id,
+                        'discount_amount' => $discount,
+                        'email' => $user->email,
+                    ]);
+
+                    // Increment coupon used count
+                    $coupon->increment('used_count');
+
+                    // Remove coupon from session after successful use
+                    $request->session()->forget('coupon_code');
+                }
 
                 // Handle referral rewards if user was referred
                 if ($user->referred_by) {

@@ -32,6 +32,21 @@ class Product extends Model
         'included_products',
         'is_active',
         'sort_order',
+        // SEO fields
+        'meta_title',
+        'meta_description',
+        'canonical_url',
+        'robots_index',
+        'robots_follow',
+        'og_title',
+        'og_description',
+        'og_image',
+        'og_type',
+        'twitter_card',
+        'twitter_title',
+        'twitter_description',
+        'twitter_image',
+        'schema_markup',
     ];
 
     protected $appends = [
@@ -44,6 +59,7 @@ class Product extends Model
         'features' => 'array',
         'download_links' => 'array',
         'included_products' => 'array',
+        'schema_markup' => 'array',
         'is_bundle' => 'boolean',
         'is_digital' => 'boolean',
         'is_active' => 'boolean',
@@ -112,5 +128,78 @@ class Product extends Model
             return round((1 - $this->price / $this->original_price) * 100);
         }
         return 0;
+    }
+
+    /**
+     * Get the included products as a collection of Product models
+     * Only returns active products that exist
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getIncludedProductsModelsAttribute()
+    {
+        if (empty($this->included_products)) {
+            return collect();
+        }
+
+        $ids = is_array($this->included_products) 
+            ? $this->included_products 
+            : json_decode($this->included_products, true) ?? [];
+
+        if (empty($ids)) {
+            return collect();
+        }
+
+        return Product::whereIn('id', $ids)
+            ->where('is_active', true)
+            ->get();
+    }
+
+    /**
+     * Check if this product includes a specific product
+     *
+     * @param int $productId
+     * @return bool
+     */
+    public function includesProduct(int $productId): bool
+    {
+        if (empty($this->included_products)) {
+            return false;
+        }
+
+        $ids = is_array($this->included_products) 
+            ? $this->included_products 
+            : json_decode($this->included_products, true) ?? [];
+
+        return in_array($productId, $ids);
+    }
+
+    /**
+     * Get the total value of included products (sum of their prices)
+     *
+     * @return float
+     */
+    public function getIncludedProductsTotalValueAttribute(): float
+    {
+        return $this->included_products_models->sum('price');
+    }
+
+    /**
+     * Get the savings percentage when buying as bundle vs individually
+     *
+     * @return float
+     */
+    public function getBundleSavingsPercentageAttribute(): float
+    {
+        if (!$this->is_bundle || empty($this->included_products_models)) {
+            return 0;
+        }
+
+        $totalValue = $this->included_products_total_value;
+        if ($totalValue <= 0) {
+            return 0;
+        }
+
+        return round((1 - $this->price / $totalValue) * 100, 2);
     }
 }
