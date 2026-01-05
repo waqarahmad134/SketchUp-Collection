@@ -1,12 +1,12 @@
 # SketchUp Collection Backend API
 
-Laravel backend API for the SketchUp Collection project with Filament admin panel.
+Laravel backend API for the SketchUp Collection project with custom admin panel.
 
 ## Features
 
 - RESTful API for products/bundles
 - Laravel Sanctum authentication
-- Filament admin panel for content management
+- Custom admin panel for content management (accessible at `/newadmin`)
 - Product and bundle management
 - Image upload support
 
@@ -40,7 +40,8 @@ php artisan migrate
 
 5. Create admin user:
 ```bash
-php artisan make:filament-user
+php artisan tinker
+# Then: User::create(['name' => 'Admin', 'email' => 'admin@example.com', 'password' => Hash::make('password')])
 ```
 
 ## Running the Server
@@ -50,7 +51,7 @@ php artisan serve
 ```
 
 The API will be available at `http://localhost:8000`
-Admin panel will be available at `http://localhost:8000/admin`
+Admin panel will be available at `http://localhost:8000/newadmin`
 
 ## API Endpoints
 
@@ -104,11 +105,12 @@ GET /api/v1/products/interior-skp-bundle
 
 ## Admin Panel
 
-Access the admin panel at `/admin` and manage:
+Access the admin panel at `/newadmin` and manage:
 - Products and bundles
 - Categories
 - Images
 - Features and tags
+- Posts, Users, Orders, Transactions, Coupons, Menus, Settings, and more
 
 ## CORS Configuration
 

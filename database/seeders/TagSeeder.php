@@ -12,14 +12,11 @@ class TagSeeder extends Seeder
     {
         $productTags = [
             '3d models',
-            'bundles',
             'free',
             'pbr',
             'textures',
             'furniture',
             'architecture',
-            'interior',
-            'exterior',
             'render-ready',
         ];
 

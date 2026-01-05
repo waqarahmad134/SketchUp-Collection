@@ -46,9 +46,9 @@ The `included_products` field is designed to store an array of product IDs for b
   - Uses `$allProducts` collection to fetch product details by ID
 - **Status**: ✅ Fully implemented and working
 
-#### 6. **Filament Admin Panel**
-- **Location**: `app/Filament/Resources/ProductResource.php`
-- **Implementation**: Select field for included products, visible only when bundle is enabled
+#### 6. **Custom Admin Panel**
+- **Location**: `resources/views/new admin/admin/products/_form.blade.php`
+- **Implementation**: Checkbox-based multi-select for included products, visible only when bundle is enabled
 - **Status**: ✅ Fully implemented
 
 ### ❌ What's Missing or Could Be Improved
