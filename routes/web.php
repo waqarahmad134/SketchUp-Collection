@@ -103,6 +103,8 @@ Route::post('/bundles/{product}/buy-now', [CartController::class, 'buyNow'])->na
 Route::get('/cart', [CartController::class, 'show'])->name('cart.show');
 Route::post('/cart/coupon/apply', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
+Route::delete('/cart/item/{productId}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
 Route::get('/creators/{user}', [CreatorController::class, 'show'])->name('creators.show');
 

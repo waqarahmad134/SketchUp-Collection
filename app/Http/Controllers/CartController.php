@@ -157,6 +157,59 @@ class CartController extends Controller
         return back()->with('status', $message);
     }
 
+    public function remove($productId, Request $request): JsonResponse|RedirectResponse
+    {
+        $cart = $request->session()->get('cart', []);
+        
+        if (isset($cart[$productId])) {
+            unset($cart[$productId]);
+            $request->session()->put('cart', $cart);
+            
+            // If cart is empty, also remove coupon
+            if (empty($cart)) {
+                $request->session()->forget('coupon_code');
+            }
+            
+            $message = 'Item removed from cart.';
+            if ($request->wantsJson()) {
+                $counts = $this->cartCounts($cart);
+                return response()->json([
+                    'success' => true,
+                    'message' => $message,
+                    'items' => $counts['items'],
+                    'quantity' => $counts['quantity'],
+                ]);
+            }
+            
+            return back()->with('status', $message);
+        }
+        
+        $message = 'Item not found in cart.';
+        if ($request->wantsJson()) {
+            return response()->json(['success' => false, 'message' => $message], 404);
+        }
+        
+        return back()->withErrors(['cart' => $message]);
+    }
+
+    public function clear(Request $request): JsonResponse|RedirectResponse
+    {
+        $request->session()->forget('cart');
+        $request->session()->forget('coupon_code');
+        
+        $message = 'Cart cleared successfully.';
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'items' => 0,
+                'quantity' => 0,
+            ]);
+        }
+        
+        return redirect()->route('cart.show')->with('status', $message);
+    }
+
     private function cartCounts(array $cart): array
     {
         $items = count($cart);

@@ -3,23 +3,34 @@
 @section('content')
     <section class="py-16 bg-background">
         <div class="container mx-auto px-4">
-            <div class="flex items-center justify-between mb-8">
-                <div>
-                    <h1 class="text-3xl font-bold font-display">Your Cart</h1>
-                    <p class="text-sm text-muted-foreground">Review items before checkout.</p>
-                </div>
-                <a href="{{ route('bundles.index') }}" class="text-sm text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-2">
-                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
-                    Continue browsing
-                </a>
-            </div>
-
             @php
                 $items = collect($cart);
                 $subtotal = $items->sum(fn ($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
                 $discountAmount = $discount ?? 0;
                 $total = $subtotal - $discountAmount;
             @endphp
+
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h1 class="text-3xl font-bold font-display">Your Cart</h1>
+                    <p class="text-sm text-muted-foreground">Review items before checkout.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    @if(!$items->isEmpty())
+                        <form action="{{ route('cart.clear') }}" method="POST" id="clearCartForm" class="inline">
+                            @csrf
+                            <button type="submit" class="text-sm text-red-400 hover:text-red-300 inline-flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                Empty Cart
+                            </button>
+                        </form>
+                    @endif
+                    <a href="{{ route('bundles.index') }}" class="text-sm text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-2">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                        Continue browsing
+                    </a>
+                </div>
+            </div>
 
             @if($items->isEmpty())
                 <div class="glass-card rounded-3xl p-8 text-center">
@@ -47,9 +58,18 @@
                                     <h3 class="font-semibold">{{ $item['title'] }}</h3>
                                     <p class="text-sm text-muted-foreground">Qty: {{ $item['qty'] ?? 1 }}</p>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-lg font-bold">${{ number_format(($item['price'] ?? 0) * ($item['qty'] ?? 1), 2) }}</p>
-                                    <p class="text-xs text-muted-foreground">${{ number_format($item['price'] ?? 0, 2) }} each</p>
+                                <div class="text-right flex items-center gap-4">
+                                    <div>
+                                        <p class="text-lg font-bold">${{ number_format(($item['price'] ?? 0) * ($item['qty'] ?? 1), 2) }}</p>
+                                        <p class="text-xs text-muted-foreground">${{ number_format($item['price'] ?? 0, 2) }} each</p>
+                                    </div>
+                                    <form action="{{ route('cart.remove', $item['id']) }}" method="POST" class="inline remove-item-form" data-item-title="{{ $item['title'] }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-500/10 transition" title="Remove item">
+                                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         @endforeach
@@ -130,5 +150,59 @@
             @endif
         </div>
     </section>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle empty cart form
+            const clearCartForm = document.getElementById('clearCartForm');
+            if (clearCartForm) {
+                clearCartForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    Swal.fire({
+                        title: 'Empty Cart?',
+                        text: 'Are you sure you want to remove all items from your cart?',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, empty cart',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            clearCartForm.submit();
+                        }
+                    });
+                });
+            }
+
+            // Handle remove item forms
+            const removeItemForms = document.querySelectorAll('.remove-item-form');
+            removeItemForms.forEach(function(form) {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const itemTitle = this.getAttribute('data-item-title');
+                    
+                    Swal.fire({
+                        title: 'Remove Item?',
+                        text: `Are you sure you want to remove "${itemTitle}" from your cart?`,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#6b7280',
+                        confirmButtonText: 'Yes, remove it',
+                        cancelButtonText: 'Cancel'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    @endpush
 @endsection
 
