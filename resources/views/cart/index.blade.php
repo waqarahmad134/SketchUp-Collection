@@ -7,7 +7,8 @@
                 $items = collect($cart);
                 $subtotal = $items->sum(fn ($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
                 $discountAmount = $discount ?? 0;
-                $total = $subtotal - $discountAmount;
+                $coinDiscountAmount = $coinDiscount ?? 0;
+                $total = $subtotal - $discountAmount - $coinDiscountAmount;
             @endphp
 
             <div class="flex items-center justify-between mb-8">
@@ -123,6 +124,74 @@
                             @endif
                         </div>
 
+                        {{-- SKP Coins Section --}}
+                        @auth
+                        <div class="space-y-3 pb-4 border-b border-border">
+                            @if($coinsToUse > 0)
+                                <div class="flex items-center justify-between p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="coins" class="w-4 h-4 text-yellow-400"></i>
+                                            <span class="font-semibold text-sm">{{ number_format($coinsToUse, 0) }} SKP Coins</span>
+                                        </div>
+                                        <p class="text-xs text-muted-foreground mt-1">
+                                            ${{ number_format($coinDiscountAmount, 2) }} discount applied
+                                        </p>
+                                    </div>
+                                    <form action="{{ route('cart.coins.remove') }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="text-red-400 hover:text-red-300 p-1" title="Remove coins">
+                                            <i data-lucide="x" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            @else
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-semibold">Your SKP Coins</span>
+                                        <span class="text-sm text-yellow-400 font-bold">{{ number_format($userPoints ?? 0, 0) }} SKP</span>
+                                    </div>
+                                    <form action="{{ route('cart.coins.apply') }}" method="POST" class="space-y-2" id="coinsForm">
+                                        @csrf
+                                        <div class="flex gap-2">
+                                            <input 
+                                                type="number" 
+                                                name="coins" 
+                                                id="coinsInput"
+                                                placeholder="Enter coins to use"
+                                                min="1"
+                                                max="{{ $userPoints ?? 0 }}"
+                                                class="flex-1 px-4 py-2 rounded-xl bg-card border border-border focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/30 outline-none text-sm"
+                                                value="{{ old('coins') }}"
+                                            >
+                                            <button 
+                                                type="submit" 
+                                                class="px-4 py-2 rounded-xl bg-gradient-to-r from-yellow-500 to-orange-500 text-background font-semibold text-sm hover:shadow-lg transition"
+                                                {{ ($userPoints ?? 0) < 1 ? 'disabled' : '' }}
+                                            >
+                                                Use
+                                            </button>
+                                        </div>
+                                        @error('coins')
+                                            <p class="text-xs text-red-400">{{ $message }}</p>
+                                        @enderror
+                                        @if(($userPoints ?? 0) > 0)
+                                            @php
+                                                $maxCoinsValue = ($subtotal - $discountAmount) * ($pointsPerDollar ?? 1000);
+                                                $maxCoinsToUse = min($userPoints, $maxCoinsValue);
+                                            @endphp
+                                            <p class="text-xs text-muted-foreground">
+                                                You can use up to {{ number_format($maxCoinsToUse, 0) }} coins (${{ number_format($maxCoinsToUse / ($pointsPerDollar ?? 1000), 2) }} value)
+                                            </p>
+                                        @else
+                                            <p class="text-xs text-muted-foreground">You don't have any coins to use.</p>
+                                        @endif
+                                    </form>
+                                </div>
+                            @endif
+                        </div>
+                        @endauth
+
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-muted-foreground">Items</span>
                             <span>{{ $items->count() }}</span>
@@ -133,8 +202,14 @@
                         </div>
                         @if($discountAmount > 0)
                             <div class="flex items-center justify-between text-sm text-cyan-400">
-                                <span>Discount</span>
+                                <span>Coupon Discount</span>
                                 <span>-${{ number_format($discountAmount, 2) }}</span>
+                            </div>
+                        @endif
+                        @if($coinDiscountAmount > 0)
+                            <div class="flex items-center justify-between text-sm text-yellow-400">
+                                <span>Coins Discount</span>
+                                <span>-${{ number_format($coinDiscountAmount, 2) }}</span>
                             </div>
                         @endif
                         <div class="pt-4 border-t border-border flex items-center justify-between">

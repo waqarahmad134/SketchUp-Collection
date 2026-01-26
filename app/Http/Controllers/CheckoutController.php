@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Referral;
 use App\Models\Setting;
 use App\Models\Transaction;
+use App\Models\PointsTransaction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -23,11 +24,52 @@ class CheckoutController extends Controller
     public function show(Request $request): RedirectResponse|View
     {
         $user = $request->user();
+        
+        $cart = $request->session()->get('cart', []);
+        if (empty($cart)) {
+            return redirect()->route('cart.show')->withErrors(['cart' => 'Your cart is empty.']);
+        }
+
+        // Calculate cart totals
+        $subtotal = collect($cart)->sum(function ($item) {
+            return ($item['price'] ?? 0) * ($item['qty'] ?? 1);
+        });
+        
+        $discount = 0;
+        $coupon = null;
+        $couponCode = $request->session()->get('coupon_code');
+        if ($couponCode) {
+            $coupon = Coupon::where('code', $couponCode)->first();
+            if ($coupon && $user) {
+                $validation = $coupon->isValid($user->id, $subtotal);
+                if ($validation['valid']) {
+                    $discount = $coupon->calculateDiscount($subtotal);
+                }
+            }
+        }
+        
+        $coinDiscount = 0;
+        $coinsToUse = $request->session()->get('coins_to_use', 0);
+        if ($coinsToUse > 0 && $user) {
+            $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
+            $coinDiscount = $coinsToUse / $pointsPerDollar;
+        }
+        
+        $total = $subtotal - $discount - $coinDiscount;
+        $userPoints = $user ? $user->getPoints() : 0;
 
         return view('checkout', [
             'title' => 'Checkout - SketchUp Collection',
             'metaDescription' => 'Secure checkout',
             'user' => $user,
+            'cart' => $cart,
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'coinDiscount' => $coinDiscount,
+            'coinsToUse' => $coinsToUse,
+            'total' => $total,
+            'userPoints' => $userPoints,
+            'coupon' => $coupon,
         ]);
     }
 
@@ -68,7 +110,20 @@ class CheckoutController extends Controller
             }
         }
         
-        $total = $subtotal - $discount;
+        // Calculate coin discount
+        $coinDiscount = 0;
+        $coinsToUse = $request->session()->get('coins_to_use', 0);
+        $user = $request->user();
+        if ($coinsToUse > 0 && $user) {
+            $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
+            $maxCoinValue = ($subtotal - $discount) * $pointsPerDollar;
+            $coinsToUse = min($coinsToUse, $maxCoinValue, $user->getPoints());
+            $coinDiscount = $coinsToUse / $pointsPerDollar;
+            // Update session with validated coins
+            $request->session()->put('coins_to_use', $coinsToUse);
+        }
+        
+        $total = $subtotal - $discount - $coinDiscount;
         
         // For Stripe, we need to adjust line items proportionally to reflect the discount
         // Calculate the discount ratio
@@ -202,7 +257,17 @@ class CheckoutController extends Controller
                 }
             }
             
-            $total = $subtotal + $tax - $discount;
+            // Apply coin discount if exists
+            $coinDiscount = 0;
+            $coinsToUse = $request->session()->get('coins_to_use', 0);
+            if ($coinsToUse > 0) {
+                $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
+                $maxCoinValue = ($subtotal - $discount) * $pointsPerDollar;
+                $coinsToUse = min($coinsToUse, $maxCoinValue, $user->getPoints());
+                $coinDiscount = $coinsToUse / $pointsPerDollar;
+            }
+            
+            $total = $subtotal + $tax - $discount - $coinDiscount;
 
             // Create order and order items in a transaction
             DB::beginTransaction();
@@ -213,7 +278,7 @@ class CheckoutController extends Controller
                     'status' => 'completed',
                     'subtotal' => $subtotal,
                     'tax' => $tax,
-                    'discount' => $discount,
+                    'discount' => $discount + $coinDiscount,
                     'total' => $total,
                     'currency' => 'USD',
                     'payment_method' => 'stripe',
@@ -221,6 +286,19 @@ class CheckoutController extends Controller
                     'customer_email' => $user->email,
                     'customer_name' => $user->name,
                 ]);
+
+                // Deduct coins from user balance if coins were used
+                if ($coinsToUse > 0 && $coinDiscount > 0) {
+                    $user->deductPoints(
+                        $coinsToUse,
+                        'purchase',
+                        "Used {$coinsToUse} SKP coins for Order #{$order->order_number}",
+                        $order->id,
+                        'order'
+                    );
+                    // Clear coins from session after successful use
+                    $request->session()->forget('coins_to_use');
+                }
 
                 // Create order items - all products are validated to exist
                 foreach ($cart as $item) {

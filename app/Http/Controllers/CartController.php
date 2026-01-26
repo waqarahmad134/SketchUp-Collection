@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Coupon;
 use App\Models\Product;
+use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -34,12 +35,28 @@ class CartController extends Controller
             }
         }
 
+        // Calculate coin discount
+        $coinDiscount = 0;
+        $coinsToUse = $request->session()->get('coins_to_use', 0);
+        if ($coinsToUse > 0) {
+            $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
+            $coinDiscount = min($coinsToUse / $pointsPerDollar, collect($cart)->sum(fn ($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1)) - $discount);
+        }
+
+        $user = $request->user();
+        $userPoints = $user ? $user->getPoints() : 0;
+        $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
+
         return view('cart.index', [
             'title' => 'Your Cart - SketchUp Collection',
             'metaDescription' => 'Review your items before checkout.',
             'cart' => $cart,
             'coupon' => $coupon,
             'discount' => $discount,
+            'coinDiscount' => $coinDiscount,
+            'coinsToUse' => $coinsToUse,
+            'userPoints' => $userPoints,
+            'pointsPerDollar' => $pointsPerDollar,
         ]);
     }
 
@@ -196,6 +213,7 @@ class CartController extends Controller
     {
         $request->session()->forget('cart');
         $request->session()->forget('coupon_code');
+        $request->session()->forget('coins_to_use');
         
         $message = 'Cart cleared successfully.';
         if ($request->wantsJson()) {
@@ -208,6 +226,93 @@ class CartController extends Controller
         }
         
         return redirect()->route('cart.show')->with('status', $message);
+    }
+
+    public function applyCoins(Request $request): JsonResponse|RedirectResponse
+    {
+        $user = $request->user();
+        
+        if (!$user) {
+            $message = 'You must be logged in to use coins.';
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 401);
+            }
+            return back()->withErrors(['coins' => $message]);
+        }
+
+        $request->validate([
+            'coins' => 'required|integer|min:1',
+        ]);
+
+        $coinsToUse = (int) $request->coins;
+        $userPoints = $user->getPoints();
+
+        if ($coinsToUse > $userPoints) {
+            $message = "You don't have enough coins. You have {$userPoints} SKP coins.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            return back()->withErrors(['coins' => $message]);
+        }
+
+        $cart = $request->session()->get('cart', []);
+        $subtotal = collect($cart)->sum(fn ($item) => ($item['price'] ?? 0) * ($item['qty'] ?? 1));
+        
+        // Calculate coupon discount if exists
+        $couponDiscount = 0;
+        $couponCode = $request->session()->get('coupon_code');
+        if ($couponCode) {
+            $coupon = Coupon::where('code', $couponCode)->first();
+            if ($coupon) {
+                $validation = $coupon->isValid($user->id, $subtotal);
+                if ($validation['valid']) {
+                    $couponDiscount = $coupon->calculateDiscount($subtotal);
+                }
+            }
+        }
+
+        // Calculate maximum coins that can be used (after coupon discount)
+        $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
+        $maxCoinValue = ($subtotal - $couponDiscount) * $pointsPerDollar;
+        $maxCoinsToUse = min($coinsToUse, $maxCoinValue, $userPoints);
+
+        if ($maxCoinsToUse < $coinsToUse) {
+            $message = "You can only use up to {$maxCoinsToUse} coins for this order.";
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+            return back()->withErrors(['coins' => $message]);
+        }
+
+        $request->session()->put('coins_to_use', $maxCoinsToUse);
+        
+        $coinDiscount = $maxCoinsToUse / $pointsPerDollar;
+        $total = $subtotal - $couponDiscount - $coinDiscount;
+
+        $message = 'Coins applied successfully!';
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'coins_used' => $maxCoinsToUse,
+                'coin_discount' => $coinDiscount,
+                'total' => $total,
+            ]);
+        }
+
+        return back()->with('status', $message);
+    }
+
+    public function removeCoins(Request $request): JsonResponse|RedirectResponse
+    {
+        $request->session()->forget('coins_to_use');
+
+        $message = 'Coins removed successfully.';
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => $message]);
+        }
+
+        return back()->with('status', $message);
     }
 
     private function cartCounts(array $cart): array
