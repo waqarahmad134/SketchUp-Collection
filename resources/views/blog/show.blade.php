@@ -79,6 +79,56 @@
             @endif
         </div>
     </article>
+
+    {{-- Comments --}}
+    <section class="py-12">
+        <div class="container mx-auto px-4">
+            <div class="max-w-3xl mx-auto">
+                <h2 class="text-2xl font-bold font-display mb-6">
+                    Comments <span class="text-muted-foreground text-lg font-normal">({{ $comments->count() }})</span>
+                </h2>
+
+                <div class="space-y-4 mb-10">
+                    @forelse($comments as $comment)
+                        <div class="glass-card rounded-2xl p-5">
+                            <div class="flex items-center gap-3 mb-2">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-violet-500 flex items-center justify-center">
+                                    <span class="text-sm font-bold text-background">{{ strtoupper(substr($comment->name, 0, 1)) }}</span>
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-sm">{{ $comment->name }}</p>
+                                    <p class="text-xs text-muted-foreground">{{ $comment->created_at->format('M d, Y') }}</p>
+                                </div>
+                            </div>
+                            <p class="text-muted-foreground text-sm">{{ $comment->body }}</p>
+                        </div>
+                    @empty
+                        <p class="text-muted-foreground">No comments yet. Be the first to share your thoughts.</p>
+                    @endforelse
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="font-bold font-display text-lg mb-4">Leave a comment</h3>
+                    <form method="POST" action="{{ route('comments.store', $post->slug) }}" class="space-y-4">
+                        @csrf
+                        @guest
+                            <div class="grid sm:grid-cols-2 gap-4">
+                                <input type="text" name="name" required placeholder="Your name" value="{{ old('name') }}"
+                                    class="rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">
+                                <input type="email" name="email" placeholder="Email (optional)" value="{{ old('email') }}"
+                                    class="rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">
+                            </div>
+                        @endguest
+                        <textarea name="body" required rows="4" placeholder="Write your comment..." class="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm focus:outline-none focus:border-cyan-500">{{ old('body') }}</textarea>
+                        <button type="submit" class="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition">
+                            Post Comment
+                        </button>
+                        <p class="text-xs text-muted-foreground">Comments are reviewed before appearing.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
 @endsection
 
 @push('scripts')

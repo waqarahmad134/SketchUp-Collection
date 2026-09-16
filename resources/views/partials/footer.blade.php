@@ -22,6 +22,8 @@
         'Legal' => [
             ['name' => 'Privacy Policy', 'href' => '/privacy-policy'],
             ['name' => 'Terms of Service', 'href' => '/terms-of-service'],
+            ['name' => 'Refund Policy', 'href' => '/refund-policy'],
+            ['name' => 'FAQ', 'href' => '/faq'],
             ['name' => 'License', 'href' => '/license'],
         ],
     ];
@@ -73,6 +75,24 @@
         </div>
     </div>
     
+    {{-- Newsletter Section --}}
+    <div class="border-b border-border">
+        <div class="container mx-auto px-4 py-12">
+            <div class="max-w-xl mx-auto text-center space-y-4">
+                <h3 class="text-2xl font-bold font-display">{{ \App\Models\Setting::get('newsletter_heading', 'Get 10% off your first order') }}</h3>
+                <p class="text-muted-foreground text-sm">{{ \App\Models\Setting::get('newsletter_subheading', 'Join the newsletter for new bundles, free assets and exclusive discounts.') }}</p>
+                <form method="POST" action="{{ route('newsletter.subscribe') }}" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                    @csrf
+                    <input type="email" name="email" required placeholder="Your email address"
+                        class="flex-1 rounded-xl border border-border bg-background px-5 py-3 text-sm focus:outline-none focus:border-cyan-500">
+                    <button type="submit" class="px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition whitespace-nowrap">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="container mx-auto px-4 py-16">
         <div class="grid grid-cols-2 md:grid-cols-6 gap-8">
             <div class="col-span-2 space-y-4">

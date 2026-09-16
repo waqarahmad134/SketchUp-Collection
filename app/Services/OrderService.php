@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Mail\OrderConfirmationMail;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Order;
@@ -13,6 +14,7 @@ use App\Models\Setting;
 use App\Models\Transaction;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 /**
  * Creates a completed order from a verified payment attempt.
@@ -188,6 +190,16 @@ class OrderService
 
             if ($session) {
                 $session->forget(['cart', 'coupon_code', 'coins_to_use']);
+            }
+
+            // Order confirmation email (never breaks the order if mail fails).
+            try {
+                Mail::to($order->customer_email)->send(new OrderConfirmationMail($order));
+            } catch (\Throwable $e) {
+                Log::warning('Order confirmation email failed', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
 
             return $order;

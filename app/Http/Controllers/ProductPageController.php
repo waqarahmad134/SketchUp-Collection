@@ -158,6 +158,18 @@ class ProductPageController extends Controller
             ->where('is_active', true)
             ->firstOrFail();
 
+        // Track recently viewed products in session (max 8, most recent first).
+        $recentIds = session()->get('recently_viewed', []);
+        $recentIds = array_values(array_unique(array_merge([$product->id], $recentIds)));
+        $recentIds = array_slice($recentIds, 0, 8);
+        session()->put('recently_viewed', $recentIds);
+
+        $recentlyViewed = Product::whereIn('id', array_diff($recentIds, [$product->id]))
+            ->where('is_active', true)
+            ->get()
+            ->sortBy(fn ($p) => array_search($p->id, $recentIds))
+            ->take(4);
+
         // Optimize included products loading for bundles
         $includedProducts = collect();
         if ($product->is_bundle && !empty($product->included_products)) {
@@ -202,6 +214,7 @@ class ProductPageController extends Controller
             'allProducts' => $allProducts,
             'includedProducts' => $includedProducts, // Optimized collection
             'relatedProducts' => $relatedProducts,
+            'recentlyViewed' => $recentlyViewed,
             'seoModel' => $product,
         ]);
     }

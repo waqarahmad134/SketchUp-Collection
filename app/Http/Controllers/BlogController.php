@@ -126,6 +126,7 @@ class BlogController extends Controller
             'metaDescription' => $post->meta_description ?? $post->excerpt ?? $post->title,
             'post' => $post,
             'relatedPosts' => $relatedPosts,
+            'comments' => $post->approvedComments()->latest()->get(),
             'seoModel' => $post,
         ]);
     }

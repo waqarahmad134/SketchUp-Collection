@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\OrderConfirmationMail;
 use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Order;
@@ -17,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 use Stripe\StripeClient;
 
@@ -401,6 +403,16 @@ class CheckoutController extends Controller
 
                 // Clear cart after successful order
                 $request->session()->forget('cart');
+
+                // Order confirmation email (never breaks the flow if mail fails).
+                try {
+                    Mail::to($order->customer_email)->send(new OrderConfirmationMail($order));
+                } catch (\Throwable $e) {
+                    Log::warning('Order confirmation email failed', [
+                        'order_id' => $order->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
 
                 return redirect()->route('checkout.show')->with('status', 'Payment successful! Your order has been placed.');
 

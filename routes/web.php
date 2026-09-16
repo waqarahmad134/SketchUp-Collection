@@ -3,6 +3,10 @@
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\ReviewController;
@@ -26,6 +30,8 @@ use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminCustomScriptController;
 use App\Http\Controllers\Admin\AdminPaymentGatewayController;
+use App\Http\Controllers\Admin\AdminNewsletterController;
+use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -77,6 +83,10 @@ Route::middleware('auth')->group(function () {
     
     // Daily Login Bonus - claim requires authentication
     Route::post('/daily-login/claim', [DailyLoginController::class, 'claim'])->name('daily-login.claim');
+
+    // Customer account: order history + re-downloads
+    Route::get('/account', [AccountController::class, 'dashboard'])->name('account.dashboard');
+    Route::get('/account/orders/{order}', [AccountController::class, 'order'])->name('account.order');
 });
 
 Route::get('/bundles', [ProductPageController::class, 'index'])->name('bundles.index');
@@ -93,7 +103,28 @@ Route::post('/cart/coins/remove', [CartController::class, 'removeCoins'])->name(
 Route::delete('/cart/item/{productId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+Route::post('/blog/{slug}/comments', [CommentController::class, 'store'])->name('comments.store');
+
 Route::get('/creators/{user}', [CreatorController::class, 'show'])->name('creators.show');
+
+// Wishlist (session-based, works for guests too)
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+// Newsletter
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+// Trust pages
+Route::view('/faq', 'pages.faq', [
+    'title' => 'FAQ - SketchUp Collection',
+    'metaDescription' => 'Frequently asked questions about SketchUp Collection bundles, downloads, licensing and payments.',
+])->name('faq');
+
+Route::view('/refund-policy', 'pages.refund-policy', [
+    'title' => 'Refund Policy - SketchUp Collection',
+    'metaDescription' => 'Our refund policy for digital downloads.',
+])->name('refund-policy');
 
 Route::view('/about', 'pages.about', [
     'title' => 'About Us - SketchUp Collection',
@@ -229,5 +260,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/payment-gateways/{gateway}', [AdminPaymentGatewayController::class, 'update'])->name('payment-gateways.update');
         Route::post('/payment-gateways/{gateway}/toggle', [AdminPaymentGatewayController::class, 'toggle'])->name('payment-gateways.toggle');
         Route::post('/payment-gateways-rate', [AdminPaymentGatewayController::class, 'updateRate'])->name('payment-gateways.rate');
+
+        // Newsletter subscribers
+        Route::get('/newsletter', [AdminNewsletterController::class, 'index'])->name('newsletter.index');
+        Route::delete('/newsletter/{subscriber}', [AdminNewsletterController::class, 'destroy'])->name('newsletter.destroy');
+        Route::get('/newsletter/export', [AdminNewsletterController::class, 'export'])->name('newsletter.export');
+
+        // Blog comments moderation
+        Route::get('/comments', [AdminCommentController::class, 'index'])->name('comments.index');
+        Route::post('/comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('comments.approve');
+        Route::post('/comments/{comment}/spam', [AdminCommentController::class, 'spam'])->name('comments.spam');
+        Route::delete('/comments/{comment}', [AdminCommentController::class, 'destroy'])->name('comments.destroy');
     });
 });

@@ -163,6 +163,7 @@
                                         Buy Now
                                     </button>
                                 </form>
+                                @include('partials.wishlist-button', ['product' => $product])
                             </div>
                         @endif
                     </div>
@@ -446,6 +447,39 @@
                                 <h3 class="font-semibold mb-2 line-clamp-2 group-hover:text-cyan-400 transition-colors">{{ $related->title }}</h3>
                                 <div class="flex items-center justify-between">
                                     <span class="text-xl font-bold gradient-text">${{ number_format($related->price, 2) }}</span>
+                                    <span class="inline-flex items-center gap-1 text-sm text-cyan-400 font-medium">
+                                        View <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
+
+    @if(isset($recentlyViewed) && $recentlyViewed->count() > 0)
+    <section class="py-16">
+        <div class="container mx-auto px-4">
+            <div class="max-w-6xl mx-auto">
+                <h2 class="text-3xl font-bold font-display mb-2 text-center">
+                    Recently <span class="gradient-text">Viewed</span>
+                </h2>
+                <p class="text-muted-foreground text-center mb-10">Pick up where you left off</p>
+                <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @foreach($recentlyViewed as $recent)
+                        <a href="{{ route('bundles.show', $recent->slug) }}" class="glass-card rounded-3xl overflow-hidden group hover:border-cyan-500/50 transition-all duration-300">
+                            @if($recent->image_url)
+                                <div class="h-40 overflow-hidden">
+                                    <img src="{{ $recent->image_url }}" alt="{{ $recent->title }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                </div>
+                            @endif
+                            <div class="p-5">
+                                <h3 class="font-semibold mb-2 line-clamp-2 group-hover:text-cyan-400 transition-colors">{{ $recent->title }}</h3>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xl font-bold gradient-text">${{ number_format($recent->price, 2) }}</span>
                                     <span class="inline-flex items-center gap-1 text-sm text-cyan-400 font-medium">
                                         View <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                     </span>
