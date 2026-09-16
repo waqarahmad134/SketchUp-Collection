@@ -29,7 +29,7 @@
                                 <div class="p-5">
                                     <h3 class="font-semibold mb-2 line-clamp-2">{{ $product->title }}</h3>
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xl font-bold gradient-text">${{ number_format($product->price, 2) }}</span>
+                                        <span class="text-xl font-bold gradient-text">{{ \App\Support\Currency::format($product->price) }}</span>
                                         <a href="{{ route('bundles.show', $product->slug) }}" class="inline-flex items-center gap-1 text-sm text-cyan-400 font-medium">
                                             View <i data-lucide="arrow-right" class="w-4 h-4"></i>
                                         </a>

@@ -18,6 +18,7 @@ class Product extends Model
         'description',
         'full_description',
         'image',
+        'image_alt',
         'images',
         'price',
         'original_price',
@@ -27,8 +28,11 @@ class Product extends Model
         'features',
         'download_links',
         'download_file',
+        'sample_file',
         'file_size',
+        'sketchup_version',
         'file_count',
+        'download_count',
         'included_products',
         'is_active',
         'sort_order',
@@ -63,6 +67,7 @@ class Product extends Model
         'is_bundle' => 'boolean',
         'is_digital' => 'boolean',
         'is_active' => 'boolean',
+        'download_count' => 'integer',
         'price' => 'decimal:2',
         'original_price' => 'decimal:2',
     ];
@@ -107,8 +112,15 @@ class Product extends Model
             return null;
         }
 
-        // Serve private files via download route
         return route('bundles.download', $this->slug);
+    }
+
+    /**
+     * SEO alt text for the main image, falling back to the product title.
+     */
+    public function getImageAltTextAttribute(): string
+    {
+        return $this->image_alt ?: $this->title;
     }
 
     protected static function boot()

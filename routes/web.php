@@ -87,11 +87,14 @@ Route::middleware('auth')->group(function () {
     // Customer account: order history + re-downloads
     Route::get('/account', [AccountController::class, 'dashboard'])->name('account.dashboard');
     Route::get('/account/orders/{order}', [AccountController::class, 'order'])->name('account.order');
+    Route::post('/account/password', [AccountController::class, 'updatePassword'])->name('account.password');
 });
 
 Route::get('/bundles', [ProductPageController::class, 'index'])->name('bundles.index');
+Route::get('/bundles/category/{slug}', [ProductPageController::class, 'category'])->name('bundles.category');
 Route::get('/bundles/{slug}', [ProductPageController::class, 'show'])->name('bundles.show');
 Route::get('/bundles/{slug}/download', [ProductPageController::class, 'download'])->name('bundles.download');
+Route::get('/bundles/{slug}/sample', [ProductPageController::class, 'sample'])->name('bundles.sample');
 Route::post('/bundles/{slug}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 Route::post('/bundles/{product}/add-to-cart', [CartController::class, 'add'])->name('cart.add');
 Route::post('/bundles/{product}/buy-now', [CartController::class, 'buyNow'])->name('cart.buyNow');
@@ -114,6 +117,12 @@ Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])
 // Newsletter
 Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
 Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+// Guest checkout (public: creates/logs in an account from name + email)
+Route::post('/checkout/guest', [GuestCheckoutController::class, 'store'])->name('checkout.guest');
+
+// Display currency switcher (USD/PKR, session-based)
+Route::post('/currency', [CurrencyController::class, 'switch'])->name('currency.switch');
 
 // Trust pages
 Route::view('/faq', 'pages.faq', [
@@ -271,5 +280,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('comments.approve');
         Route::post('/comments/{comment}/spam', [AdminCommentController::class, 'spam'])->name('comments.spam');
         Route::delete('/comments/{comment}', [AdminCommentController::class, 'destroy'])->name('comments.destroy');
+
+        // Redirect manager (SEO)
+        Route::resource('redirects', AdminRedirectController::class)->except(['show']);
     });
 });
+
+// Redirect fallback: check the redirects table before returning a 404.
+// Must be registered last.
+Route::fallback([RedirectController::class, 'handle']);

@@ -44,11 +44,14 @@ class AdminProductController extends Controller
             'is_active' => 'nullable|boolean',
             'file_count' => 'nullable|integer',
             'file_size' => 'nullable|string|max:255',
+            'sketchup_version' => 'nullable|string|max:255',
+            'image_alt' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer',
             'image' => 'required|image|max:5120',
             'images' => 'nullable|array',
             'images.*' => 'image|max:5120',
             'download_file' => 'nullable|file|max:51200',
+            'sample_file' => 'nullable|file|max:51200',
             'download_links' => 'nullable|string',
             'features' => 'nullable|string',
             'tags' => 'nullable|array',
@@ -105,6 +108,10 @@ class AdminProductController extends Controller
 
         if ($request->hasFile('download_file')) {
             $validated['download_file'] = $request->file('download_file')->store('products/downloads', 'private');
+        }
+
+        if ($request->hasFile('sample_file')) {
+            $validated['sample_file'] = $request->file('sample_file')->store('products/samples', 'private');
         }
 
         if ($request->hasFile('og_image')) {
@@ -178,11 +185,14 @@ class AdminProductController extends Controller
             'is_active' => 'nullable|boolean',
             'file_count' => 'nullable|integer',
             'file_size' => 'nullable|string|max:255',
+            'sketchup_version' => 'nullable|string|max:255',
+            'image_alt' => 'nullable|string|max:255',
             'sort_order' => 'nullable|integer',
             'image' => 'nullable|image|max:5120',
             'images' => 'nullable|array',
             'images.*' => 'image|max:5120',
             'download_file' => 'nullable|file|max:51200',
+            'sample_file' => 'nullable|file|max:51200',
             'download_links' => 'nullable|string',
             'features' => 'nullable|string',
             'tags' => 'nullable|array',
@@ -254,6 +264,13 @@ class AdminProductController extends Controller
                 Storage::disk('private')->delete($product->download_file);
             }
             $validated['download_file'] = $request->file('download_file')->store('products/downloads', 'private');
+        }
+
+        if ($request->hasFile('sample_file')) {
+            if ($product->sample_file) {
+                Storage::disk('private')->delete($product->sample_file);
+            }
+            $validated['sample_file'] = $request->file('sample_file')->store('products/samples', 'private');
         }
 
         if ($request->hasFile('og_image')) {

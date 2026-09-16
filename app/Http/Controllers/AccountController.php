@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class AccountController extends Controller
@@ -38,12 +40,38 @@ class AccountController extends Controller
     {
         abort_unless($order->user_id === $request->user()->id, 403);
 
-        $order->load('items');
+        $order->load(['items.product:id,title,file_size,file_count,sketchup_version']);
 
         return view('account.order', [
             'title' => 'Order ' . $order->order_number . ' - SketchUp Collection',
             'metaDescription' => 'Order details and downloads.',
             'order' => $order,
         ]);
+    }
+
+    /**
+     * Set or change the account password. Guest-created accounts set it
+     * without knowing a current password; everyone else must confirm it.
+     */
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $user = $request->user();
+
+        $rules = [
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ];
+
+        if (! $user->must_set_password) {
+            $rules['current_password'] = ['required', 'current_password'];
+        }
+
+        $request->validate($rules);
+
+        $user->forceFill([
+            'password' => Hash::make($request->password),
+            'must_set_password' => false,
+        ])->save();
+
+        return back()->with('status', 'Password updated successfully.');
     }
 }

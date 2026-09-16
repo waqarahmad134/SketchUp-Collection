@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\Setting;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -140,7 +141,32 @@ class ProductPageController extends Controller
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
             'filters' => $filters,
+            'activeCategory' => null,
         ]);
+    }
+
+    /**
+     * SEO landing page for a single product category: unique URL, title,
+     * meta description and intro content per category (programmatic SEO).
+     */
+    public function category(Request $request, string $slug)
+    {
+        $category = ProductCategory::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $request->merge(['category' => [(string) $category->id]]);
+
+        $view = $this->index($request);
+
+        if ($view instanceof \Illuminate\View\View) {
+            $view->with('activeCategory', $category);
+            $view->with('seoModel', $category);
+            $view->with('title', ($category->meta_title ?: $category->name . ' SketchUp Models & 3D Assets') . ' - ' . (Setting::get('site_name') ?? config('app.name')));
+            $view->with('metaDescription', $category->meta_description ?: \Str::limit(strip_tags($category->description ?? ''), 155));
+        }
+
+        return $view;
     }
 
     public function show(string $slug): View
@@ -233,7 +259,27 @@ class ProductPageController extends Controller
             abort(404);
         }
 
+        $product->increment('download_count');
+
         return Storage::download($product->download_file, Str::slug($product->title) . '.' . pathinfo($product->download_file, PATHINFO_EXTENSION));
+    }
+
+    /**
+     * Public free sample download (try-before-you-buy).
+     */
+    public function sample(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        if (!$product->sample_file || !Storage::exists($product->sample_file)) {
+            abort(404);
+        }
+
+        $product->increment('download_count');
+
+        return Storage::download($product->sample_file, Str::slug($product->title) . '-sample.' . pathinfo($product->sample_file, PATHINFO_EXTENSION));
     }
 }
 

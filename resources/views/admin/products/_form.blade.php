@@ -203,7 +203,7 @@ $initialTags = old('tags', ($isEditMode && $product && $product->tags) ? $produc
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-3 gap-4">
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <div>
                             <label for="file_count" class="block text-sm font-medium mb-2">File Count</label>
                             <input
@@ -226,6 +226,19 @@ $initialTags = old('tags', ($isEditMode && $product && $product->tags) ? $produc
                                 maxlength="255"
                                 class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                                 placeholder="e.g., 500 MB"
+                            >
+                        </div>
+
+                        <div>
+                            <label for="sketchup_version" class="block text-sm font-medium mb-2">SketchUp Version</label>
+                            <input
+                                type="text"
+                                id="sketchup_version"
+                                name="sketchup_version"
+                                value="{{ old('sketchup_version', $isEditMode && $product ? ($product->sketchup_version ?? '') : '') }}"
+                                maxlength="255"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                                placeholder="e.g., 2021+"
                             >
                         </div>
 
@@ -268,6 +281,23 @@ $initialTags = old('tags', ($isEditMode && $product && $product->tags) ? $produc
                     </div>
 
                     <div>
+                        <label for="image_alt" class="block text-sm font-medium mb-2">Image Alt Text <span class="text-xs text-muted-foreground font-normal">(SEO)</span></label>
+                        <input
+                            type="text"
+                            id="image_alt"
+                            name="image_alt"
+                            value="{{ old('image_alt', $isEditMode && $product ? ($product->image_alt ?? '') : '') }}"
+                            maxlength="255"
+                            placeholder="e.g., Modern living room SketchUp 3D model bundle"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                        <p class="mt-1 text-xs text-muted-foreground">Describe the image for search engines. Falls back to the product title.</p>
+                        @error('image_alt')
+                            <p class="mt-1 text-sm text-destructive">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
                         <label for="images" class="block text-sm font-medium mb-2">Gallery Images</label>
                         @if($isEditMode && $product && isset($product->images) && is_array($product->images) && count($product->images) > 0)
                             <div class="grid grid-cols-4 gap-2 mb-2">
@@ -299,6 +329,23 @@ $initialTags = old('tags', ($isEditMode && $product && $product->tags) ? $produc
                             class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         >
                         <p class="mt-1 text-xs text-muted-foreground">For digital products</p>
+                    </div>
+
+                    <div x-show="isDigital">
+                        <label for="sample_file" class="block text-sm font-medium mb-2">Free Sample File</label>
+                        @if($isEditMode && $product && $product->sample_file)
+                            <p class="text-sm text-muted-foreground mb-2">Current sample: {{ basename($product->sample_file) }}</p>
+                        @endif
+                        <input
+                            type="file"
+                            id="sample_file"
+                            name="sample_file"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                        <p class="mt-1 text-xs text-muted-foreground">A free preview file buyers can download before purchasing</p>
+                        @error('sample_file')
+                            <p class="mt-1 text-sm text-destructive">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <!-- Download Links Repeater -->

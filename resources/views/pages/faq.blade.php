@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $faqSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'FAQPage',
+            'mainEntity' => [],
+        ];
+    @endphp
     <section class="py-24">
         <div class="container mx-auto px-4">
             <div class="max-w-3xl mx-auto">
@@ -70,3 +77,17 @@
         </div>
     </section>
 @endsection
+
+@push('head')
+    @php
+        $faqSchema['mainEntity'] = collect($faqs)->map(fn ($faq) => [
+            '@type' => 'Question',
+            'name' => $faq['q'],
+            'acceptedAnswer' => [
+                '@type' => 'Answer',
+                'text' => $faq['a'],
+            ],
+        ])->values()->all();
+    @endphp
+    <script type="application/ld+json">{!! json_encode($faqSchema, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}</script>
+@endpush

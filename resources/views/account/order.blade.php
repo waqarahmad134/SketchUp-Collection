@@ -21,7 +21,15 @@
                             @endif
                             <div class="flex-1 min-w-[200px]">
                                 <p class="font-semibold">{{ $item->product_name }}</p>
-                                <p class="text-sm text-muted-foreground">Qty: {{ $item->quantity }} - ${{ number_format($item->total, 2) }}</p>
+                                <p class="text-sm text-muted-foreground">
+                                    Qty: {{ $item->quantity }} - ${{ number_format($item->total, 2) }}
+                                    @if($item->product?->file_size)
+                                        <span class="mx-1">•</span> {{ $item->product->file_size }}
+                                    @endif
+                                    @if($item->product?->sketchup_version)
+                                        <span class="mx-1">•</span> SketchUp {{ $item->product->sketchup_version }}
+                                    @endif
+                                </p>
                             </div>
                             @if($item->product_slug)
                                 <a href="{{ route('bundles.download', $item->product_slug) }}" class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition">

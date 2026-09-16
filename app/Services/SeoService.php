@@ -46,9 +46,15 @@ class SeoService
             return $model->meta_title;
         }
 
+        $siteName = Setting::get('site_name') ?? config('app.name');
+
         if ($model && isset($model->title)) {
-            $siteName = Setting::get('site_name') ?? config('app.name');
             return $model->title . ' - ' . $siteName;
+        }
+
+        // Category-style models use `name` instead of `title`.
+        if ($model && isset($model->name)) {
+            return $model->name . ' - ' . $siteName;
         }
 
         // Use default_meta_title, fallback to site_name, then config
@@ -270,6 +276,21 @@ class SeoService
                 if (isset($model->original_price)) {
                     $schema['offers']['priceValidUntil'] = now()->addYear()->toDateString();
                 }
+
+                // AggregateRating from approved reviews (star ratings in SERPs).
+                if ($model->relationLoaded('reviews')) {
+                    $approved = $model->reviews->where('status', 'approved');
+                } else {
+                    $approved = $model->reviews()->where('status', 'approved')->get();
+                }
+
+                if ($approved->count() > 0) {
+                    $schema['aggregateRating'] = [
+                        '@type' => 'AggregateRating',
+                        'ratingValue' => round($approved->avg('rating'), 1),
+                        'reviewCount' => $approved->count(),
+                    ];
+                }
             }
         }
 
@@ -286,9 +307,29 @@ class SeoService
         // BreadcrumbList alongside the main entity (course rule M27).
         $breadcrumb = $this->getBreadcrumbMarkup($model, $type);
 
+        $graph = [$schema, $breadcrumb];
+
+        // WebSite with SearchAction on the homepage so Google can show a
+        // sitelinks search box under the listing.
+        if (! $model) {
+            $graph[] = [
+                '@type' => 'WebSite',
+                'name' => Setting::get('site_name') ?? config('app.name'),
+                'url' => URL::to('/'),
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => [
+                        '@type' => 'EntryPoint',
+                        'urlTemplate' => URL::to('/bundles') . '?q={search_term_string}',
+                    ],
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ];
+        }
+
         return [
             '@context' => 'https://schema.org',
-            '@graph' => [$schema, $breadcrumb],
+            '@graph' => $graph,
         ];
     }
 

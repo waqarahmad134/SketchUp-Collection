@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 
@@ -68,6 +71,47 @@ class AdminController extends Controller
             $post->view_count = $post->views;
         });
 
-        return view('admin.dashboard', compact('posts', 'categories', 'tags'));
+        // Store revenue stats
+        $completedOrders = Order::where('status', 'completed');
+        $totalRevenue = (clone $completedOrders)->sum('total');
+        $ordersCount = (clone $completedOrders)->count();
+        $customersCount = Order::where('status', 'completed')->distinct('user_id')->count('user_id');
+        $avgOrderValue = $ordersCount > 0 ? $totalRevenue / $ordersCount : 0;
+
+        // Revenue by day for the last 14 days
+        $revenueByDay = Order::where('status', 'completed')
+            ->where('created_at', '>=', now()->subDays(13)->startOfDay())
+            ->select(DB::raw('DATE(created_at) as day'), DB::raw('SUM(total) as revenue'), DB::raw('COUNT(*) as orders'))
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
+        $revenueChart = [];
+        $maxRevenue = 0;
+        for ($i = 13; $i >= 0; $i--) {
+            $day = now()->subDays($i)->toDateString();
+            $revenue = (float) ($revenueByDay[$day]->revenue ?? 0);
+            $maxRevenue = max($maxRevenue, $revenue);
+            $revenueChart[] = [
+                'label' => now()->subDays($i)->format('M d'),
+                'revenue' => $revenue,
+                'orders' => (int) ($revenueByDay[$day]->orders ?? 0),
+            ];
+        }
+
+        // Top selling products
+        $topProducts = OrderItem::select('product_id', 'product_name', DB::raw('SUM(quantity) as sold'), DB::raw('SUM(total) as revenue'))
+            ->whereHas('order', fn ($q) => $q->where('status', 'completed'))
+            ->groupBy('product_id', 'product_name')
+            ->orderByDesc('sold')
+            ->limit(5)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'posts', 'categories', 'tags',
+            'totalRevenue', 'ordersCount', 'customersCount', 'avgOrderValue',
+            'revenueChart', 'maxRevenue', 'topProducts'
+        ));
     }
 }

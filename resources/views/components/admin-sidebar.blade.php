@@ -10,6 +10,7 @@ $navItems = [
     ['href' => route('admin.media.index'), 'label' => 'Media', 'icon' => 'image', 'group' => 'content'],
     ['href' => route('admin.comments.index'), 'label' => 'Comments', 'icon' => 'message-circle', 'group' => 'content'],
     ['href' => route('admin.newsletter.index'), 'label' => 'Newsletter', 'icon' => 'mail', 'group' => 'content'],
+    ['href' => route('admin.redirects.index'), 'label' => 'Redirects', 'icon' => 'corner-up-right', 'group' => 'content'],
     
     // Shop Management
     ['href' => route('admin.products.index'), 'label' => 'Products', 'icon' => 'package', 'group' => 'shop'],

@@ -22,7 +22,7 @@
                                             <p class="font-semibold">{{ $item['title'] }}</p>
                                             <p class="text-sm text-muted-foreground">Qty: {{ $item['qty'] ?? 1 }}</p>
                                         </div>
-                                        <p class="font-bold">${{ number_format(($item['price'] ?? 0) * ($item['qty'] ?? 1), 2) }}</p>
+                                        <p class="font-bold">{{ \App\Support\Currency::format(($item['price'] ?? 0) * ($item['qty'] ?? 1)) }}</p>
                                     </div>
                                 @endforeach
                             </div>
@@ -30,23 +30,23 @@
                             <div class="mt-4 pt-4 border-t border-border space-y-2">
                                 <div class="flex items-center justify-between text-sm">
                                     <span class="text-muted-foreground">Subtotal</span>
-                                    <span>${{ number_format($subtotal, 2) }}</span>
+                                    <span>{{ \App\Support\Currency::format($subtotal) }}</span>
                                 </div>
                                 @if($discount > 0)
                                     <div class="flex items-center justify-between text-sm text-cyan-400">
                                         <span>Coupon Discount</span>
-                                        <span>-${{ number_format($discount, 2) }}</span>
+                                        <span>-{{ \App\Support\Currency::format($discount) }}</span>
                                     </div>
                                 @endif
                                 @if($coinDiscount > 0)
                                     <div class="flex items-center justify-between text-sm text-yellow-400">
                                         <span>Coins Discount ({{ number_format($coinsToUse, 0) }} SKP)</span>
-                                        <span>-${{ number_format($coinDiscount, 2) }}</span>
+                                        <span>-{{ \App\Support\Currency::format($coinDiscount) }}</span>
                                     </div>
                                 @endif
                                 <div class="flex items-center justify-between pt-2 border-t border-border">
                                     <span class="text-lg font-semibold">Total</span>
-                                    <span class="text-2xl font-bold gradient-text">${{ number_format($total, 2) }}</span>
+                                    <span class="text-2xl font-bold gradient-text">{{ \App\Support\Currency::format($total) }}</span>
                                 </div>
                             </div>
                         </div>
@@ -88,10 +88,13 @@
                         <div class="space-y-4">
                             <form method="GET" action="{{ route('checkout.stripe.start') }}" target="_blank">
                                 <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition">
-                                    Pay ${{ number_format($total, 2) }} with Stripe
+                                    Pay {{ \App\Support\Currency::format($total) }} with Stripe
                                     <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                 </button>
                             </form>
+                            @if(\App\Support\Currency::current() === 'PKR')
+                                <p class="text-xs text-muted-foreground text-center mt-2">Shown in PKR for reference. Payment is processed in USD.</p>
+                            @endif
                             <p class="text-xs text-muted-foreground">Opens Stripe checkout in a new tab. On success you can return here; on cancel you'll be redirected back with a message.</p>
 
                             @if(isset($paymentGateways) && $paymentGateways->count())
@@ -105,7 +108,7 @@
                                                 @if(($gateway->definition()['currency'] ?? 'USD') === 'PKR')
                                                     <span class="text-xs text-muted-foreground">(~Rs {{ number_format($total * (float) \App\Models\Setting::get('usd_to_pkr_rate', 278), 0) }})</span>
                                                 @else
-                                                    <span class="text-xs text-muted-foreground">(${{ number_format($total, 2) }})</span>
+                                                    <span class="text-xs text-muted-foreground">({{ \App\Support\Currency::format($total) }})</span>
                                                 @endif
                                                 <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
                                             </button>

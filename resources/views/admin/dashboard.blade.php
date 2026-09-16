@@ -103,6 +103,87 @@ $totalViews = $posts->sum('view_count');
         </div>
     </div>
 
+    <!-- Store Revenue Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="text-sm font-medium">Total Revenue</h3>
+            </div>
+            <div class="p-6 pt-0">
+                <div class="text-2xl font-bold text-green-400">${{ number_format($totalRevenue, 2) }}</div>
+                <p class="text-xs text-muted-foreground mt-1">Completed orders</p>
+            </div>
+        </div>
+        <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="text-sm font-medium">Orders</h3>
+            </div>
+            <div class="p-6 pt-0">
+                <div class="text-2xl font-bold">{{ number_format($ordersCount) }}</div>
+                <p class="text-xs text-muted-foreground mt-1">Completed orders</p>
+            </div>
+        </div>
+        <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="text-sm font-medium">Customers</h3>
+            </div>
+            <div class="p-6 pt-0">
+                <div class="text-2xl font-bold">{{ number_format($customersCount) }}</div>
+                <p class="text-xs text-muted-foreground mt-1">Unique buyers</p>
+            </div>
+        </div>
+        <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h3 class="text-sm font-medium">Avg. Order Value</h3>
+            </div>
+            <div class="p-6 pt-0">
+                <div class="text-2xl font-bold">${{ number_format($avgOrderValue, 2) }}</div>
+                <p class="text-xs text-muted-foreground mt-1">Per completed order</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Revenue chart: last 14 days -->
+        <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h2 class="text-lg font-semibold leading-none tracking-tight">Revenue - Last 14 Days</h2>
+            </div>
+            <div class="p-6 pt-0">
+                <div class="flex items-end gap-1.5 h-40">
+                    @foreach($revenueChart as $day)
+                        <div class="flex-1 flex flex-col items-center gap-1" title="{{ $day['label'] }}: ${{ number_format($day['revenue'], 2) }} ({{ $day['orders'] }} orders)">
+                            <div class="w-full rounded-t bg-gradient-to-t from-cyan-600 to-cyan-400"
+                                style="height: {{ $maxRevenue > 0 ? max(4, round($day['revenue'] / $maxRevenue * 100)) : 4 }}%"></div>
+                            <span class="text-[10px] text-muted-foreground hidden md:block">{{ $day['label'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <!-- Top products -->
+        <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
+            <div class="flex flex-col space-y-1.5 p-6">
+                <h2 class="text-lg font-semibold leading-none tracking-tight">Top Products</h2>
+            </div>
+            <div class="p-6 pt-0">
+                @if($topProducts->count() > 0)
+                    <div class="space-y-3">
+                        @foreach($topProducts as $item)
+                            <div class="flex items-center justify-between gap-4">
+                                <p class="text-sm font-medium truncate">{{ $item->product_name }}</p>
+                                <p class="text-sm text-muted-foreground whitespace-nowrap">{{ $item->sold }} sold - ${{ number_format($item->revenue, 2) }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <p class="text-sm text-muted-foreground">No completed orders yet.</p>
+                @endif
+            </div>
+        </div>
+    </div>
+
     <!-- Recent Posts -->
     <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm">
         <div class="flex flex-col space-y-1.5 p-6">

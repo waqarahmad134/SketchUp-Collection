@@ -41,7 +41,7 @@
             @foreach($allImages as $index => $imgUrl)
                 <div class="swiper-slide">
                     <a href="{{ $imgUrl }}" class="glightbox" data-gallery="product-gallery">
-                        <img src="{{ $imgUrl }}" alt="{{ $product->title }} - Image {{ $index + 1 }}" class="w-full h-auto object-cover cursor-zoom-in">
+                        <img src="{{ $imgUrl }}" alt="{{ $product->image_alt_text }} - Image {{ $index + 1 }}" class="w-full h-auto object-cover cursor-zoom-in">
                     </a>
                 </div>
             @endforeach
@@ -130,10 +130,10 @@
 
                     <div class="glass-card rounded-3xl p-6">
                         <div class="flex items-baseline gap-4 mb-4">
-                            <span class="text-5xl font-bold gradient-text">${{ number_format($product->price, 2) }}</span>
+                            <span class="text-5xl font-bold gradient-text">{{ \App\Support\Currency::format($product->price) }}</span>
                             @if($product->original_price)
                                 <span class="text-2xl text-muted-foreground line-through">
-                                    ${{ number_format($product->original_price, 2) }}
+                                    {{ \App\Support\Currency::format($product->original_price) }}
                                 </span>
                             @endif
                         </div>
@@ -164,6 +164,13 @@
                                     </button>
                                 </form>
                                 @include('partials.wishlist-button', ['product' => $product])
+                                @if($product->sample_file)
+                                    <a href="{{ route('bundles.sample', $product->slug) }}" class="w-full px-4 py-3 rounded-xl border border-dashed border-border text-muted-foreground font-semibold hover:border-foreground hover:text-foreground transition inline-flex items-center justify-center gap-2">
+                                        <i data-lucide="file-down" class="w-5 h-5"></i>
+                                        Download Free Sample
+                                    </a>
+                                    <p class="text-xs text-muted-foreground text-center">Try a free sample before you buy</p>
+                                @endif
                             </div>
                         @endif
                     </div>
@@ -207,6 +214,12 @@
                                 <div class="flex items-center justify-between">
                                     <span class="text-muted-foreground">File Count</span>
                                     <span class="font-medium">{{ $product->file_count }} files</span>
+                                </div>
+                            @endif
+                            @if($product->sketchup_version)
+                                <div class="flex items-center justify-between">
+                                    <span class="text-muted-foreground">SketchUp Version</span>
+                                    <span class="font-medium">{{ $product->sketchup_version }}</span>
                                 </div>
                             @endif
                             @if($product->category)
@@ -335,7 +348,15 @@
                                         {{ mb_substr($review->name, 0, 1) }}
                                     </div>
                                     <div>
-                                        <p class="font-semibold">{{ $review->name }}</p>
+                                        <p class="font-semibold flex items-center gap-2">
+                                            {{ $review->name }}
+                                            @if($review->is_verified)
+                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-green-500/15 text-green-400">
+                                                    <i data-lucide="badge-check" class="w-3 h-3"></i>
+                                                    Verified purchase
+                                                </span>
+                                            @endif
+                                        </p>
                                         <p class="text-xs text-muted-foreground">{{ $review->created_at?->format('M Y') }}</p>
                                     </div>
                                 </div>
@@ -440,7 +461,7 @@
                         <a href="{{ route('bundles.show', $related->slug) }}" class="glass-card rounded-3xl overflow-hidden group hover:border-cyan-500/50 transition-all duration-300">
                             @if($related->image_url)
                                 <div class="h-40 overflow-hidden">
-                                    <img src="{{ $related->image_url }}" alt="{{ $related->title }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                    <img src="{{ $related->image_url }}" alt="{{ $related->image_alt_text }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                                 </div>
                             @endif
                             <div class="p-5">

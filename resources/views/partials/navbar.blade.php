@@ -58,6 +58,14 @@
                     </span>
                 </a>
 
+                <form method="POST" action="{{ route('currency.switch') }}" class="inline-flex" title="Display currency">
+                    @csrf
+                    <input type="hidden" name="currency" value="{{ \App\Support\Currency::current() === 'USD' ? 'PKR' : 'USD' }}">
+                    <button type="submit" class="inline-flex items-center justify-center h-11 px-3 rounded-xl border border-border hover:border-foreground transition-colors text-xs font-bold" aria-label="Switch currency">
+                        {{ \App\Support\Currency::current() === 'USD' ? 'PKR' : 'USD' }}
+                    </button>
+                </form>
+
                 @auth
                     <!-- User Menu -->
                     <div class="relative group">

@@ -7,15 +7,25 @@
         <div class="container mx-auto px-4 relative z-10">
             <div class="text-center mb-12 space-y-4">
                 <span class="inline-block glass-card px-4 py-2 rounded-full text-sm text-cyan-400 font-medium">
-                    Products & Bundles
+                    {{ $activeCategory->name ?? 'Products & Bundles' }}
                 </span>
                 <h1 class="text-4xl md:text-6xl font-bold font-display">
-                    Our <span class="gradient-text">Products</span>
+                    @if($activeCategory)
+                        {{ $activeCategory->name }} <span class="gradient-text">Models</span>
+                    @else
+                        Our <span class="gradient-text">Products</span>
+                    @endif
                 </h1>
-                <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
-                    Browse our collection of premium 3D assets. <strong>Bundles</strong> are combinations of multiple products
-                    offered at a discounted price, while <strong>single products</strong> are individual asset packs.
-                </p>
+                @if($activeCategory && $activeCategory->description)
+                    <div class="text-lg text-muted-foreground max-w-3xl mx-auto prose prose-invert">
+                        {!! $activeCategory->description !!}
+                    </div>
+                @else
+                    <p class="text-xl text-muted-foreground max-w-3xl mx-auto">
+                        Browse our collection of premium 3D assets. <strong>Bundles</strong> are combinations of multiple products
+                        offered at a discounted price, while <strong>single products</strong> are individual asset packs.
+                    </p>
+                @endif
             </div>
 
             <div>
@@ -122,7 +132,7 @@
                                     <div class="flex flex-col md:flex-row gap-6 p-6">
                                         <div class="relative overflow-hidden rounded-2xl flex-shrink-0 w-full md:w-64 h-48">
                                             @if($product->image_url)
-                                                <img src="{{ $product->image_url }}" alt="{{ $product->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                                <img src="{{ $product->image_url }}" alt="{{ $product->image_alt_text }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                                             @else
                                                 <div class="w-full h-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
                                                     <i data-lucide="package" class="w-16 h-16 text-cyan-400/50"></i>
@@ -155,9 +165,9 @@
                                             </div>
                                             <div class="flex items-center justify-between">
                                                 <div>
-                                                    <span class="text-3xl font-bold gradient-text">${{ number_format($product->price, 2) }}</span>
+                                                    <span class="text-3xl font-bold gradient-text">{{ \App\Support\Currency::format($product->price) }}</span>
                                                     @if($product->original_price)
-                                                        <span class="text-muted-foreground line-through ml-2">${{ number_format($product->original_price, 2) }}</span>
+                                                        <span class="text-muted-foreground line-through ml-2">{{ \App\Support\Currency::format($product->original_price) }}</span>
                                                     @endif
                                                     @if($discount > 0)
                                                         <span class="bg-cyan-500/20 text-cyan-400 text-xs font-bold px-3 py-1 rounded-full ml-3">
@@ -178,7 +188,7 @@
                                 <div class="glass-card rounded-3xl overflow-hidden hover-lift group animate-slide-in-up" style="animation-delay: {{ $index * 0.1 }}s">
                                     <div class="relative overflow-hidden">
                                         @if($product->image_url)
-                                            <img src="{{ $product->image_url }}" alt="{{ $product->title }}" class="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110">
+                                            <img src="{{ $product->image_url }}" alt="{{ $product->image_alt_text }}" class="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110">
                                         @else
                                             <div class="w-full h-64 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
                                                 <i data-lucide="package" class="w-16 h-16 text-cyan-400/50"></i>
@@ -203,9 +213,9 @@
                                     <div class="p-6 space-y-4">
                                         <div class="flex items-center justify-between">
                                             <div>
-                                                <span class="text-3xl font-bold gradient-text">${{ number_format($product->price, 2) }}</span>
+                                                <span class="text-3xl font-bold gradient-text">{{ \App\Support\Currency::format($product->price) }}</span>
                                                 @if($product->original_price)
-                                                    <span class="text-muted-foreground line-through ml-2">${{ number_format($product->original_price, 2) }}</span>
+                                                    <span class="text-muted-foreground line-through ml-2">{{ \App\Support\Currency::format($product->original_price) }}</span>
                                                 @endif
                                             </div>
                                             @if($discount > 0)

@@ -61,15 +61,15 @@ class SitemapController extends Controller
             $sitemap->add($url);
         });
 
-        // Add product categories
-        // ProductCategory::where('is_active', true)->get()->each(function (ProductCategory $category) use ($sitemap) {
-        //     $sitemap->add(
-        //         Url::create("/categories/{$category->slug}")
-        //             ->setLastModificationDate($category->updated_at)
-        //             ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
-        //             ->setPriority(0.6)
-        //     );
-        // });
+        // Add product category landing pages (programmatic SEO URLs)
+        ProductCategory::where('is_active', true)->get()->each(function (ProductCategory $category) use ($sitemap) {
+            $sitemap->add(
+                Url::create("/bundles/category/{$category->slug}")
+                    ->setLastModificationDate($category->updated_at)
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.6)
+            );
+        });
 
         // Add static pages
         $staticPages = [

@@ -47,6 +47,19 @@ class CartController extends Controller
         $userPoints = $user ? $user->getPoints() : 0;
         $pointsPerDollar = (int) Setting::get('points_per_dollar', 1000);
 
+        // Upsells: products from the same categories as cart items, not already in cart.
+        $upsells = collect();
+        if (! empty($cart)) {
+            $cartIds = collect($cart)->pluck('id')->all();
+            $categoryIds = Product::whereIn('id', $cartIds)->pluck('category_id')->filter()->unique();
+            $upsells = Product::where('is_active', true)
+                ->whereNotIn('id', $cartIds)
+                ->when($categoryIds->isNotEmpty(), fn ($q) => $q->whereIn('category_id', $categoryIds))
+                ->orderBy('sort_order')
+                ->limit(4)
+                ->get();
+        }
+
         return view('cart.index', [
             'title' => 'Your Cart - SketchUp Collection',
             'metaDescription' => 'Review your items before checkout.',
@@ -57,6 +70,7 @@ class CartController extends Controller
             'coinsToUse' => $coinsToUse,
             'userPoints' => $userPoints,
             'pointsPerDollar' => $pointsPerDollar,
+            'upsells' => $upsells,
         ]);
     }
 
