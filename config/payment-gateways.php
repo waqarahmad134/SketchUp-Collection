@@ -28,6 +28,8 @@ return [
 
         'jazzcash' => [
             'name' => 'JazzCash',
+            'docs_url' => 'https://sandbox.jazzcash.com.pk/SandboxDocumentation/',
+            'docs_label' => 'Docs',
             'currency' => 'PKR',
             'driver' => JazzCashDriver::class,
             'description' => 'JazzCash mobile wallet and card payments (Pakistan).',
@@ -42,6 +44,8 @@ return [
 
         'easypaisa' => [
             'name' => 'Easypaisa',
+            'docs_url' => 'https://easypay.easypaisa.com.pk/easypay-merchant/faces/pg/site/Login.jsf',
+            'docs_label' => 'Merchant portal',
             'currency' => 'PKR',
             'driver' => EasypaisaDriver::class,
             'description' => 'Easypaisa mobile wallet payments (Pakistan).',
@@ -56,6 +60,8 @@ return [
 
         'paypro' => [
             'name' => 'PayPro',
+            'docs_url' => 'https://docs.paypro.tech/',
+            'docs_label' => 'Docs',
             'currency' => 'PKR',
             'driver' => PayProDriver::class,
             'description' => 'PayPro hosted checkout: wallets, cards and bank transfer (Pakistan).',
@@ -68,6 +74,8 @@ return [
 
         'paddle' => [
             'name' => 'Paddle',
+            'docs_url' => 'https://developer.paddle.com/',
+            'docs_label' => 'Docs',
             'currency' => 'USD',
             'driver' => PaddleDriver::class,
             'description' => 'Paddle Billing: international cards and PayPal, Paddle handles tax.',
@@ -80,6 +88,8 @@ return [
 
         'lemon-squeezy' => [
             'name' => 'Lemon Squeezy',
+            'docs_url' => 'https://docs.lemonsqueezy.com',
+            'docs_label' => 'Docs',
             'currency' => 'USD',
             'driver' => LemonSqueezyDriver::class,
             'description' => 'Lemon Squeezy hosted checkout for digital products.',
@@ -94,6 +104,8 @@ return [
 
         'polar' => [
             'name' => 'Polar',
+            'docs_url' => 'https://docs.polar.sh/api',
+            'docs_label' => 'Docs',
             'currency' => 'USD',
             'driver' => PolarDriver::class,
             'description' => 'Polar.sh hosted checkout for digital products.',

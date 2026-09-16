@@ -68,7 +68,14 @@
                                 {{ $gateway->is_enabled ? 'Enabled' : 'Disabled' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 text-right">
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            @if(!empty($definition['docs_url']))
+                                <a href="{{ $definition['docs_url'] }}" target="_blank" rel="noopener"
+                                    class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 mr-2 text-cyan-400 hover:underline">
+                                    {{ $definition['docs_label'] ?? 'Docs' }}
+                                    <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                </a>
+                            @endif
                             <a href="{{ route('admin.payment-gateways.edit', $gateway) }}"
                                 class="inline-flex items-center justify-center rounded-md text-sm font-medium h-9 px-4 border border-input bg-background hover-elevate">
                                 Settings

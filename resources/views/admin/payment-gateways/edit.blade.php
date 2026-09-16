@@ -12,6 +12,12 @@
         <div>
             <h1 class="text-3xl font-bold text-foreground">{{ $gateway->name }} Settings</h1>
             <p class="text-muted-foreground">{{ $definition['description'] ?? '' }}</p>
+            @if(!empty($definition['docs_url']))
+                <a href="{{ $definition['docs_url'] }}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-2 text-sm text-cyan-400 hover:underline">
+                    {{ $definition['docs_label'] ?? 'Docs' }}
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+            @endif
         </div>
     </div>
 
