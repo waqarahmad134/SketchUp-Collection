@@ -24,6 +24,25 @@ class RobotsController extends Controller
 User-agent: *
 Allow: /
 
+# Explicitly allow AI search crawlers so content can appear in AI answers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
 # Disallow admin and API endpoints
 Disallow: /admin
 Disallow: /api/

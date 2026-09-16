@@ -31,6 +31,7 @@ use Illuminate\Support\Facades\Route;
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
+Route::get('/llms.txt', [LlmsController::class, 'index'])->name('llms');
 
 // Clear Cache facade value:
 Route::get('/clear', function () {
