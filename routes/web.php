@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\AdminPaymentGatewayController;
 use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminRedirectController;
+use App\Http\Controllers\Admin\AdminAnalyticsController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\RedirectController;
 use App\Http\Controllers\LlmsController;
@@ -224,6 +225,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics');
         
         // Posts routes
         Route::resource('posts', AdminPostController::class);

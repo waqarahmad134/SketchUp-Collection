@@ -2,6 +2,7 @@
 $navItems = [
     // Main
     ['href' => route('admin.dashboard'), 'label' => 'Dashboard', 'icon' => 'layout-dashboard', 'group' => 'main'],
+    ['href' => route('admin.analytics'), 'label' => 'Analytics', 'icon' => 'bar-chart-3', 'group' => 'main'],
     
     // Content Management
     ['href' => route('admin.posts.index'), 'label' => 'Posts', 'icon' => 'file-text', 'group' => 'content'],
