@@ -36,7 +36,7 @@ class AdminPostController extends Controller
             'slug' => 'required|string|max:255|unique:posts,slug',
             'excerpt' => 'nullable|string',
             'content' => 'required|string',
-            'featured_image' => 'nullable|image|max:2048',
+            'featured_image' => 'nullable',
             'category_id' => 'nullable|exists:post_categories,id',
             'status' => 'required|in:draft,published,archived',
             'tagIds' => 'nullable|string',
@@ -55,6 +55,9 @@ class AdminPostController extends Controller
 
         if ($request->hasFile('featured_image')) {
             $postData['featured_image'] = $request->file('featured_image')->store('posts', 'public');
+        } elseif ($request->filled('featured_image')) {
+            // Editor form sends an image URL string
+            $postData['featured_image'] = $request->input('featured_image');
         }
 
         $post = Post::create($postData);
@@ -93,7 +96,7 @@ class AdminPostController extends Controller
             'slug' => 'required|string|max:255|unique:posts,slug,' . $id,
             'excerpt' => 'nullable|string',
             'content' => 'required|string',
-            'featured_image' => 'nullable|image|max:2048',
+            'featured_image' => 'nullable',
             'category_id' => 'nullable|exists:post_categories,id',
             'status' => 'required|in:draft,published,archived',
             'tagIds' => 'nullable|string',
@@ -118,6 +121,9 @@ class AdminPostController extends Controller
                 Storage::disk('public')->delete($post->featured_image);
             }
             $postData['featured_image'] = $request->file('featured_image')->store('posts', 'public');
+        } elseif ($request->filled('featured_image')) {
+            // Editor form sends an image URL string
+            $postData['featured_image'] = $request->input('featured_image');
         }
 
         $post->update($postData);

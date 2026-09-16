@@ -33,32 +33,9 @@ Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap')
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
 Route::get('/llms.txt', [LlmsController::class, 'index'])->name('llms');
 
-// Clear Cache facade value:
-Route::get('/clear', function () {
-    $exitCode = Artisan::call('cache:clear');
-    $exitCode = Artisan::call('optimize');
-    $exitCode = Artisan::call('route:cache');
-    $exitCode = Artisan::call('route:clear');
-    $exitCode = Artisan::call('view:clear');
-    $exitCode = Artisan::call('config:cache');
-    $exitCode = Artisan::call('config:clear');
-    return '<h1>Cache facade value cleared</h1>';
-});
-
-Route::get('/migrations', function () {
-    Artisan::call('migrate:fresh');
-    return 'Migrations executed successfully! All tables dropped and recreated.';
-});
-
-Route::get('/seed', function () {
-    Artisan::call('db:seed', ['--force' => true]);
-    return 'Database seeded successfully!';
-});
-
-Route::get('/storage-link', function () {
-    Artisan::call('storage:link');
-    return 'Storage link created successfully!';
-});
+// NOTE: Debug/maintenance routes (/clear, /migrations, /seed, /storage-link)
+// were removed. They ran Artisan commands over plain GET requests with no
+// authentication, so anyone could wipe the production database.
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
