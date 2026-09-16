@@ -6,6 +6,7 @@ use App\Models\Coupon;
 use App\Models\CouponUsage;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PaymentGateway;
 use App\Models\Product;
 use App\Models\Referral;
 use App\Models\Setting;
@@ -70,6 +71,7 @@ class CheckoutController extends Controller
             'total' => $total,
             'userPoints' => $userPoints,
             'coupon' => $coupon,
+            'paymentGateways' => PaymentGateway::enabled()->get(),
         ]);
     }
 

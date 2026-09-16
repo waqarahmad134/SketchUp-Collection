@@ -15,7 +15,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // Remove EnsureFrontendRequestsAreStateful from API routes
         // This middleware enables CSRF protection, which we don't need for token-based API auth
         // API routes should use token authentication, not cookie-based SPA authentication
-        
+
+        // Payment providers POST back to these URLs without a CSRF token
+        $middleware->validateCsrfTokens(except: [
+            'payment/callback/*',
+            'payment/webhook/*',
+        ]);
+
         $middleware->alias([
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);

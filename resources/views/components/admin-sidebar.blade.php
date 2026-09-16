@@ -15,6 +15,7 @@ $navItems = [
     ['href' => route('admin.orders.index'), 'label' => 'Orders', 'icon' => 'shopping-cart', 'group' => 'shop'],
     ['href' => route('admin.coupons.index'), 'label' => 'Coupons', 'icon' => 'ticket', 'group' => 'shop'],
     ['href' => route('admin.transactions.index'), 'label' => 'Transactions', 'icon' => 'credit-card', 'group' => 'shop'],
+    ['href' => route('admin.payment-gateways.index'), 'label' => 'Payment Gateways', 'icon' => 'wallet', 'group' => 'shop'],
     
     // User Management
     ['href' => route('admin.users.index'), 'label' => 'Users', 'icon' => 'users', 'group' => 'users'],
@@ -90,7 +91,7 @@ foreach ($navItems as $item) {
                                     @elseif($groupKey === 'shop') Shop
                                     @elseif($groupKey === 'users') Users
                                     @elseif($groupKey === 'settings') Settings
-                                    @endif
+                                @endif
                                 </h3>
                             </div>
                         @endif
@@ -158,6 +159,12 @@ foreach ($navItems as $item) {
                                 @elseif($item['icon'] === 'code')
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                                    </svg>
+                                @elseif($item['icon'] === 'wallet')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12V7H5a2 2 0 010-4h14v4"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v14a2 2 0 002 2h16V7"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12a1 1 0 100 2 1 1 0 000-2z"></path>
                                     </svg>
                                 @endif
                                 <span>{{ $item['label'] }}</span>

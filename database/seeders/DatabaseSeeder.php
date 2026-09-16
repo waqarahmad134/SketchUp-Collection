@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             PostCategorySeeder::class,
             TagSeeder::class,
             SettingSeeder::class,
+            PaymentGatewaySeeder::class,
         ]);
     }
 }

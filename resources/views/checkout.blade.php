@@ -93,6 +93,26 @@
                                 </button>
                             </form>
                             <p class="text-xs text-muted-foreground">Opens Stripe checkout in a new tab. On success you can return here; on cancel you'll be redirected back with a message.</p>
+
+                            @if(isset($paymentGateways) && $paymentGateways->count())
+                                <div class="pt-2 border-t border-card-border">
+                                    <p class="text-sm font-medium mb-3 pt-3">Or pay with</p>
+                                    @foreach($paymentGateways as $gateway)
+                                        <form method="POST" action="{{ route('payment.start', ['gateway' => $gateway->slug]) }}" class="mb-2">
+                                            @csrf
+                                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-input bg-background font-semibold hover-elevate transition">
+                                                Pay with {{ $gateway->name }}
+                                                @if(($gateway->definition()['currency'] ?? 'USD') === 'PKR')
+                                                    <span class="text-xs text-muted-foreground">(~Rs {{ number_format($total * (float) \App\Models\Setting::get('usd_to_pkr_rate', 278), 0) }})</span>
+                                                @else
+                                                    <span class="text-xs text-muted-foreground">(${{ number_format($total, 2) }})</span>
+                                                @endif
+                                                <i data-lucide="arrow-up-right" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -25,6 +25,8 @@ use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminCustomScriptController;
+use App\Http\Controllers\Admin\AdminPaymentGatewayController;
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +69,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/stripe/start', [CheckoutController::class, 'stripeStart'])->name('checkout.stripe.start');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
+    // Configurable payment gateways (JazzCash, Easypaisa, PayPro, Paddle, Lemon Squeezy, Polar)
+    Route::post('/checkout/pay/{gateway}', [PaymentController::class, 'start'])->name('payment.start')->middleware('auth');
+    Route::match(['get', 'post'], '/payment/callback/{gateway}', [PaymentController::class, 'callback'])->name('payment.callback');
+    Route::post('/payment/webhook/{gateway}', [PaymentController::class, 'webhook'])->name('payment.webhook');
     
     // Daily Login Bonus - claim requires authentication
     Route::post('/daily-login/claim', [DailyLoginController::class, 'claim'])->name('daily-login.claim');
@@ -215,5 +222,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         
         // Custom Scripts routes
         Route::resource('custom-scripts', AdminCustomScriptController::class);
+
+        // Payment Gateways routes
+        Route::get('/payment-gateways', [AdminPaymentGatewayController::class, 'index'])->name('payment-gateways.index');
+        Route::get('/payment-gateways/{gateway}/edit', [AdminPaymentGatewayController::class, 'edit'])->name('payment-gateways.edit');
+        Route::put('/payment-gateways/{gateway}', [AdminPaymentGatewayController::class, 'update'])->name('payment-gateways.update');
+        Route::post('/payment-gateways/{gateway}/toggle', [AdminPaymentGatewayController::class, 'toggle'])->name('payment-gateways.toggle');
+        Route::post('/payment-gateways-rate', [AdminPaymentGatewayController::class, 'updateRate'])->name('payment-gateways.rate');
     });
 });
