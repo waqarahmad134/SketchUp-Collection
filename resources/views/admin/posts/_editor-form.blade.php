@@ -15,8 +15,22 @@ if ($post) {
         'featured_image' => $post->featured_image,
         'category_id' => $post->category_id,
         'status' => $post->status,
-        'read_time' => $post->read_time,
         'tags' => $post->tags->map(fn($tag) => ['id' => $tag->id])->toArray(),
+        'meta_title' => $post->meta_title,
+        'meta_description' => $post->meta_description,
+        'focus_keyword' => $post->focus_keyword,
+        'canonical_url' => $post->canonical_url,
+        'robots_index' => $post->robots_index ?? 'index',
+        'robots_follow' => $post->robots_follow ?? 'follow',
+        'featured_image_alt' => $post->featured_image_alt,
+        'og_title' => $post->og_title,
+        'og_description' => $post->og_description,
+        'og_image' => $post->og_image,
+        'twitter_card' => $post->twitter_card,
+        'twitter_title' => $post->twitter_title,
+        'twitter_description' => $post->twitter_description,
+        'twitter_image' => $post->twitter_image,
+        'schema_markup' => is_array($post->schema_markup) ? json_encode($post->schema_markup, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) : $post->schema_markup,
     ];
 }
 @endphp
@@ -96,6 +110,114 @@ if ($post) {
                     </div>
                 </div>
             </div>
+
+            <!-- SEO (WordPress-style) -->
+            <div class="shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm" x-data="{ seoOpen: false }">
+                <div class="p-6 flex items-center justify-between cursor-pointer" @click="seoOpen = !seoOpen">
+                    <h3 class="text-lg font-semibold leading-none tracking-tight">SEO Settings</h3>
+                    <svg class="w-5 h-5 transition-transform" :class="seoOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
+                </div>
+                <div class="p-6 pt-0 space-y-4" x-show="seoOpen">
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">SEO Title</label>
+                            <input type="text" x-model="seo.meta_title" placeholder="Defaults to post title"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Focus Keyword</label>
+                            <input type="text" x-model="seo.focus_keyword" placeholder="e.g., sketchup kitchen models"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Meta Description</label>
+                        <textarea x-model="seo.meta_description" rows="2" placeholder="Defaults to excerpt (max ~155 chars)"
+                            class="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"></textarea>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Canonical URL</label>
+                            <input type="text" x-model="seo.canonical_url" placeholder="Defaults to post URL"
+                                class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Robots Index</label>
+                            <select x-model="seo.robots_index" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                <option value="index">index</option>
+                                <option value="noindex">noindex</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Robots Follow</label>
+                            <select x-model="seo.robots_follow" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                <option value="follow">follow</option>
+                                <option value="nofollow">nofollow</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Featured Image Alt Text</label>
+                        <input type="text" x-model="seo.featured_image_alt" placeholder="Describe the featured image"
+                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                    </div>
+                    <div class="border-t border-border pt-4">
+                        <p class="text-sm font-medium mb-3">Social / Open Graph</p>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium">OG Title</label>
+                                <input type="text" x-model="seo.og_title" placeholder="Defaults to SEO title"
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium">OG Image URL</label>
+                                <input type="text" x-model="seo.og_image" placeholder="Defaults to featured image"
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+                        <div class="space-y-2 mt-4">
+                            <label class="text-sm font-medium">OG Description</label>
+                            <textarea x-model="seo.og_description" rows="2"
+                                class="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"></textarea>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-4 mt-4">
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium">Twitter Card</label>
+                                <select x-model="seo.twitter_card" class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                    <option value="">Default</option>
+                                    <option value="summary">summary</option>
+                                    <option value="summary_large_image">summary_large_image</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium">Twitter Title</label>
+                                <input type="text" x-model="seo.twitter_title" placeholder="Defaults to OG title"
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium">Twitter Image URL</label>
+                                <input type="text" x-model="seo.twitter_image" placeholder="Defaults to OG image"
+                                    class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" />
+                            </div>
+                        </div>
+                        <div class="space-y-2 mt-4">
+                            <label class="text-sm font-medium">Twitter Description</label>
+                            <textarea x-model="seo.twitter_description" rows="2"
+                                class="flex min-h-[60px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"></textarea>
+                        </div>
+                    </div>
+                    <div class="border-t border-border pt-4">
+                        <div class="space-y-2">
+                            <label class="text-sm font-medium">Custom Schema Markup (JSON-LD)</label>
+                            <textarea x-model="seo.schema_markup" rows="4" placeholder='{"@context": "https://schema.org", ...}'
+                                class="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"></textarea>
+                            <p class="text-xs text-muted-foreground">Optional. Overrides the auto-generated BlogPosting schema.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Sidebar -->
@@ -131,16 +253,7 @@ if ($post) {
                         </select>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="text-sm font-medium">Tiempo de lectura</label>
-                        <input
-                            type="text"
-                            x-model="readTime"
-                            placeholder="5 min"
-                            class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                            data-testid="input-read-time"
-                        />
-                    </div>
+                    <p class="text-xs text-muted-foreground">Reading time is calculated automatically from the content.</p>
 
                     <button
                         type="submit"
@@ -210,7 +323,24 @@ function postEditor(isEdit, postData, categoriesData, tagsData) {
         categoryId: postData?.category_id?.toString() || '',
         selectedTags: postData?.tags?.map(t => t.id) || [],
         status: postData?.status || 'draft',
-        readTime: postData?.read_time || '',
+        // SEO fields (WordPress-style)
+        seo: {
+            meta_title: postData?.meta_title || '',
+            meta_description: postData?.meta_description || '',
+            focus_keyword: postData?.focus_keyword || '',
+            canonical_url: postData?.canonical_url || '',
+            robots_index: postData?.robots_index || 'index',
+            robots_follow: postData?.robots_follow || 'follow',
+            featured_image_alt: postData?.featured_image_alt || '',
+            og_title: postData?.og_title || '',
+            og_description: postData?.og_description || '',
+            og_image: postData?.og_image || '',
+            twitter_card: postData?.twitter_card || '',
+            twitter_title: postData?.twitter_title || '',
+            twitter_description: postData?.twitter_description || '',
+            twitter_image: postData?.twitter_image || '',
+            schema_markup: postData?.schema_markup || '',
+        },
         categories: categoriesData,
         tags: tagsData,
         saving: false,
@@ -330,8 +460,11 @@ function postEditor(isEdit, postData, categoriesData, tagsData) {
                 formData.append('featured_image', this.featuredImage);
                 formData.append('category_id', this.categoryId || '');
                 formData.append('status', this.status);
-                formData.append('read_time', this.readTime);
                 formData.append('tagIds', JSON.stringify(this.selectedTags));
+                // SEO fields
+                for (const [key, value] of Object.entries(this.seo)) {
+                    formData.append(key, value ?? '');
+                }
                 if (this.isEditMode) {
                     formData.append('_method', 'PUT');
                 }

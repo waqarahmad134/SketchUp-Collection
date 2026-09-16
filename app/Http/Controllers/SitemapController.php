@@ -55,10 +55,20 @@ class SitemapController extends Controller
                 $imageUrl = str_starts_with($post->featured_image, 'http')
                     ? $post->featured_image
                     : url(Storage::url($post->featured_image));
-                $url->addImage($imageUrl, $post->title);
+                $url->addImage($imageUrl, $post->featured_image_alt_text);
             }
 
             $sitemap->add($url);
+        });
+
+        // Add blog category and tag archives (programmatic SEO URLs)
+        \App\Models\PostCategory::where('is_active', true)->get()->each(function ($category) use ($sitemap) {
+            $sitemap->add(
+                Url::create("/blog/category/{$category->slug}")
+                    ->setLastModificationDate($category->updated_at)
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.6)
+            );
         });
 
         // Add product category landing pages (programmatic SEO URLs)

@@ -260,6 +260,28 @@ class SeoService
                         'name' => $model->user->name,
                     ];
                 }
+                $schema['headline'] = $model->title ?? '';
+                if (!empty($model->category->name)) {
+                    $schema['articleSection'] = $model->category->name;
+                }
+                $keywords = [];
+                if (!empty($model->focus_keyword)) {
+                    $keywords[] = $model->focus_keyword;
+                }
+                if ($model->relationLoaded('tags') || method_exists($model, 'tags')) {
+                    foreach ($model->tags as $tag) {
+                        $keywords[] = $tag->name;
+                    }
+                }
+                if (!empty($keywords)) {
+                    $schema['keywords'] = implode(', ', array_unique($keywords));
+                }
+                if (!empty($model->content)) {
+                    $schema['wordCount'] = str_word_count(strip_tags($model->content));
+                }
+                if (method_exists($model, 'approvedComments')) {
+                    $schema['commentCount'] = $model->approvedComments()->count();
+                }
             }
 
             // Add product-specific fields

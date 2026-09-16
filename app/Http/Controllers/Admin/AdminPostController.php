@@ -41,6 +41,21 @@ class AdminPostController extends Controller
             'category_id' => 'nullable|exists:post_categories,id',
             'status' => 'required|in:draft,published,archived',
             'tagIds' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'focus_keyword' => 'nullable|string|max:255',
+            'canonical_url' => 'nullable|string|max:255',
+            'robots_index' => 'nullable|in:index,noindex',
+            'robots_follow' => 'nullable|in:follow,nofollow',
+            'featured_image_alt' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500',
+            'twitter_card' => 'nullable|string|max:50',
+            'twitter_title' => 'nullable|string|max:255',
+            'twitter_description' => 'nullable|string|max:500',
+            'twitter_image' => 'nullable|string|max:500',
+            'schema_markup' => 'nullable|string',
         ]);
 
         $postData = [
@@ -53,6 +68,8 @@ class AdminPostController extends Controller
             'user_id' => auth()->id(),
             'published_at' => $validated['status'] === 'published' ? now() : null,
         ];
+
+        $postData = array_merge($postData, $this->seoFields($validated));
 
         if ($request->hasFile('featured_image')) {
             $postData['featured_image'] = ImageOptimizer::optimize($request->file('featured_image'), 'posts');
@@ -101,6 +118,21 @@ class AdminPostController extends Controller
             'category_id' => 'nullable|exists:post_categories,id',
             'status' => 'required|in:draft,published,archived',
             'tagIds' => 'nullable|string',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'focus_keyword' => 'nullable|string|max:255',
+            'canonical_url' => 'nullable|string|max:255',
+            'robots_index' => 'nullable|in:index,noindex',
+            'robots_follow' => 'nullable|in:follow,nofollow',
+            'featured_image_alt' => 'nullable|string|max:255',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'og_image' => 'nullable|string|max:500',
+            'twitter_card' => 'nullable|string|max:50',
+            'twitter_title' => 'nullable|string|max:255',
+            'twitter_description' => 'nullable|string|max:500',
+            'twitter_image' => 'nullable|string|max:500',
+            'schema_markup' => 'nullable|string',
         ]);
 
         $postData = [
@@ -111,6 +143,8 @@ class AdminPostController extends Controller
             'category_id' => $validated['category_id'] ?? null,
             'status' => $validated['status'],
         ];
+
+        $postData = array_merge($postData, $this->seoFields($validated));
 
         if ($validated['status'] === 'published' && !$post->published_at) {
             $postData['published_at'] = now();
@@ -141,6 +175,41 @@ class AdminPostController extends Controller
 
         return redirect()->route('admin.posts.index')->with('success', 'Post updated successfully');
     }
+
+    /**
+     * Extract the SEO fields from validated data, decoding custom
+     * schema markup JSON when valid.
+     */
+    protected function seoFields(array $validated): array
+    {
+        $fields = [
+            'meta_title' => $validated['meta_title'] ?? null,
+            'meta_description' => $validated['meta_description'] ?? null,
+            'focus_keyword' => $validated['focus_keyword'] ?? null,
+            'canonical_url' => $validated['canonical_url'] ?? null,
+            'robots_index' => $validated['robots_index'] ?? 'index',
+            'robots_follow' => $validated['robots_follow'] ?? 'follow',
+            'featured_image_alt' => $validated['featured_image_alt'] ?? null,
+            'og_title' => $validated['og_title'] ?? null,
+            'og_description' => $validated['og_description'] ?? null,
+            'og_image' => $validated['og_image'] ?? null,
+            'twitter_card' => $validated['twitter_card'] ?? null,
+            'twitter_title' => $validated['twitter_title'] ?? null,
+            'twitter_description' => $validated['twitter_description'] ?? null,
+            'twitter_image' => $validated['twitter_image'] ?? null,
+        ];
+
+        $schema = trim($validated['schema_markup'] ?? '');
+        if ($schema !== '') {
+            $decoded = json_decode($schema, true);
+            $fields['schema_markup'] = is_array($decoded) ? $decoded : null;
+        } else {
+            $fields['schema_markup'] = null;
+        }
+
+        return $fields;
+    }
+}
 
     public function destroy(string $id)
     {
