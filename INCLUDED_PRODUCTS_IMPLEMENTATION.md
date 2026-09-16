@@ -20,7 +20,7 @@ The `included_products` field is designed to store an array of product IDs for b
 - **Status**: ✅ Fully implemented
 
 #### 3. **Admin Panel - Form Input**
-- **Location**: `resources/views/new admin/admin/products/_form.blade.php`
+- **Location**: `resources/views/admin/admin/products/_form.blade.php`
 - **Implementation**: 
   - Multi-select dropdown for selecting included products
   - Only visible when `is_bundle` checkbox is checked
@@ -28,7 +28,7 @@ The `included_products` field is designed to store an array of product IDs for b
 - **Status**: ✅ Fully implemented
 
 #### 4. **Admin Panel - Controller Validation**
-- **Location**: `app/Http/Controllers/NewAdmin/NewAdminProductController.php`
+- **Location**: `app/Http/Controllers/Admin/AdminProductController.php`
 - **Validation Rules**:
   ```php
   'included_products' => 'nullable|array',
@@ -47,7 +47,7 @@ The `included_products` field is designed to store an array of product IDs for b
 - **Status**: ✅ Fully implemented and working
 
 #### 6. **Custom Admin Panel**
-- **Location**: `resources/views/new admin/admin/products/_form.blade.php`
+- **Location**: `resources/views/admin/admin/products/_form.blade.php`
 - **Implementation**: Checkbox-based multi-select for included products, visible only when bundle is enabled
 - **Status**: ✅ Fully implemented
 
@@ -149,7 +149,7 @@ public function getIncludedProductsModelsAttribute()
 
 ### 2. Add Validation Rules
 ```php
-// In NewAdminProductController
+// In AdminProductController
 'included_products' => [
     'nullable',
     'array',

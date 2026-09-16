@@ -62,7 +62,7 @@
                                 <div class="text-right flex items-center gap-4">
                                     <div>
                                         <p class="text-lg font-bold">${{ number_format(($item['price'] ?? 0) * ($item['qty'] ?? 1), 2) }}</p>
-                                        <p class="text-xs text-muted-foreground">${{ number_format($item['price'] ?? 0, 2) }} each</p>
+                                        <p class="text-xs text-muted-foreground">{{ \App\Support\Currency::format($item['price'] ?? 0) }} each</p>
                                     </div>
                                     <form action="{{ route('cart.remove', $item['id']) }}" method="POST" class="inline remove-item-form" data-item-title="{{ $item['title'] }}">
                                         @csrf
@@ -135,7 +135,7 @@
                                             <span class="font-semibold text-sm">{{ number_format($coinsToUse, 0) }} SKP Coins</span>
                                         </div>
                                         <p class="text-xs text-muted-foreground mt-1">
-                                            ${{ number_format($coinDiscountAmount, 2) }} discount applied
+                                            {{ \App\Support\Currency::format($coinDiscountAmount) }} discount applied
                                         </p>
                                     </div>
                                     <form action="{{ route('cart.coins.remove') }}" method="POST" class="inline">
@@ -198,28 +198,82 @@
                         </div>
                         <div class="flex items-center justify-between text-sm">
                             <span class="text-muted-foreground">Subtotal</span>
-                            <span>${{ number_format($subtotal, 2) }}</span>
+                            <span>{{ \App\Support\Currency::format($subtotal) }}</span>
                         </div>
                         @if($discountAmount > 0)
                             <div class="flex items-center justify-between text-sm text-cyan-400">
                                 <span>Coupon Discount</span>
-                                <span>-${{ number_format($discountAmount, 2) }}</span>
+                                <span>-{{ \App\Support\Currency::format($discountAmount) }}</span>
                             </div>
                         @endif
                         @if($coinDiscountAmount > 0)
                             <div class="flex items-center justify-between text-sm text-yellow-400">
                                 <span>Coins Discount</span>
-                                <span>-${{ number_format($coinDiscountAmount, 2) }}</span>
+                                <span>-{{ \App\Support\Currency::format($coinDiscountAmount) }}</span>
                             </div>
                         @endif
                         <div class="pt-4 border-t border-border flex items-center justify-between">
                             <span class="text-lg font-semibold">Total</span>
-                            <span class="text-2xl font-bold gradient-text">${{ number_format($total, 2) }}</span>
+                            <span class="text-2xl font-bold gradient-text">{{ \App\Support\Currency::format($total) }}</span>
                         </div>
                         <a href="{{ route('checkout.show') }}" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition">
                             Checkout
                             <i data-lucide="arrow-right" class="w-4 h-4"></i>
                         </a>
+                        @guest
+                            <div class="pt-4 border-t border-border">
+                                <p class="text-sm font-medium mb-3 text-center">Or continue as guest</p>
+                                <form method="POST" action="{{ route('checkout.guest') }}" class="space-y-3">
+                                    @csrf
+                                    <input type="text" name="name" required maxlength="255" placeholder="Full name"
+                                        value="{{ old('name') }}"
+                                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                    <input type="email" name="email" required maxlength="255" placeholder="Email address"
+                                        value="{{ old('email') }}"
+                                        class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
+                                    @error('email')
+                                        <p class="text-sm text-destructive">{{ $message }}</p>
+                                    @enderror
+                                    <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-border font-semibold hover:border-foreground transition">
+                                        Continue as Guest
+                                        <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </button>
+                                </form>
+                                <p class="text-xs text-muted-foreground text-center mt-2">
+                                    An account is created automatically so you can re-download anytime.
+                                </p>
+                            </div>
+                        @endguest
+                    </div>
+                </div>
+            @endif
+
+            @if($upsells->isNotEmpty())
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold font-display mb-6">Complete your <span class="gradient-text">collection</span></h2>
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+                        @foreach($upsells as $upsell)
+                            <div class="glass-card rounded-2xl overflow-hidden group">
+                                <a href="{{ route('bundles.show', $upsell->slug) }}" class="block">
+                                    @if($upsell->image_url)
+                                        <img src="{{ $upsell->image_url }}" alt="{{ $upsell->image_alt_text }}" loading="lazy" class="w-full h-40 object-cover transition-transform duration-500 group-hover:scale-105">
+                                    @endif
+                                </a>
+                                <div class="p-4">
+                                    <a href="{{ route('bundles.show', $upsell->slug) }}" class="font-semibold text-sm line-clamp-2 hover:text-cyan-400 transition">{{ $upsell->title }}</a>
+                                    <div class="flex items-center justify-between mt-3">
+                                        <span class="font-bold gradient-text">${{ number_format($upsell->price, 2) }}</span>
+                                        <form method="POST" action="{{ route('cart.add', $upsell) }}" data-cart-add>
+                                            @csrf
+                                            <button type="submit" class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-violet-500 text-background text-xs font-semibold hover:shadow-lg transition">
+                                                <i data-lucide="plus" class="w-3 h-3"></i>
+                                                Add
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
                 </div>
             @endif

@@ -8,6 +8,36 @@ use Illuminate\Support\Facades\URL;
 class SeoService
 {
     /**
+     * Route name patterns that must never appear in search results
+     * (cart, checkout, auth). Course rule M25: noindex for utility pages.
+     */
+    protected array $noindexRoutePatterns = [
+        'login',
+        'login.submit',
+        'register',
+        'register.submit',
+        'cart.*',
+        'checkout.*',
+    ];
+
+    /**
+     * Map model class to its Schema.org type so markup reflects
+     * the visible page content (course rule M27).
+     */
+    protected function schemaTypeFor($model): string
+    {
+        if ($model instanceof \App\Models\Product) {
+            return 'Product';
+        }
+
+        if ($model instanceof \App\Models\Post) {
+            return 'BlogPosting';
+        }
+
+        return 'WebPage';
+    }
+
+    /**
      * Generate meta title
      */
     public function getTitle($model = null): string
@@ -16,9 +46,15 @@ class SeoService
             return $model->meta_title;
         }
 
+        $siteName = Setting::get('site_name') ?? config('app.name');
+
         if ($model && isset($model->title)) {
-            $siteName = Setting::get('site_name') ?? config('app.name');
             return $model->title . ' - ' . $siteName;
+        }
+
+        // Category-style models use `name` instead of `title`.
+        if ($model && isset($model->name)) {
+            return $model->name . ' - ' . $siteName;
         }
 
         // Use default_meta_title, fallback to site_name, then config
@@ -62,6 +98,14 @@ class SeoService
      */
     public function getRobotsMeta($model = null): string
     {
+        // Utility routes (cart, checkout, auth) are never indexable (M25).
+        $routeName = request()->route()?->getName() ?? '';
+        foreach ($this->noindexRoutePatterns as $pattern) {
+            if (fnmatch($pattern, $routeName)) {
+                return 'noindex, nofollow';
+            }
+        }
+
         $index = $model->robots_index ?? Setting::get('robots_index', 'index');
         $follow = $model->robots_follow ?? Setting::get('robots_follow', 'follow');
         
@@ -216,6 +260,28 @@ class SeoService
                         'name' => $model->user->name,
                     ];
                 }
+                $schema['headline'] = $model->title ?? '';
+                if (!empty($model->category->name)) {
+                    $schema['articleSection'] = $model->category->name;
+                }
+                $keywords = [];
+                if (!empty($model->focus_keyword)) {
+                    $keywords[] = $model->focus_keyword;
+                }
+                if ($model->relationLoaded('tags') || method_exists($model, 'tags')) {
+                    foreach ($model->tags as $tag) {
+                        $keywords[] = $tag->name;
+                    }
+                }
+                if (!empty($keywords)) {
+                    $schema['keywords'] = implode(', ', array_unique($keywords));
+                }
+                if (!empty($model->content)) {
+                    $schema['wordCount'] = str_word_count(strip_tags($model->content));
+                }
+                if (method_exists($model, 'approvedComments')) {
+                    $schema['commentCount'] = $model->approvedComments()->count();
+                }
             }
 
             // Add product-specific fields
@@ -224,11 +290,28 @@ class SeoService
                     '@type' => 'Offer',
                     'price' => $model->price ?? 0,
                     'priceCurrency' => 'USD',
-                    'availability' => 'https://schema.org/InStock',
+                    'availability' => ($model->is_active ?? true)
+                        ? 'https://schema.org/InStock'
+                        : 'https://schema.org/OutOfStock',
                 ];
 
                 if (isset($model->original_price)) {
                     $schema['offers']['priceValidUntil'] = now()->addYear()->toDateString();
+                }
+
+                // AggregateRating from approved reviews (star ratings in SERPs).
+                if ($model->relationLoaded('reviews')) {
+                    $approved = $model->reviews->where('status', 'approved');
+                } else {
+                    $approved = $model->reviews()->where('status', 'approved')->get();
+                }
+
+                if ($approved->count() > 0) {
+                    $schema['aggregateRating'] = [
+                        '@type' => 'AggregateRating',
+                        'ratingValue' => round($approved->avg('rating'), 1),
+                        'reviewCount' => $approved->count(),
+                    ];
                 }
             }
         }
@@ -243,7 +326,80 @@ class SeoService
             ],
         ];
 
-        return $schema;
+        // BreadcrumbList alongside the main entity (course rule M27).
+        $breadcrumb = $this->getBreadcrumbMarkup($model, $type);
+
+        $graph = [$schema, $breadcrumb];
+
+        // WebSite with SearchAction on the homepage so Google can show a
+        // sitelinks search box under the listing.
+        if (! $model) {
+            $graph[] = [
+                '@type' => 'WebSite',
+                'name' => Setting::get('site_name') ?? config('app.name'),
+                'url' => URL::to('/'),
+                'potentialAction' => [
+                    '@type' => 'SearchAction',
+                    'target' => [
+                        '@type' => 'EntryPoint',
+                        'urlTemplate' => URL::to('/bundles') . '?q={search_term_string}',
+                    ],
+                    'query-input' => 'required name=search_term_string',
+                ],
+            ];
+        }
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => $graph,
+        ];
+    }
+
+    /**
+     * Build a BreadcrumbList trail: Home > section > current page.
+     */
+    protected function getBreadcrumbMarkup($model = null, string $type = 'WebPage'): array
+    {
+        $items = [
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Home',
+                'item' => URL::to('/'),
+            ],
+        ];
+
+        $position = 2;
+        $currentName = $this->getTitle($model);
+
+        if ($model instanceof \App\Models\Product) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => 'Bundles',
+                'item' => URL::to('/bundles'),
+            ];
+            $currentName = $model->title ?? $currentName;
+        } elseif ($model instanceof \App\Models\Post) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => 'Blog',
+                'item' => URL::to('/blog'),
+            ];
+            $currentName = $model->title ?? $currentName;
+        }
+
+        $items[] = [
+            '@type' => 'ListItem',
+            'position' => $position,
+            'name' => $currentName,
+        ];
+
+        return [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $items,
+        ];
     }
 
     /**
@@ -271,7 +427,7 @@ class SeoService
                 'description' => $this->getTwitterDescription($model),
                 'image' => $this->getTwitterImage($model),
             ],
-            'schema' => $this->getSchemaMarkup($model),
+            'schema' => $this->getSchemaMarkup($model, $this->schemaTypeFor($model)),
         ];
     }
 }

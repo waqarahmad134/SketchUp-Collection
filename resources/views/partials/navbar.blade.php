@@ -42,12 +42,29 @@
                     </button>
                 @endauth
                 
+                <a href="{{ route('wishlist.index') }}" class="relative inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border hover:border-foreground transition-colors" aria-label="Wishlist" title="Wishlist">
+                    <i data-lucide="heart" class="w-5 h-5"></i>
+                    @if(count(session('wishlist', [])) > 0)
+                        <span class="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-[11px] font-bold text-background flex items-center justify-center">
+                            {{ count(session('wishlist', [])) }}
+                        </span>
+                    @endif
+                </a>
+
                 <a href="{{ route('cart.show') }}" class="relative inline-flex items-center justify-center w-11 h-11 rounded-xl border border-border hover:border-foreground transition-colors" aria-label="Cart">
                     <i data-lucide="shopping-cart" class="w-5 h-5"></i>
                     <span data-cart-count class="absolute -top-2 -right-2 min-w-[20px] h-5 px-1 rounded-full bg-gradient-to-r from-cyan-500 to-violet-500 text-[11px] font-bold text-background flex items-center justify-center">
                         {{ $cartQuantity ?? 0 }}
                     </span>
                 </a>
+
+                <form method="POST" action="{{ route('currency.switch') }}" class="inline-flex" title="Display currency">
+                    @csrf
+                    <input type="hidden" name="currency" value="{{ \App\Support\Currency::current() === 'USD' ? 'PKR' : 'USD' }}">
+                    <button type="submit" class="inline-flex items-center justify-center h-11 px-3 rounded-xl border border-border hover:border-foreground transition-colors text-xs font-bold" aria-label="Switch currency">
+                        {{ \App\Support\Currency::current() === 'USD' ? 'PKR' : 'USD' }}
+                    </button>
+                </form>
 
                 @auth
                     <!-- User Menu -->
@@ -64,6 +81,18 @@
                                 <div class="flex items-center gap-2">
                                     <i data-lucide="user" class="w-4 h-4"></i>
                                     <span>My Profile</span>
+                                </div>
+                            </a>
+                            <a href="{{ route('account.dashboard') }}" class="block px-4 py-2 rounded-lg hover:bg-card transition-colors text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="package" class="w-4 h-4"></i>
+                                    <span>My Orders</span>
+                                </div>
+                            </a>
+                            <a href="{{ route('wishlist.index') }}" class="block px-4 py-2 rounded-lg hover:bg-card transition-colors text-sm">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                    <span>Wishlist</span>
                                 </div>
                             </a>
                             @if(auth()->user()->canSell())

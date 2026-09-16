@@ -1,28 +1,33 @@
 @php
 $navItems = [
     // Main
-    ['href' => route('newadmin.dashboard'), 'label' => 'Dashboard', 'icon' => 'layout-dashboard', 'group' => 'main'],
+    ['href' => route('admin.dashboard'), 'label' => 'Dashboard', 'icon' => 'layout-dashboard', 'group' => 'main'],
+    ['href' => route('admin.analytics'), 'label' => 'Analytics', 'icon' => 'bar-chart-3', 'group' => 'main'],
     
     // Content Management
-    ['href' => route('newadmin.posts.index'), 'label' => 'Posts', 'icon' => 'file-text', 'group' => 'content'],
-    ['href' => route('newadmin.categories.index'), 'label' => 'Post Categories', 'icon' => 'folder-open', 'group' => 'content'],
-    ['href' => route('newadmin.tags.index'), 'label' => 'Tags', 'icon' => 'tags', 'group' => 'content'],
-    ['href' => route('newadmin.media.index'), 'label' => 'Media', 'icon' => 'image', 'group' => 'content'],
+    ['href' => route('admin.posts.index'), 'label' => 'Posts', 'icon' => 'file-text', 'group' => 'content'],
+    ['href' => route('admin.categories.index'), 'label' => 'Post Categories', 'icon' => 'folder-open', 'group' => 'content'],
+    ['href' => route('admin.tags.index'), 'label' => 'Tags', 'icon' => 'tags', 'group' => 'content'],
+    ['href' => route('admin.media.index'), 'label' => 'Media', 'icon' => 'image', 'group' => 'content'],
+    ['href' => route('admin.comments.index'), 'label' => 'Comments', 'icon' => 'message-circle', 'group' => 'content'],
+    ['href' => route('admin.newsletter.index'), 'label' => 'Newsletter', 'icon' => 'mail', 'group' => 'content'],
+    ['href' => route('admin.redirects.index'), 'label' => 'Redirects', 'icon' => 'corner-up-right', 'group' => 'content'],
     
     // Shop Management
-    ['href' => route('newadmin.products.index'), 'label' => 'Products', 'icon' => 'package', 'group' => 'shop'],
-    ['href' => route('newadmin.product-categories.index'), 'label' => 'Product Categories', 'icon' => 'tag', 'group' => 'shop'],
-    ['href' => route('newadmin.orders.index'), 'label' => 'Orders', 'icon' => 'shopping-cart', 'group' => 'shop'],
-    ['href' => route('newadmin.coupons.index'), 'label' => 'Coupons', 'icon' => 'ticket', 'group' => 'shop'],
-    ['href' => route('newadmin.transactions.index'), 'label' => 'Transactions', 'icon' => 'credit-card', 'group' => 'shop'],
+    ['href' => route('admin.products.index'), 'label' => 'Products', 'icon' => 'package', 'group' => 'shop'],
+    ['href' => route('admin.product-categories.index'), 'label' => 'Product Categories', 'icon' => 'tag', 'group' => 'shop'],
+    ['href' => route('admin.orders.index'), 'label' => 'Orders', 'icon' => 'shopping-cart', 'group' => 'shop'],
+    ['href' => route('admin.coupons.index'), 'label' => 'Coupons', 'icon' => 'ticket', 'group' => 'shop'],
+    ['href' => route('admin.transactions.index'), 'label' => 'Transactions', 'icon' => 'credit-card', 'group' => 'shop'],
+    ['href' => route('admin.payment-gateways.index'), 'label' => 'Payment Gateways', 'icon' => 'wallet', 'group' => 'shop'],
     
     // User Management
-    ['href' => route('newadmin.users.index'), 'label' => 'Users', 'icon' => 'users', 'group' => 'users'],
+    ['href' => route('admin.users.index'), 'label' => 'Users', 'icon' => 'users', 'group' => 'users'],
     
     // Settings
-    ['href' => route('newadmin.menus.index'), 'label' => 'Menus', 'icon' => 'menu', 'group' => 'settings'],
-    ['href' => route('newadmin.settings.index'), 'label' => 'Settings', 'icon' => 'settings', 'group' => 'settings'],
-    ['href' => route('newadmin.custom-scripts.index'), 'label' => 'Custom Scripts', 'icon' => 'code', 'group' => 'settings'],
+    ['href' => route('admin.menus.index'), 'label' => 'Menus', 'icon' => 'menu', 'group' => 'settings'],
+    ['href' => route('admin.settings.index'), 'label' => 'Settings', 'icon' => 'settings', 'group' => 'settings'],
+    ['href' => route('admin.custom-scripts.index'), 'label' => 'Custom Scripts', 'icon' => 'code', 'group' => 'settings'],
 ];
 
 $groupedItems = [
@@ -90,14 +95,14 @@ foreach ($navItems as $item) {
                                     @elseif($groupKey === 'shop') Shop
                                     @elseif($groupKey === 'users') Users
                                     @elseif($groupKey === 'settings') Settings
-                                    @endif
+                                @endif
                                 </h3>
                             </div>
                         @endif
                         <div class="space-y-1">
                             @foreach($groupedItems[$groupKey] as $item)
                             @php
-                                $routeName = str_replace(['newadmin.', '.index'], ['newadmin.', ''], str_replace(url('/'), '', $item['href']));
+                                $routeName = str_replace(['admin.', '.index'], ['admin.', ''], str_replace(url('/'), '', $item['href']));
                                 $isActive = request()->routeIs($routeName . '*') || request()->url() === $item['href'];
                             @endphp
                             <a
@@ -159,6 +164,12 @@ foreach ($navItems as $item) {
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
                                     </svg>
+                                @elseif($item['icon'] === 'wallet')
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12V7H5a2 2 0 010-4h14v4"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v14a2 2 0 002 2h16V7"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12a1 1 0 100 2 1 1 0 000-2z"></path>
+                                    </svg>
                                 @endif
                                 <span>{{ $item['label'] }}</span>
                             </a>
@@ -170,7 +181,7 @@ foreach ($navItems as $item) {
 
             <!-- Logout Button -->
             <div class="p-4 border-t border-sidebar-border">
-                <form method="POST" action="{{ route('newadmin.logout') }}">
+                <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
                     <button
                         type="submit"
