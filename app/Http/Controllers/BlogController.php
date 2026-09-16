@@ -16,6 +16,16 @@ class BlogController extends Controller
                     ->orWhere('published_at', '<=', now());
             });
 
+        // Search by keyword
+        if ($request->filled('q')) {
+            $search = trim($request->input('q'));
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('excerpt', 'like', "%{$search}%")
+                    ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
         // Sort order
         $sortBy = $request->get('sort', 'newest');
         switch ($sortBy) {
@@ -40,6 +50,7 @@ class BlogController extends Controller
 
         // Normalize filter values for view
         $filters = [
+            'q' => $request->get('q', ''),
             'sort' => $request->get('sort', 'newest'),
             'per_page' => $perPage,
             'view' => $request->get('view', 'grid'),

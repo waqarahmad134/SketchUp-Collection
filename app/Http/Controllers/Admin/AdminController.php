@@ -8,6 +8,8 @@ use App\Models\PostCategory;
 use App\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Validation\ValidationException;
 
 class AdminController extends Controller
 {
@@ -23,10 +25,24 @@ class AdminController extends Controller
             'password' => 'required',
         ]);
 
+        // Brute-force protection: 5 attempts per email+IP, then 5 minute lockout
+        $throttleKey = 'admin-login:' . strtolower($request->input('email')) . '|' . $request->ip();
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+
+            throw ValidationException::withMessages([
+                'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
+            ]);
+        }
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
+            RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
             return redirect()->intended(route('admin.dashboard'));
         }
+
+        RateLimiter::hit($throttleKey, 300);
 
         return back()->withErrors([
             'email' => 'The provided credentials do not match our records.',

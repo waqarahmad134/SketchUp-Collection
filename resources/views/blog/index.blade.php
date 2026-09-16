@@ -34,6 +34,14 @@
                         </div>
                         
                         <div class="flex items-center gap-3 flex-wrap">
+                            <!-- Search -->
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="searchInput" value="{{ $filters['q'] ?? '' }}" placeholder="Search articles..."
+                                    class="px-3 py-1.5 rounded-lg bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm w-44 md:w-56" />
+                                <button id="searchBtn" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/30 transition">
+                                    Search
+                                </button>
+                            </div>
                             <!-- Sort -->
                             <div class="flex items-center gap-2">
                                 <label class="text-xs text-muted-foreground">Sort:</label>
@@ -241,6 +249,7 @@
             columns: '{{ $filters['columns'] ?? '3' }}',
             per_page: {{ $filters['per_page'] ?? 12 }},
             sort: '{{ $filters['sort'] ?? 'newest' }}',
+            q: @json($filters['q'] ?? ''),
         };
 
         // Apply initial view and columns
@@ -324,6 +333,21 @@
             });
         }
 
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        const runSearch = () => {
+            initialState.q = searchInput.value.trim();
+            currentPage = 1;
+            loadPosts();
+        };
+        document.getElementById('searchBtn')?.addEventListener('click', runSearch);
+        searchInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runSearch();
+            }
+        });
+
         // Filter event listeners
         document.getElementById('sortFilter')?.addEventListener('change', (e) => {
             initialState.sort = e.target.value;
@@ -348,6 +372,7 @@
                 page: currentPage,
                 per_page: initialState.per_page,
                 sort: initialState.sort,
+                q: initialState.q,
                 view: initialState.view,
                 columns: initialState.columns,
             });

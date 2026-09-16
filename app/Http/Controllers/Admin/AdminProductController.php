@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use App\Support\ImageOptimizer;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -91,13 +92,13 @@ class AdminProductController extends Controller
 
         // Handle file uploads
         if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $validated['image'] = ImageOptimizer::optimize($request->file('image'), 'products');
         }
 
         if ($request->hasFile('images')) {
             $imagePaths = [];
             foreach ($request->file('images') as $image) {
-                $imagePaths[] = $image->store('products/gallery', 'public');
+                $imagePaths[] = ImageOptimizer::optimize($image, 'products/gallery');
             }
             $validated['images'] = $imagePaths;
         }
@@ -107,11 +108,11 @@ class AdminProductController extends Controller
         }
 
         if ($request->hasFile('og_image')) {
-            $validated['og_image'] = $request->file('og_image')->store('seo/og', 'public');
+            $validated['og_image'] = ImageOptimizer::optimize($request->file('og_image'), 'seo/og', 1200);
         }
 
         if ($request->hasFile('twitter_image')) {
-            $validated['twitter_image'] = $request->file('twitter_image')->store('seo/twitter', 'public');
+            $validated['twitter_image'] = ImageOptimizer::optimize($request->file('twitter_image'), 'seo/twitter', 1200);
         }
 
         // Handle JSON fields
@@ -232,7 +233,7 @@ class AdminProductController extends Controller
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $validated['image'] = ImageOptimizer::optimize($request->file('image'), 'products');
         }
 
         if ($request->hasFile('images')) {
@@ -243,7 +244,7 @@ class AdminProductController extends Controller
             }
             $imagePaths = [];
             foreach ($request->file('images') as $image) {
-                $imagePaths[] = $image->store('products/gallery', 'public');
+                $imagePaths[] = ImageOptimizer::optimize($image, 'products/gallery');
             }
             $validated['images'] = $imagePaths;
         }
@@ -259,14 +260,14 @@ class AdminProductController extends Controller
             if ($product->og_image) {
                 Storage::disk('public')->delete($product->og_image);
             }
-            $validated['og_image'] = $request->file('og_image')->store('seo/og', 'public');
+            $validated['og_image'] = ImageOptimizer::optimize($request->file('og_image'), 'seo/og', 1200);
         }
 
         if ($request->hasFile('twitter_image')) {
             if ($product->twitter_image) {
                 Storage::disk('public')->delete($product->twitter_image);
             }
-            $validated['twitter_image'] = $request->file('twitter_image')->store('seo/twitter', 'public');
+            $validated['twitter_image'] = ImageOptimizer::optimize($request->file('twitter_image'), 'seo/twitter', 1200);
         }
 
         // Handle JSON fields

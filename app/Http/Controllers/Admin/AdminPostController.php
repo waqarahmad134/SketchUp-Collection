@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use App\Support\ImageOptimizer;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -54,7 +55,7 @@ class AdminPostController extends Controller
         ];
 
         if ($request->hasFile('featured_image')) {
-            $postData['featured_image'] = $request->file('featured_image')->store('posts', 'public');
+            $postData['featured_image'] = ImageOptimizer::optimize($request->file('featured_image'), 'posts');
         } elseif ($request->filled('featured_image')) {
             // Editor form sends an image URL string
             $postData['featured_image'] = $request->input('featured_image');
@@ -120,7 +121,7 @@ class AdminPostController extends Controller
             if ($post->featured_image) {
                 Storage::disk('public')->delete($post->featured_image);
             }
-            $postData['featured_image'] = $request->file('featured_image')->store('posts', 'public');
+            $postData['featured_image'] = ImageOptimizer::optimize($request->file('featured_image'), 'posts');
         } elseif ($request->filled('featured_image')) {
             // Editor form sends an image URL string
             $postData['featured_image'] = $request->input('featured_image');

@@ -31,6 +31,14 @@
                             </div>
                             
                             <div class="flex items-center gap-3 flex-wrap">
+                                <!-- Search -->
+                                <div class="flex items-center gap-2">
+                                    <input type="text" id="searchInput" value="{{ $filters['q'] ?? '' }}" placeholder="Search products..."
+                                        class="px-3 py-1.5 rounded-lg bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm w-44 md:w-56" />
+                                    <button id="searchBtn" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/30 transition">
+                                        Search
+                                    </button>
+                                </div>
                                 <!-- Sort By -->
                                 <div class="flex items-center gap-2">
                                     <label class="text-xs text-muted-foreground">Sort:</label>
@@ -306,6 +314,7 @@
             columns: '{{ $filters['columns'] ?? '3' }}',
             per_page: {{ $filters['per_page'] ?? 12 }},
             sort: '{{ $filters['sort'] ?? 'default' }}',
+            q: @json($filters['q'] ?? ''),
             type: '{{ $filters['type'] ?? '' }}',
             category: @json($filters['category'] ?? []),
             tags: @json($filters['tags'] ?? []),
@@ -400,6 +409,21 @@
             });
         }
 
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        const runSearch = () => {
+            initialState.q = searchInput.value.trim();
+            currentPage = 1;
+            loadProducts();
+        };
+        document.getElementById('searchBtn')?.addEventListener('click', runSearch);
+        searchInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runSearch();
+            }
+        });
+
         // Filter event listeners
         document.getElementById('sortFilter')?.addEventListener('change', (e) => {
             initialState.sort = e.target.value;
@@ -431,6 +455,7 @@
                 page: currentPage,
                 per_page: initialState.per_page,
                 sort: initialState.sort,
+                q: initialState.q,
                 view: initialState.view,
                 columns: initialState.columns,
             });
@@ -638,6 +663,9 @@
             initialState.columns = '3';
             initialState.per_page = 12;
             initialState.sort = 'default';
+            initialState.q = '';
+            const searchInputEl = document.getElementById('searchInput');
+            if (searchInputEl) searchInputEl.value = '';
             currentPage = 1;
             
             // Reset sort dropdown

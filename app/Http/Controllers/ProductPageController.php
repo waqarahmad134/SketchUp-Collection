@@ -48,6 +48,16 @@ class ProductPageController extends Controller
             }
         }
 
+        // Search by keyword
+        if ($request->filled('q')) {
+            $search = trim($request->input('q'));
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('full_description', 'like', "%{$search}%");
+            });
+        }
+
         // Price range filter
         if ($request->filled('min_price')) {
             $query->where('price', '>=', $request->min_price);
@@ -91,6 +101,7 @@ class ProductPageController extends Controller
 
         // Normalize filter values for view
         $filters = [
+            'q' => $request->get('q', ''),
             'category' => is_array($request->category) ? $request->category : ($request->category ? [$request->category] : []),
             'tags' => is_array($request->tags) ? $request->tags : ($request->tags ? [$request->tags] : []),
             'type' => $request->get('type', ''),

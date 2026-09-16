@@ -53,6 +53,7 @@ Disallow: /signup
 Disallow: /*?*sort=
 Disallow: /*?*filter=
 Disallow: /*?*page=
+Disallow: /*?*q=
 
 # Allow specific important paths
 Allow: /bundles
