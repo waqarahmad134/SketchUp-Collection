@@ -23,8 +23,11 @@ class SitemapController extends Controller
                 ->setPriority(1.0)
         );
 
-        // Add products
-        Product::where('is_active', true)->get()->each(function (Product $product) use ($sitemap) {
+        // Add products (only indexable ones: sitemap lists preferred URLs only, M26)
+        Product::where('is_active', true)
+            ->where('robots_index', 'index')
+            ->get()
+            ->each(function (Product $product) use ($sitemap) {
             $sitemap->add(
                 Url::create("/bundles/{$product->slug}")
                     ->setLastModificationDate($product->updated_at)
@@ -33,8 +36,11 @@ class SitemapController extends Controller
             );
         });
 
-        // Add posts
-        Post::where('status', 'published')->get()->each(function (Post $post) use ($sitemap) {
+        // Add posts (only indexable ones: sitemap lists preferred URLs only, M26)
+        Post::where('status', 'published')
+            ->where('robots_index', 'index')
+            ->get()
+            ->each(function (Post $post) use ($sitemap) {
             $sitemap->add(
                 Url::create("/blog/{$post->slug}")
                     ->setLastModificationDate($post->updated_at)

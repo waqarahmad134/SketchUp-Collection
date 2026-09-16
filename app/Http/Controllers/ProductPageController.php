@@ -165,12 +165,32 @@ class ProductPageController extends Controller
         // Keep allProducts for backward compatibility, but use includedProducts when available
         $allProducts = Product::where('is_active', true)->get()->keyBy('id');
 
+        // Related bundles for internal linking (course rule M24):
+        // same category first, then fill with other active bundles.
+        $relatedProducts = Product::where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->when($product->category_id, fn ($q) => $q->where('category_id', $product->category_id))
+            ->latest()
+            ->take(4)
+            ->get();
+
+        if ($relatedProducts->count() < 4) {
+            $fallback = Product::where('is_active', true)
+                ->where('id', '!=', $product->id)
+                ->whereNotIn('id', $relatedProducts->pluck('id'))
+                ->latest()
+                ->take(4 - $relatedProducts->count())
+                ->get();
+            $relatedProducts = $relatedProducts->merge($fallback);
+        }
+
         return view('bundles.show', [
             'title' => $product->title . ' - SketchUp Collection',
             'metaDescription' => $product->full_description ?? $product->description ?? '',
             'product' => $product,
             'allProducts' => $allProducts,
             'includedProducts' => $includedProducts, // Optimized collection
+            'relatedProducts' => $relatedProducts,
             'seoModel' => $product,
         ]);
     }

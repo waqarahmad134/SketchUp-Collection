@@ -83,10 +83,38 @@ class BlogController extends Controller
             })
             ->firstOrFail();
 
+        // Related articles for internal linking (course rule M24):
+        // same category first, then fill with other published posts.
+        $relatedPosts = Post::where('status', 'published')
+            ->where('id', '!=', $post->id)
+            ->where(function ($query) {
+                $query->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            })
+            ->when($post->category_id, fn ($q) => $q->where('category_id', $post->category_id))
+            ->latest('published_at')
+            ->take(3)
+            ->get();
+
+        if ($relatedPosts->count() < 3) {
+            $fallback = Post::where('status', 'published')
+                ->where('id', '!=', $post->id)
+                ->whereNotIn('id', $relatedPosts->pluck('id'))
+                ->where(function ($query) {
+                    $query->whereNull('published_at')
+                        ->orWhere('published_at', '<=', now());
+                })
+                ->latest('published_at')
+                ->take(3 - $relatedPosts->count())
+                ->get();
+            $relatedPosts = $relatedPosts->merge($fallback);
+        }
+
         return view('blog.show', [
             'title' => $post->title . ' | Blog',
             'metaDescription' => $post->meta_description ?? $post->excerpt ?? $post->title,
             'post' => $post,
+            'relatedPosts' => $relatedPosts,
             'seoModel' => $post,
         ]);
     }

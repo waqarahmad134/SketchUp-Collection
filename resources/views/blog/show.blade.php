@@ -50,6 +50,33 @@
                     Back to Blog
                 </a>
             </div>
+
+            @if($relatedPosts->count() > 0)
+                <div class="mt-16">
+                    <h2 class="text-2xl font-bold font-display mb-2">Related <span class="gradient-text">Articles</span></h2>
+                    <p class="text-muted-foreground mb-8">Keep learning with these posts</p>
+                    <div class="grid md:grid-cols-3 gap-6">
+                        @foreach($relatedPosts as $related)
+                            <a href="{{ url('/blog/' . $related->slug) }}" class="glass-card rounded-3xl overflow-hidden group hover:border-cyan-500/50 transition-all duration-300">
+                                @if($related->featured_image_url)
+                                    <div class="h-40 overflow-hidden">
+                                        <img src="{{ $related->featured_image_url }}" alt="{{ $related->title }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                    </div>
+                                @endif
+                                <div class="p-5">
+                                    <h3 class="font-semibold mb-2 line-clamp-2 group-hover:text-cyan-400 transition-colors">{{ $related->title }}</h3>
+                                    @if($related->excerpt)
+                                        <p class="text-sm text-muted-foreground line-clamp-2 mb-3">{{ $related->excerpt }}</p>
+                                    @endif
+                                    <span class="inline-flex items-center gap-1 text-sm text-cyan-400 font-medium">
+                                        Read article <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                    </span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </article>
 @endsection

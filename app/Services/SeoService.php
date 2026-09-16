@@ -8,6 +8,36 @@ use Illuminate\Support\Facades\URL;
 class SeoService
 {
     /**
+     * Route name patterns that must never appear in search results
+     * (cart, checkout, auth). Course rule M25: noindex for utility pages.
+     */
+    protected array $noindexRoutePatterns = [
+        'login',
+        'login.submit',
+        'register',
+        'register.submit',
+        'cart.*',
+        'checkout.*',
+    ];
+
+    /**
+     * Map model class to its Schema.org type so markup reflects
+     * the visible page content (course rule M27).
+     */
+    protected function schemaTypeFor($model): string
+    {
+        if ($model instanceof \App\Models\Product) {
+            return 'Product';
+        }
+
+        if ($model instanceof \App\Models\Post) {
+            return 'BlogPosting';
+        }
+
+        return 'WebPage';
+    }
+
+    /**
      * Generate meta title
      */
     public function getTitle($model = null): string
@@ -62,6 +92,14 @@ class SeoService
      */
     public function getRobotsMeta($model = null): string
     {
+        // Utility routes (cart, checkout, auth) are never indexable (M25).
+        $routeName = request()->route()?->getName() ?? '';
+        foreach ($this->noindexRoutePatterns as $pattern) {
+            if (fnmatch($pattern, $routeName)) {
+                return 'noindex, nofollow';
+            }
+        }
+
         $index = $model->robots_index ?? Setting::get('robots_index', 'index');
         $follow = $model->robots_follow ?? Setting::get('robots_follow', 'follow');
         
@@ -224,7 +262,9 @@ class SeoService
                     '@type' => 'Offer',
                     'price' => $model->price ?? 0,
                     'priceCurrency' => 'USD',
-                    'availability' => 'https://schema.org/InStock',
+                    'availability' => ($model->is_active ?? true)
+                        ? 'https://schema.org/InStock'
+                        : 'https://schema.org/OutOfStock',
                 ];
 
                 if (isset($model->original_price)) {
@@ -243,7 +283,60 @@ class SeoService
             ],
         ];
 
-        return $schema;
+        // BreadcrumbList alongside the main entity (course rule M27).
+        $breadcrumb = $this->getBreadcrumbMarkup($model, $type);
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [$schema, $breadcrumb],
+        ];
+    }
+
+    /**
+     * Build a BreadcrumbList trail: Home > section > current page.
+     */
+    protected function getBreadcrumbMarkup($model = null, string $type = 'WebPage'): array
+    {
+        $items = [
+            [
+                '@type' => 'ListItem',
+                'position' => 1,
+                'name' => 'Home',
+                'item' => URL::to('/'),
+            ],
+        ];
+
+        $position = 2;
+        $currentName = $this->getTitle($model);
+
+        if ($model instanceof \App\Models\Product) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => 'Bundles',
+                'item' => URL::to('/bundles'),
+            ];
+            $currentName = $model->title ?? $currentName;
+        } elseif ($model instanceof \App\Models\Post) {
+            $items[] = [
+                '@type' => 'ListItem',
+                'position' => $position++,
+                'name' => 'Blog',
+                'item' => URL::to('/blog'),
+            ];
+            $currentName = $model->title ?? $currentName;
+        }
+
+        $items[] = [
+            '@type' => 'ListItem',
+            'position' => $position,
+            'name' => $currentName,
+        ];
+
+        return [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => $items,
+        ];
     }
 
     /**
@@ -271,7 +364,7 @@ class SeoService
                 'description' => $this->getTwitterDescription($model),
                 'image' => $this->getTwitterImage($model),
             ],
-            'schema' => $this->getSchemaMarkup($model),
+            'schema' => $this->getSchemaMarkup($model, $this->schemaTypeFor($model)),
         ];
     }
 }

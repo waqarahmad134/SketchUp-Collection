@@ -28,7 +28,7 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 Disallow: /login
-Disallow: /register
+Disallow: /signup
 
 # Disallow search and filter pages with parameters
 Disallow: /*?*sort=
