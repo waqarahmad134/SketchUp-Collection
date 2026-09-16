@@ -209,12 +209,11 @@ class AdminPostController extends Controller
 
         return $fields;
     }
-}
 
     public function destroy(string $id)
     {
         $post = Post::findOrFail($id);
-        
+
         // Delete featured image
         if ($post->featured_image) {
             Storage::disk('public')->delete($post->featured_image);

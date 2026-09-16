@@ -32,7 +32,12 @@ use App\Http\Controllers\Admin\AdminCustomScriptController;
 use App\Http\Controllers\Admin\AdminPaymentGatewayController;
 use App\Http\Controllers\Admin\AdminNewsletterController;
 use App\Http\Controllers\Admin\AdminCommentController;
+use App\Http\Controllers\Admin\AdminRedirectController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RedirectController;
+use App\Http\Controllers\LlmsController;
+use App\Http\Controllers\GuestCheckoutController;
+use App\Http\Controllers\CurrencyController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -205,6 +210,10 @@ Route::view('/terms-of-service', 'pages.terms-of-service', [
 
 // Admin Panel Routes (Development)
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route(auth()->check() ? 'admin.dashboard' : 'admin.login');
+    });
+
     // Login routes (guest middleware - only accessible when not logged in)
     Route::middleware('guest')->group(function () {
         Route::get('/login', [AdminController::class, 'showLogin'])->name('login');
