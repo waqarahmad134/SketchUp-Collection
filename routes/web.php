@@ -11,20 +11,20 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\DailyLoginController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RobotsController;
-use App\Http\Controllers\NewAdmin\NewAdminController;
-use App\Http\Controllers\NewAdmin\NewAdminPostController;
-use App\Http\Controllers\NewAdmin\NewAdminCategoryController;
-use App\Http\Controllers\NewAdmin\NewAdminTagController;
-use App\Http\Controllers\NewAdmin\NewAdminMediaController;
-use App\Http\Controllers\NewAdmin\NewAdminProductController;
-use App\Http\Controllers\NewAdmin\NewAdminProductCategoryController;
-use App\Http\Controllers\NewAdmin\NewAdminUserController;
-use App\Http\Controllers\NewAdmin\NewAdminOrderController;
-use App\Http\Controllers\NewAdmin\NewAdminTransactionController;
-use App\Http\Controllers\NewAdmin\NewAdminCouponController;
-use App\Http\Controllers\NewAdmin\NewAdminMenuController;
-use App\Http\Controllers\NewAdmin\NewAdminSettingController;
-use App\Http\Controllers\NewAdmin\NewAdminCustomScriptController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminPostController;
+use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminTagController;
+use App\Http\Controllers\Admin\AdminMediaController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminProductCategoryController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminTransactionController;
+use App\Http\Controllers\Admin\AdminCouponController;
+use App\Http\Controllers\Admin\AdminMenuController;
+use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminCustomScriptController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -175,67 +175,67 @@ Route::view('/terms-of-service', 'pages.terms-of-service', [
     'metaDescription' => 'Rules and guidelines for using SketchUp Collection.',
 ])->name('terms-of-service');
 
-// New Admin Panel Routes (Development)
-Route::prefix('newadmin')->name('newadmin.')->group(function () {
+// Admin Panel Routes (Development)
+Route::prefix('admin')->name('admin.')->group(function () {
     // Login routes (guest middleware - only accessible when not logged in)
     Route::middleware('guest')->group(function () {
-        Route::get('/login', [NewAdminController::class, 'showLogin'])->name('login');
-        Route::post('/login', [NewAdminController::class, 'login']);
+        Route::get('/login', [AdminController::class, 'showLogin'])->name('login');
+        Route::post('/login', [AdminController::class, 'login']);
     });
 
     // Protected admin routes (auth middleware)
     Route::middleware('auth')->group(function () {
-        Route::post('/logout', [NewAdminController::class, 'logout'])->name('logout');
-        Route::get('/dashboard', [NewAdminController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
         
         // Posts routes
-        Route::resource('posts', NewAdminPostController::class);
+        Route::resource('posts', AdminPostController::class);
         
         // Categories routes
-        Route::get('/categories', [NewAdminCategoryController::class, 'index'])->name('categories.index');
-        Route::post('/categories', [NewAdminCategoryController::class, 'store'])->name('categories.store');
-        Route::put('/categories/{id}', [NewAdminCategoryController::class, 'update'])->name('categories.update');
-        Route::delete('/categories/{id}', [NewAdminCategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{id}', [AdminCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
         
         // Tags routes
-        Route::get('/tags', [NewAdminTagController::class, 'index'])->name('tags.index');
-        Route::post('/tags', [NewAdminTagController::class, 'store'])->name('tags.store');
-        Route::put('/tags/{id}', [NewAdminTagController::class, 'update'])->name('tags.update');
-        Route::delete('/tags/{id}', [NewAdminTagController::class, 'destroy'])->name('tags.destroy');
+        Route::get('/tags', [AdminTagController::class, 'index'])->name('tags.index');
+        Route::post('/tags', [AdminTagController::class, 'store'])->name('tags.store');
+        Route::put('/tags/{id}', [AdminTagController::class, 'update'])->name('tags.update');
+        Route::delete('/tags/{id}', [AdminTagController::class, 'destroy'])->name('tags.destroy');
         
         // Media routes
-        Route::get('/media', [NewAdminMediaController::class, 'index'])->name('media.index');
-        Route::post('/media', [NewAdminMediaController::class, 'store'])->name('media.store');
-        Route::delete('/media/{id}', [NewAdminMediaController::class, 'destroy'])->name('media.destroy');
+        Route::get('/media', [AdminMediaController::class, 'index'])->name('media.index');
+        Route::post('/media', [AdminMediaController::class, 'store'])->name('media.store');
+        Route::delete('/media/{id}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
         
         // Products routes
-        Route::resource('products', NewAdminProductController::class);
+        Route::resource('products', AdminProductController::class);
         
         // Product Categories routes
-        Route::resource('product-categories', NewAdminProductCategoryController::class);
+        Route::resource('product-categories', AdminProductCategoryController::class);
         
         // Users routes
-        Route::resource('users', NewAdminUserController::class);
+        Route::resource('users', AdminUserController::class);
         
         // Orders routes
-        Route::resource('orders', NewAdminOrderController::class);
+        Route::resource('orders', AdminOrderController::class);
         
         // Transactions routes
-        Route::resource('transactions', NewAdminTransactionController::class);
+        Route::resource('transactions', AdminTransactionController::class);
         
         // Coupons routes
-        Route::resource('coupons', NewAdminCouponController::class);
+        Route::resource('coupons', AdminCouponController::class);
         
         // Menus routes
-        Route::resource('menus', NewAdminMenuController::class);
+        Route::resource('menus', AdminMenuController::class);
         
         // Settings routes
-        Route::get('/settings', [NewAdminSettingController::class, 'index'])->name('settings.index');
-        Route::get('/settings/{key}/edit', [NewAdminSettingController::class, 'edit'])->name('settings.edit');
-        Route::put('/settings/{key}', [NewAdminSettingController::class, 'update'])->name('settings.update');
-        Route::post('/settings', [NewAdminSettingController::class, 'store'])->name('settings.store');
+        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+        Route::get('/settings/{key}/edit', [AdminSettingController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings/{key}', [AdminSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings', [AdminSettingController::class, 'store'])->name('settings.store');
         
         // Custom Scripts routes
-        Route::resource('custom-scripts', NewAdminCustomScriptController::class);
+        Route::resource('custom-scripts', AdminCustomScriptController::class);
     });
 });
