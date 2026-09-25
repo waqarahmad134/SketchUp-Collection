@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\Setting;
 use App\Models\Tag;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -46,6 +47,16 @@ class ProductPageController extends Controller
             } elseif ($request->type === 'product') {
                 $query->where('is_bundle', false);
             }
+        }
+
+        // Search by keyword
+        if ($request->filled('q')) {
+            $search = trim($request->input('q'));
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('full_description', 'like', "%{$search}%");
+            });
         }
 
         // Price range filter
@@ -91,6 +102,7 @@ class ProductPageController extends Controller
 
         // Normalize filter values for view
         $filters = [
+            'q' => $request->get('q', ''),
             'category' => is_array($request->category) ? $request->category : ($request->category ? [$request->category] : []),
             'tags' => is_array($request->tags) ? $request->tags : ($request->tags ? [$request->tags] : []),
             'type' => $request->get('type', ''),
@@ -129,7 +141,32 @@ class ProductPageController extends Controller
             'minPrice' => $minPrice,
             'maxPrice' => $maxPrice,
             'filters' => $filters,
+            'activeCategory' => null,
         ]);
+    }
+
+    /**
+     * SEO landing page for a single product category: unique URL, title,
+     * meta description and intro content per category (programmatic SEO).
+     */
+    public function category(Request $request, string $slug)
+    {
+        $category = ProductCategory::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        $request->merge(['category' => [(string) $category->id]]);
+
+        $view = $this->index($request);
+
+        if ($view instanceof \Illuminate\View\View) {
+            $view->with('activeCategory', $category);
+            $view->with('seoModel', $category);
+            $view->with('title', ($category->meta_title ?: $category->name . ' SketchUp Models & 3D Assets') . ' - ' . (Setting::get('site_name') ?? config('app.name')));
+            $view->with('metaDescription', $category->meta_description ?: \Str::limit(strip_tags($category->description ?? ''), 155));
+        }
+
+        return $view;
     }
 
     public function show(string $slug): View
@@ -146,6 +183,18 @@ class ProductPageController extends Controller
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();
+
+        // Track recently viewed products in session (max 8, most recent first).
+        $recentIds = session()->get('recently_viewed', []);
+        $recentIds = array_values(array_unique(array_merge([$product->id], $recentIds)));
+        $recentIds = array_slice($recentIds, 0, 8);
+        session()->put('recently_viewed', $recentIds);
+
+        $recentlyViewed = Product::whereIn('id', array_diff($recentIds, [$product->id]))
+            ->where('is_active', true)
+            ->get()
+            ->sortBy(fn ($p) => array_search($p->id, $recentIds))
+            ->take(4);
 
         // Optimize included products loading for bundles
         $includedProducts = collect();
@@ -165,12 +214,33 @@ class ProductPageController extends Controller
         // Keep allProducts for backward compatibility, but use includedProducts when available
         $allProducts = Product::where('is_active', true)->get()->keyBy('id');
 
+        // Related bundles for internal linking (course rule M24):
+        // same category first, then fill with other active bundles.
+        $relatedProducts = Product::where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->when($product->category_id, fn ($q) => $q->where('category_id', $product->category_id))
+            ->latest()
+            ->take(4)
+            ->get();
+
+        if ($relatedProducts->count() < 4) {
+            $fallback = Product::where('is_active', true)
+                ->where('id', '!=', $product->id)
+                ->whereNotIn('id', $relatedProducts->pluck('id'))
+                ->latest()
+                ->take(4 - $relatedProducts->count())
+                ->get();
+            $relatedProducts = $relatedProducts->merge($fallback);
+        }
+
         return view('bundles.show', [
             'title' => $product->title . ' - SketchUp Collection',
             'metaDescription' => $product->full_description ?? $product->description ?? '',
             'product' => $product,
             'allProducts' => $allProducts,
             'includedProducts' => $includedProducts, // Optimized collection
+            'relatedProducts' => $relatedProducts,
+            'recentlyViewed' => $recentlyViewed,
             'seoModel' => $product,
         ]);
     }
@@ -189,7 +259,27 @@ class ProductPageController extends Controller
             abort(404);
         }
 
+        $product->increment('download_count');
+
         return Storage::download($product->download_file, Str::slug($product->title) . '.' . pathinfo($product->download_file, PATHINFO_EXTENSION));
+    }
+
+    /**
+     * Public free sample download (try-before-you-buy).
+     */
+    public function sample(string $slug)
+    {
+        $product = Product::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
+
+        if (!$product->sample_file || !Storage::exists($product->sample_file)) {
+            abort(404);
+        }
+
+        $product->increment('download_count');
+
+        return Storage::download($product->sample_file, Str::slug($product->title) . '-sample.' . pathinfo($product->sample_file, PATHINFO_EXTENSION));
     }
 }
 

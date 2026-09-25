@@ -6,7 +6,7 @@ Laravel backend API for the SketchUp Collection project with custom admin panel.
 
 - RESTful API for products/bundles
 - Laravel Sanctum authentication
-- Custom admin panel for content management (accessible at `/newadmin`)
+- Custom admin panel for content management (accessible at `/admin`)
 - Product and bundle management
 - Image upload support
 
@@ -51,7 +51,7 @@ php artisan serve
 ```
 
 The API will be available at `http://localhost:8000`
-Admin panel will be available at `http://localhost:8000/newadmin`
+Admin panel will be available at `http://localhost:8000/admin`
 
 ## API Endpoints
 
@@ -105,7 +105,7 @@ GET /api/v1/products/interior-skp-bundle
 
 ## Admin Panel
 
-Access the admin panel at `/newadmin` and manage:
+Access the admin panel at `/admin` and manage:
 - Products and bundles
 - Categories
 - Images

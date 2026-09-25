@@ -3,6 +3,10 @@
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AccountController;
+use App\Http\Controllers\CommentController;
+use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ProductPageController;
 use App\Http\Controllers\CreatorController;
 use App\Http\Controllers\ReviewController;
@@ -11,57 +15,48 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\DailyLoginController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\RobotsController;
-use App\Http\Controllers\NewAdmin\NewAdminController;
-use App\Http\Controllers\NewAdmin\NewAdminPostController;
-use App\Http\Controllers\NewAdmin\NewAdminCategoryController;
-use App\Http\Controllers\NewAdmin\NewAdminTagController;
-use App\Http\Controllers\NewAdmin\NewAdminMediaController;
-use App\Http\Controllers\NewAdmin\NewAdminProductController;
-use App\Http\Controllers\NewAdmin\NewAdminProductCategoryController;
-use App\Http\Controllers\NewAdmin\NewAdminUserController;
-use App\Http\Controllers\NewAdmin\NewAdminOrderController;
-use App\Http\Controllers\NewAdmin\NewAdminTransactionController;
-use App\Http\Controllers\NewAdmin\NewAdminCouponController;
-use App\Http\Controllers\NewAdmin\NewAdminMenuController;
-use App\Http\Controllers\NewAdmin\NewAdminSettingController;
-use App\Http\Controllers\NewAdmin\NewAdminCustomScriptController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\AdminPostController;
+use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminTagController;
+use App\Http\Controllers\Admin\AdminMediaController;
+use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminProductCategoryController;
+use App\Http\Controllers\Admin\AdminUserController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminTransactionController;
+use App\Http\Controllers\Admin\AdminCouponController;
+use App\Http\Controllers\Admin\AdminMenuController;
+use App\Http\Controllers\Admin\AdminSettingController;
+use App\Http\Controllers\Admin\AdminCustomScriptController;
+use App\Http\Controllers\Admin\AdminPaymentGatewayController;
+use App\Http\Controllers\Admin\AdminNewsletterController;
+use App\Http\Controllers\Admin\AdminCommentController;
+use App\Http\Controllers\Admin\AdminRedirectController;
+use App\Http\Controllers\Admin\AdminAnalyticsController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\RedirectController;
+use App\Http\Controllers\LlmsController;
+use App\Http\Controllers\GuestCheckoutController;
+use App\Http\Controllers\CurrencyController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // SEO Routes
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [RobotsController::class, 'index'])->name('robots');
+Route::get('/llms.txt', [LlmsController::class, 'index'])->name('llms');
 
-// Clear Cache facade value:
-Route::get('/clear', function () {
-    $exitCode = Artisan::call('cache:clear');
-    $exitCode = Artisan::call('optimize');
-    $exitCode = Artisan::call('route:cache');
-    $exitCode = Artisan::call('route:clear');
-    $exitCode = Artisan::call('view:clear');
-    $exitCode = Artisan::call('config:cache');
-    $exitCode = Artisan::call('config:clear');
-    return '<h1>Cache facade value cleared</h1>';
-});
-
-Route::get('/migrations', function () {
-    Artisan::call('migrate:fresh');
-    return 'Migrations executed successfully! All tables dropped and recreated.';
-});
-
-Route::get('/seed', function () {
-    Artisan::call('db:seed', ['--force' => true]);
-    return 'Database seeded successfully!';
-});
-
-Route::get('/storage-link', function () {
-    Artisan::call('storage:link');
-    return 'Storage link created successfully!';
-});
+// NOTE: Debug/maintenance routes (/clear, /migrations, /seed, /storage-link)
+// were removed. They ran Artisan commands over plain GET requests with no
+// authentication, so anyone could wipe the production database.
 
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/feed', [BlogController::class, 'feed'])->name('blog.feed');
+Route::get('/blog/category/{slug}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/tag/{slug}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
@@ -89,14 +84,26 @@ Route::middleware('auth')->group(function () {
     Route::get('/checkout/stripe/start', [CheckoutController::class, 'stripeStart'])->name('checkout.stripe.start');
     Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::get('/checkout/cancel', [CheckoutController::class, 'cancel'])->name('checkout.cancel');
+
+    // Configurable payment gateways (JazzCash, Easypaisa, PayPro, Paddle, Lemon Squeezy, Polar)
+    Route::post('/checkout/pay/{gateway}', [PaymentController::class, 'start'])->name('payment.start')->middleware('auth');
+    Route::match(['get', 'post'], '/payment/callback/{gateway}', [PaymentController::class, 'callback'])->name('payment.callback');
+    Route::post('/payment/webhook/{gateway}', [PaymentController::class, 'webhook'])->name('payment.webhook');
     
     // Daily Login Bonus - claim requires authentication
     Route::post('/daily-login/claim', [DailyLoginController::class, 'claim'])->name('daily-login.claim');
+
+    // Customer account: order history + re-downloads
+    Route::get('/account', [AccountController::class, 'dashboard'])->name('account.dashboard');
+    Route::get('/account/orders/{order}', [AccountController::class, 'order'])->name('account.order');
+    Route::post('/account/password', [AccountController::class, 'updatePassword'])->name('account.password');
 });
 
 Route::get('/bundles', [ProductPageController::class, 'index'])->name('bundles.index');
+Route::get('/bundles/category/{slug}', [ProductPageController::class, 'category'])->name('bundles.category');
 Route::get('/bundles/{slug}', [ProductPageController::class, 'show'])->name('bundles.show');
 Route::get('/bundles/{slug}/download', [ProductPageController::class, 'download'])->name('bundles.download');
+Route::get('/bundles/{slug}/sample', [ProductPageController::class, 'sample'])->name('bundles.sample');
 Route::post('/bundles/{slug}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 Route::post('/bundles/{product}/add-to-cart', [CartController::class, 'add'])->name('cart.add');
 Route::post('/bundles/{product}/buy-now', [CartController::class, 'buyNow'])->name('cart.buyNow');
@@ -108,7 +115,34 @@ Route::post('/cart/coins/remove', [CartController::class, 'removeCoins'])->name(
 Route::delete('/cart/item/{productId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
 
+Route::post('/blog/{slug}/comments', [CommentController::class, 'store'])->name('comments.store');
+
 Route::get('/creators/{user}', [CreatorController::class, 'show'])->name('creators.show');
+
+// Wishlist (session-based, works for guests too)
+Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+Route::post('/wishlist/toggle/{product}', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+
+// Newsletter
+Route::post('/newsletter/subscribe', [NewsletterController::class, 'subscribe'])->name('newsletter.subscribe');
+Route::get('/newsletter/unsubscribe/{token}', [NewsletterController::class, 'unsubscribe'])->name('newsletter.unsubscribe');
+
+// Guest checkout (public: creates/logs in an account from name + email)
+Route::post('/checkout/guest', [GuestCheckoutController::class, 'store'])->name('checkout.guest');
+
+// Display currency switcher (USD/PKR, session-based)
+Route::post('/currency', [CurrencyController::class, 'switch'])->name('currency.switch');
+
+// Trust pages
+Route::view('/faq', 'pages.faq', [
+    'title' => 'FAQ - SketchUp Collection',
+    'metaDescription' => 'Frequently asked questions about SketchUp Collection bundles, downloads, licensing and payments.',
+])->name('faq');
+
+Route::view('/refund-policy', 'pages.refund-policy', [
+    'title' => 'Refund Policy - SketchUp Collection',
+    'metaDescription' => 'Our refund policy for digital downloads.',
+])->name('refund-policy');
 
 Route::view('/about', 'pages.about', [
     'title' => 'About Us - SketchUp Collection',
@@ -175,67 +209,97 @@ Route::view('/terms-of-service', 'pages.terms-of-service', [
     'metaDescription' => 'Rules and guidelines for using SketchUp Collection.',
 ])->name('terms-of-service');
 
-// New Admin Panel Routes (Development)
-Route::prefix('newadmin')->name('newadmin.')->group(function () {
+// Admin Panel Routes (Development)
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', function () {
+        return redirect()->route(auth()->check() ? 'admin.dashboard' : 'admin.login');
+    });
+
     // Login routes (guest middleware - only accessible when not logged in)
     Route::middleware('guest')->group(function () {
-        Route::get('/login', [NewAdminController::class, 'showLogin'])->name('login');
-        Route::post('/login', [NewAdminController::class, 'login']);
+        Route::get('/login', [AdminController::class, 'showLogin'])->name('login');
+        Route::post('/login', [AdminController::class, 'login']);
     });
 
     // Protected admin routes (auth middleware)
     Route::middleware('auth')->group(function () {
-        Route::post('/logout', [NewAdminController::class, 'logout'])->name('logout');
-        Route::get('/dashboard', [NewAdminController::class, 'dashboard'])->name('dashboard');
+        Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/analytics', [AdminAnalyticsController::class, 'index'])->name('analytics');
         
         // Posts routes
-        Route::resource('posts', NewAdminPostController::class);
+        Route::resource('posts', AdminPostController::class);
         
         // Categories routes
-        Route::get('/categories', [NewAdminCategoryController::class, 'index'])->name('categories.index');
-        Route::post('/categories', [NewAdminCategoryController::class, 'store'])->name('categories.store');
-        Route::put('/categories/{id}', [NewAdminCategoryController::class, 'update'])->name('categories.update');
-        Route::delete('/categories/{id}', [NewAdminCategoryController::class, 'destroy'])->name('categories.destroy');
+        Route::get('/categories', [AdminCategoryController::class, 'index'])->name('categories.index');
+        Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
+        Route::put('/categories/{id}', [AdminCategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{id}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
         
         // Tags routes
-        Route::get('/tags', [NewAdminTagController::class, 'index'])->name('tags.index');
-        Route::post('/tags', [NewAdminTagController::class, 'store'])->name('tags.store');
-        Route::put('/tags/{id}', [NewAdminTagController::class, 'update'])->name('tags.update');
-        Route::delete('/tags/{id}', [NewAdminTagController::class, 'destroy'])->name('tags.destroy');
+        Route::get('/tags', [AdminTagController::class, 'index'])->name('tags.index');
+        Route::post('/tags', [AdminTagController::class, 'store'])->name('tags.store');
+        Route::put('/tags/{id}', [AdminTagController::class, 'update'])->name('tags.update');
+        Route::delete('/tags/{id}', [AdminTagController::class, 'destroy'])->name('tags.destroy');
         
         // Media routes
-        Route::get('/media', [NewAdminMediaController::class, 'index'])->name('media.index');
-        Route::post('/media', [NewAdminMediaController::class, 'store'])->name('media.store');
-        Route::delete('/media/{id}', [NewAdminMediaController::class, 'destroy'])->name('media.destroy');
+        Route::get('/media', [AdminMediaController::class, 'index'])->name('media.index');
+        Route::post('/media', [AdminMediaController::class, 'store'])->name('media.store');
+        Route::delete('/media/{id}', [AdminMediaController::class, 'destroy'])->name('media.destroy');
         
         // Products routes
-        Route::resource('products', NewAdminProductController::class);
+        Route::resource('products', AdminProductController::class);
         
         // Product Categories routes
-        Route::resource('product-categories', NewAdminProductCategoryController::class);
+        Route::resource('product-categories', AdminProductCategoryController::class);
         
         // Users routes
-        Route::resource('users', NewAdminUserController::class);
+        Route::resource('users', AdminUserController::class);
         
         // Orders routes
-        Route::resource('orders', NewAdminOrderController::class);
+        Route::resource('orders', AdminOrderController::class);
         
         // Transactions routes
-        Route::resource('transactions', NewAdminTransactionController::class);
+        Route::resource('transactions', AdminTransactionController::class);
         
         // Coupons routes
-        Route::resource('coupons', NewAdminCouponController::class);
+        Route::resource('coupons', AdminCouponController::class);
         
         // Menus routes
-        Route::resource('menus', NewAdminMenuController::class);
+        Route::resource('menus', AdminMenuController::class);
         
         // Settings routes
-        Route::get('/settings', [NewAdminSettingController::class, 'index'])->name('settings.index');
-        Route::get('/settings/{key}/edit', [NewAdminSettingController::class, 'edit'])->name('settings.edit');
-        Route::put('/settings/{key}', [NewAdminSettingController::class, 'update'])->name('settings.update');
-        Route::post('/settings', [NewAdminSettingController::class, 'store'])->name('settings.store');
+        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
+        Route::get('/settings/{key}/edit', [AdminSettingController::class, 'edit'])->name('settings.edit');
+        Route::put('/settings/{key}', [AdminSettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings', [AdminSettingController::class, 'store'])->name('settings.store');
         
         // Custom Scripts routes
-        Route::resource('custom-scripts', NewAdminCustomScriptController::class);
+        Route::resource('custom-scripts', AdminCustomScriptController::class);
+
+        // Payment Gateways routes
+        Route::get('/payment-gateways', [AdminPaymentGatewayController::class, 'index'])->name('payment-gateways.index');
+        Route::get('/payment-gateways/{gateway}/edit', [AdminPaymentGatewayController::class, 'edit'])->name('payment-gateways.edit');
+        Route::put('/payment-gateways/{gateway}', [AdminPaymentGatewayController::class, 'update'])->name('payment-gateways.update');
+        Route::post('/payment-gateways/{gateway}/toggle', [AdminPaymentGatewayController::class, 'toggle'])->name('payment-gateways.toggle');
+        Route::post('/payment-gateways-rate', [AdminPaymentGatewayController::class, 'updateRate'])->name('payment-gateways.rate');
+
+        // Newsletter subscribers
+        Route::get('/newsletter', [AdminNewsletterController::class, 'index'])->name('newsletter.index');
+        Route::delete('/newsletter/{subscriber}', [AdminNewsletterController::class, 'destroy'])->name('newsletter.destroy');
+        Route::get('/newsletter/export', [AdminNewsletterController::class, 'export'])->name('newsletter.export');
+
+        // Blog comments moderation
+        Route::get('/comments', [AdminCommentController::class, 'index'])->name('comments.index');
+        Route::post('/comments/{comment}/approve', [AdminCommentController::class, 'approve'])->name('comments.approve');
+        Route::post('/comments/{comment}/spam', [AdminCommentController::class, 'spam'])->name('comments.spam');
+        Route::delete('/comments/{comment}', [AdminCommentController::class, 'destroy'])->name('comments.destroy');
+
+        // Redirect manager (SEO)
+        Route::resource('redirects', AdminRedirectController::class)->except(['show']);
     });
 });
+
+// Redirect fallback: check the redirects table before returning a 404.
+// Must be registered last.
+Route::fallback([RedirectController::class, 'handle']);

@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'must_set_password',
         'role',
         'stripe_customer_id',
         'stripe_payment_method_id',
@@ -56,6 +57,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'must_set_password' => 'boolean',
             'referral_earnings' => 'decimal:2',
         ];
     }

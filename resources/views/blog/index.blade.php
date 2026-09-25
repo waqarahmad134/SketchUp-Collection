@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@push('head')
+    <link rel="alternate" type="application/rss+xml" title="{{ config('app.name') }} Blog RSS" href="{{ route('blog.feed') }}">
+@endpush
+
 @section('content')
     <section class="py-24 bg-background relative overflow-hidden">
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-gradient-to-b from-violet-500/5 to-transparent rounded-full blur-3xl"></div>
@@ -15,6 +19,24 @@
                 <p class="text-xl text-muted-foreground max-w-2xl mx-auto">
                     Tips, tutorials, and insights about 3D design, SketchUp, and interior design trends.
                 </p>
+
+                {{-- Archive context (category / tag pages) --}}
+                @if(!empty($activeCategory) || !empty($activeTag))
+                    <nav aria-label="Breadcrumb" class="mt-6">
+                        <ol class="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                            <li><a href="{{ url('/') }}" class="hover:text-foreground transition">Home</a></li>
+                            <li aria-hidden="true">/</li>
+                            <li><a href="{{ url('/blog') }}" class="hover:text-foreground transition">Blog</a></li>
+                            <li aria-hidden="true">/</li>
+                            <li aria-current="page" class="text-foreground">
+                                {{ !empty($activeCategory) ? $activeCategory->name : 'Tag: ' . $activeTag->name }}
+                            </li>
+                        </ol>
+                    </nav>
+                    @if(!empty($activeCategory) && $activeCategory->description)
+                        <p class="text-muted-foreground max-w-2xl mx-auto mt-4">{{ $activeCategory->description }}</p>
+                    @endif
+                @endif
             </div>
 
             @if($posts->isEmpty())
@@ -34,6 +56,14 @@
                         </div>
                         
                         <div class="flex items-center gap-3 flex-wrap">
+                            <!-- Search -->
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="searchInput" value="{{ $filters['q'] ?? '' }}" placeholder="Search articles..."
+                                    class="px-3 py-1.5 rounded-lg bg-card border border-border focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/30 outline-none text-sm w-44 md:w-56" />
+                                <button id="searchBtn" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-400 text-sm font-medium hover:bg-cyan-500/30 transition">
+                                    Search
+                                </button>
+                            </div>
                             <!-- Sort -->
                             <div class="flex items-center gap-2">
                                 <label class="text-xs text-muted-foreground">Sort:</label>
@@ -97,7 +127,7 @@
                                 <div class="flex flex-col md:flex-row gap-6 p-6">
                                     <div class="relative overflow-hidden rounded-2xl flex-shrink-0 w-full md:w-64 h-48">
                                         @if($post->featured_image_url)
-                                            <img src="{{ $post->featured_image_url }}" alt="{{ $post->title }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                            <img src="{{ $post->featured_image_url }}" alt="{{ $post->featured_image_alt_text }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                                         @else
                                             <div class="w-full h-full bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
                                                 <i data-lucide="file-text" class="w-16 h-16 text-cyan-400/50"></i>
@@ -121,6 +151,9 @@
                                                         <i data-lucide="calendar" class="w-4 h-4"></i> {{ $post->published_at->format('M d, Y') }}
                                                     </span>
                                                 @endif
+                                                <span class="flex items-center gap-1">
+                                                    <i data-lucide="clock" class="w-4 h-4"></i> {{ $post->reading_time }} min
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-violet-500 text-background font-semibold shadow-lg hover:shadow-xl transition group/btn w-fit">
@@ -135,7 +168,7 @@
                             <a href="{{ url('/blog/' . $post->slug) }}" class="glass-card rounded-3xl overflow-hidden hover-lift group block animate-slide-in-up" style="animation-delay: {{ $index * 0.1 }}s">
                                 <div class="relative overflow-hidden">
                                     @if($post->featured_image_url)
-                                        <img src="{{ $post->featured_image_url }}" alt="{{ $post->title }}" class="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110">
+                                        <img src="{{ $post->featured_image_url }}" alt="{{ $post->featured_image_alt_text }}" class="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-110">
                                     @else
                                         <div class="w-full h-64 bg-gradient-to-br from-cyan-500/20 to-violet-500/20 flex items-center justify-center">
                                             <i data-lucide="file-text" class="w-16 h-16 text-cyan-400/50"></i>
@@ -241,6 +274,7 @@
             columns: '{{ $filters['columns'] ?? '3' }}',
             per_page: {{ $filters['per_page'] ?? 12 }},
             sort: '{{ $filters['sort'] ?? 'newest' }}',
+            q: @json($filters['q'] ?? ''),
         };
 
         // Apply initial view and columns
@@ -324,6 +358,21 @@
             });
         }
 
+        // Search
+        const searchInput = document.getElementById('searchInput');
+        const runSearch = () => {
+            initialState.q = searchInput.value.trim();
+            currentPage = 1;
+            loadPosts();
+        };
+        document.getElementById('searchBtn')?.addEventListener('click', runSearch);
+        searchInput?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                runSearch();
+            }
+        });
+
         // Filter event listeners
         document.getElementById('sortFilter')?.addEventListener('change', (e) => {
             initialState.sort = e.target.value;
@@ -348,6 +397,7 @@
                 page: currentPage,
                 per_page: initialState.per_page,
                 sort: initialState.sort,
+                q: initialState.q,
                 view: initialState.view,
                 columns: initialState.columns,
             });

@@ -30,6 +30,10 @@ return new class extends Migration
             
             // Schema.org JSON-LD
             $table->json('schema_markup')->nullable()->after('twitter_image');
+
+            // Extra SEO/media fields
+            $table->string('featured_image_alt')->nullable()->after('featured_image');
+            $table->string('focus_keyword')->nullable()->after('featured_image_alt');
         });
     }
 
@@ -49,6 +53,8 @@ return new class extends Migration
                 'twitter_description',
                 'twitter_image',
                 'schema_markup',
+                'featured_image_alt',
+                'focus_keyword',
             ]);
         });
     }
